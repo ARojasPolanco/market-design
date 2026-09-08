@@ -4,21 +4,22 @@ Marketplace donde diseñadores (estampadores, sublimadores, papelería) suben y 
 
 ## Stack
 
-| Capa | Tecnología |
-|------|------------|
-| Frontend | React + Vite + Tailwind CSS |
-| Backend | Node.js + Express + Sequelize |
-| Base de datos | PostgreSQL |
-| Storage | Cloudflare R2 |
-| Pagos | Mercado Pago Marketplace |
-| Email | Resend |
-| Procesamiento de imágenes | sharp |
-| Validación | Zod |
-| Tests | Vitest + Supertest |
+| Capa                      | Tecnología                    |
+| ------------------------- | ----------------------------- |
+| Frontend                  | React + Vite + Tailwind CSS   |
+| Backend                   | Node.js + Express + Sequelize |
+| Base de datos             | PostgreSQL                    |
+| Storage                   | Cloudflare R2                 |
+| Pagos                     | Mercado Pago Marketplace      |
+| Email                     | Resend                        |
+| Procesamiento de imágenes | sharp                         |
+| Validación                | Zod                           |
+| Tests                     | Vitest + Supertest            |
 
 ## Funcionalidades
 
 ### Vendedores
+
 - Registro y verificación de email
 - Carga de diseños con validación técnica automática (DPI, formato, peso)
 - Panel de ventas, ganancias y reputación
@@ -26,6 +27,7 @@ Marketplace donde diseñadores (estampadores, sublimadores, papelería) suben y 
 - Badges automáticos (verificado, top seller)
 
 ### Compradores
+
 - Catálogo con filtros, búsqueda y categorías
 - Compra segura con Mercado Pago
 - Entrega automática por email con link de descarga
@@ -33,6 +35,7 @@ Marketplace donde diseñadores (estampadores, sublimadores, papelería) suben y 
 - Ratings y favoritos
 
 ### Admin
+
 - Cola de moderación con checklist objetivo
 - Gestión de usuarios y denuncias
 - Reportes de ventas y comisiones
@@ -88,15 +91,15 @@ market-design/
 
 ## Scripts
 
-| Comando | Descripción |
-|---------|-------------|
-| `npm run dev:web` | Frontend en http://localhost:5173 |
-| `npm run dev` | Backend en http://localhost:3000 |
-| `npm run lint` | ESLint |
-| `npm run format` | Prettier |
-| `npm run test` | Tests con Vitest |
-| `npm run docker:up` | Levantar PostgreSQL |
-| `npm run docker:down` | Detener PostgreSQL |
+| Comando               | Descripción                       |
+| --------------------- | --------------------------------- |
+| `npm run dev:web`     | Frontend en http://localhost:5173 |
+| `npm run dev`         | Backend en http://localhost:3000  |
+| `npm run lint`        | ESLint                            |
+| `npm run format`      | Prettier                          |
+| `npm run test`        | Tests con Vitest                  |
+| `npm run docker:up`   | Levantar PostgreSQL               |
+| `npm run docker:down` | Detener PostgreSQL                |
 
 ## Roadmap
 

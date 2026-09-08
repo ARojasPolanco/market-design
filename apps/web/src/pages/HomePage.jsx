@@ -1,20 +1,28 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, TrendingUp, Star } from 'lucide-react';
+import { ArrowRight, TrendingUp, Star, Search } from 'lucide-react';
 import { useDesigns, useTrending, useFeatured } from '../hooks/useDesigns.js';
 import DesignCard from '../components/DesignCard.jsx';
+import { DesignGridSkeleton } from '../components/Skeletons.jsx';
 
 export default function HomePage() {
   const { categories } = useDesigns();
   const { designs: trending } = useTrending();
   const { designs: featured } = useFeatured();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 600);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div>
       {/* Hero */}
       <section className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
               Diseños digitales listos para imprimir
             </h1>
             <p className="text-lg text-indigo-100 mb-8">
@@ -24,8 +32,9 @@ export default function HomePage() {
             <div className="flex flex-wrap gap-4">
               <Link
                 to="/catalogo"
-                className="bg-white text-indigo-700 px-6 py-3 rounded-lg font-semibold hover:bg-indigo-50 transition-colors"
+                className="bg-white text-indigo-700 px-6 py-3 rounded-lg font-semibold hover:bg-indigo-50 transition-colors inline-flex items-center gap-2"
               >
+                <Search size={18} />
                 Explorar diseños
               </Link>
               <Link
@@ -47,9 +56,11 @@ export default function HomePage() {
             <Link
               key={cat.id}
               to={`/catalogo?category=${cat.id}`}
-              className="bg-gray-50 hover:bg-gray-100 rounded-xl p-4 text-center transition-colors"
+              className="bg-gray-50 hover:bg-indigo-50 rounded-xl p-4 text-center transition-colors group"
             >
-              <span className="text-sm font-medium text-gray-900">{cat.name}</span>
+              <span className="text-sm font-medium text-gray-900 group-hover:text-indigo-700">
+                {cat.name}
+              </span>
               <span className="block text-xs text-gray-500 mt-1">{cat.count} diseños</span>
             </Link>
           ))}
@@ -70,11 +81,15 @@ export default function HomePage() {
             Ver todo <ArrowRight size={16} />
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {trending.map((design) => (
-            <DesignCard key={design.id} design={design} />
-          ))}
-        </div>
+        {isLoading ? (
+          <DesignGridSkeleton count={4} />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {trending.map((design) => (
+              <DesignCard key={design.id} design={design} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Featured */}
@@ -92,11 +107,15 @@ export default function HomePage() {
               Ver todo <ArrowRight size={16} />
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featured.map((design) => (
-              <DesignCard key={design.id} design={design} />
-            ))}
-          </div>
+          {isLoading ? (
+            <DesignGridSkeleton count={4} />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featured.map((design) => (
+                <DesignCard key={design.id} design={design} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -104,7 +123,8 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">¿Sos diseñador?</h2>
         <p className="text-gray-600 mb-8 max-w-xl mx-auto">
-          Subí tus diseños y empezá a vender. Cobramos una comisión solo cuando vendés.
+          Subí tus diseños y empezá a vender. Cobramos una comisión solo cuando vendés. Sin
+          suscripciones, sin costos fijos.
         </p>
         <Link
           to="/registro"

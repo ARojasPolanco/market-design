@@ -1,31 +1,123 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Package } from 'lucide-react';
+import { Download, ChevronRight } from 'lucide-react';
+import { usePurchases } from '../hooks/useDesigns.js';
+import { useFavorites } from '../context/FavoritesContext.jsx';
+import { useDesigns } from '../hooks/useDesigns.js';
+import DesignCard from '../components/DesignCard.jsx';
+import { EmptyPurchases, EmptyFavorites } from '../components/EmptyStates.jsx';
 
 export default function BuyerDashboard() {
+  const [activeTab, setActiveTab] = useState('purchases');
+  const { purchases } = usePurchases();
+  const { favorites } = useFavorites();
+  const { designs: allDesigns } = useDesigns();
+  const favoriteDesigns = allDesigns.filter((d) => favorites.includes(d.id));
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">Mis compras</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-8">Mi cuenta</h1>
 
       {/* Tabs */}
-      <div className="flex gap-4 mb-8 border-b">
-        <button className="pb-3 border-b-2 border-indigo-600 text-indigo-600 font-medium">
-          Compras
+      <div className="flex gap-1 border-b mb-6">
+        <button
+          onClick={() => setActiveTab('purchases')}
+          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'purchases'
+              ? 'border-indigo-600 text-indigo-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Mis compras ({purchases.length})
         </button>
-        <button className="pb-3 text-gray-500 hover:text-gray-700">Favoritos</button>
+        <button
+          onClick={() => setActiveTab('favorites')}
+          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'favorites'
+              ? 'border-indigo-600 text-indigo-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Favoritos ({favorites.length})
+        </button>
       </div>
 
-      {/* Empty state */}
-      <div className="text-center py-20">
-        <Package size={48} className="mx-auto text-gray-300 mb-4" />
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">No tenés compras todavía</h2>
-        <p className="text-gray-500 mb-6">Explorá nuestro catálogo y encontrá el diseño perfecto</p>
-        <Link
-          to="/catalogo"
-          className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors inline-flex items-center gap-2"
-        >
-          Explorar diseños
-        </Link>
-      </div>
+      {/* Purchases tab */}
+      {activeTab === 'purchases' && (
+        <>
+          {purchases.length > 0 ? (
+            <div className="space-y-4">
+              {purchases.map((purchase) => (
+                <div key={purchase.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
+                  <div className="flex flex-col sm:flex-row">
+                    <div className="sm:w-32 sm:h-32 h-48 shrink-0">
+                      <img
+                        src={purchase.design.previewUrl}
+                        alt={purchase.design.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 p-4 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <Link
+                              to={`/diseno/${purchase.designId}`}
+                              className="font-semibold text-gray-900 hover:text-indigo-600"
+                            >
+                              {purchase.design.title}
+                            </Link>
+                            <p className="text-sm text-gray-500">{purchase.design.seller.name}</p>
+                          </div>
+                          <span className="text-lg font-bold text-gray-900">
+                            ${purchase.price.toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <span>
+                            Comprado el {new Date(purchase.createdAt).toLocaleDateString('es-AR')}
+                          </span>
+                          <span>·</span>
+                          <span>{purchase.downloadCount} descargas</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 mt-4">
+                        <button className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+                          <Download size={16} />
+                          Descargar
+                        </button>
+                        <Link
+                          to={`/diseno/${purchase.designId}`}
+                          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 text-sm"
+                        >
+                          Ver diseño <ChevronRight size={14} />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyPurchases />
+          )}
+        </>
+      )}
+
+      {/* Favorites tab */}
+      {activeTab === 'favorites' && (
+        <>
+          {favoriteDesigns.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {favoriteDesigns.map((design) => (
+                <DesignCard key={design.id} design={design} />
+              ))}
+            </div>
+          ) : (
+            <EmptyFavorites />
+          )}
+        </>
+      )}
     </div>
   );
 }
