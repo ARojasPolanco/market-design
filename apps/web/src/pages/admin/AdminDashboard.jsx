@@ -554,7 +554,7 @@ function ModerationCard({ design }) {
 
 function UsersSection() {
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
+  const [roleFilter, setRoleFilter] = useState('vendedor');
   const [page, setPage] = useState(1);
   const perPage = 5;
 
