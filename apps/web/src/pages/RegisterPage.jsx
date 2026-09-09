@@ -8,7 +8,9 @@ export default function RegisterPage() {
     fullname: '',
     email: '',
     password: '',
+    storeName: '',
   });
+  const [wantToSell, setWantToSell] = useState(false);
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const { showToast } = useToast();
@@ -21,7 +23,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await register(formData);
+      await register({ ...formData, role: wantToSell ? 'seller' : 'buyer' });
       showToast('Cuenta creada correctamente', { type: 'success' });
     } catch {
       showToast('Error al crear la cuenta', { type: 'error' });
@@ -48,6 +50,7 @@ export default function RegisterPage() {
                 name="fullname"
                 value={formData.fullname}
                 onChange={handleChange}
+                placeholder="Tu nombre real (no se muestra públicamente)"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
                 required
               />
@@ -76,6 +79,41 @@ export default function RegisterPage() {
               />
               <p className="text-xs text-gray-400 mt-1">Mínimo 8 caracteres</p>
             </div>
+
+            {/* Want to sell */}
+            <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+              <input
+                type="checkbox"
+                checked={wantToSell}
+                onChange={(e) => setWantToSell(e.target.checked)}
+                className="text-brand-teal focus:ring-brand-teal rounded"
+              />
+              <div>
+                <span className="text-sm font-medium text-gray-700">Quiero vender diseños</span>
+                <p className="text-xs text-gray-500">Podés activar esto después si preferís</p>
+              </div>
+            </label>
+
+            {/* Store name - only if want to sell */}
+            {wantToSell && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nombre de tu tienda
+                </label>
+                <input
+                  type="text"
+                  name="storeName"
+                  value={formData.storeName}
+                  onChange={handleChange}
+                  placeholder="Ej: Roxin Diseños, Arte Digital Juan..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Este es el nombre que van a ver los compradores. Podés cambiarlo después.
+                </p>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={loading}
