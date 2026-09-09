@@ -33,7 +33,7 @@ export default function DesignDetailPage() {
           onRetry={() => window.location.reload()}
         />
         <div className="text-center mt-4">
-          <Link to="/catalogo" className="text-indigo-600 hover:text-indigo-700">
+          <Link to="/catalogo" className="text-coral-400 hover:text-coral-500">
             Volver al catálogo
           </Link>
         </div>
@@ -78,7 +78,7 @@ export default function DesignDetailPage() {
         {/* Info */}
         <div>
           <div className="mb-4">
-            <span className="inline-block bg-indigo-50 text-indigo-700 text-xs font-medium px-2.5 py-1 rounded-full mb-2">
+            <span className="inline-block bg-coral-50 text-coral-500 text-xs font-medium px-2.5 py-1 rounded-full mb-2">
               {design.category}
             </span>
             <h1 className="text-3xl font-bold text-gray-900">{design.title}</h1>
@@ -116,7 +116,7 @@ export default function DesignDetailPage() {
           <div className="flex gap-4 mb-8">
             <Link
               to={`/checkout/${design.id}`}
-              className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 bg-coral-400 text-white py-3 px-6 rounded-lg font-semibold hover:bg-coral-500 transition-colors flex items-center justify-center gap-2"
             >
               <ShoppingCart size={18} />
               Comprar ahora

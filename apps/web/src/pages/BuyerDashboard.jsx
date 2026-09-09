@@ -24,7 +24,7 @@ export default function BuyerDashboard() {
           onClick={() => setActiveTab('purchases')}
           className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
             activeTab === 'purchases'
-              ? 'border-indigo-600 text-indigo-600'
+              ? 'border-coral-400 text-coral-400'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -34,7 +34,7 @@ export default function BuyerDashboard() {
           onClick={() => setActiveTab('favorites')}
           className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
             activeTab === 'favorites'
-              ? 'border-indigo-600 text-indigo-600'
+              ? 'border-coral-400 text-coral-400'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -63,7 +63,7 @@ export default function BuyerDashboard() {
                           <div>
                             <Link
                               to={`/diseno/${purchase.designId}`}
-                              className="font-semibold text-gray-900 hover:text-indigo-600"
+                              className="font-semibold text-gray-900 hover:text-coral-400"
                             >
                               {purchase.design.title}
                             </Link>
@@ -82,7 +82,7 @@ export default function BuyerDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3 mt-4">
-                        <button className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+                        <button className="flex items-center gap-2 bg-coral-400 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-coral-500 transition-colors">
                           <Download size={16} />
                           Descargar
                         </button>

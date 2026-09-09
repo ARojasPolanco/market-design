@@ -19,20 +19,20 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white">
+      <section className="bg-gradient-to-br from-coral-400 to-teal-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <div className="max-w-2xl">
             <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
               Diseños digitales listos para imprimir
             </h1>
-            <p className="text-lg text-indigo-100 mb-8">
+            <p className="text-lg text-coral-100 mb-8">
               Compra diseños originales de artistas independientes. Archivos en alta calidad para
               sublimación, estampado y papelería.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
                 to="/catalogo"
-                className="bg-white text-indigo-700 px-6 py-3 rounded-lg font-semibold hover:bg-indigo-50 transition-colors inline-flex items-center gap-2"
+                className="bg-white text-coral-500 px-6 py-3 rounded-lg font-semibold hover:bg-coral-50 transition-colors inline-flex items-center gap-2"
               >
                 <Search size={18} />
                 Explorar diseños
@@ -56,9 +56,9 @@ export default function HomePage() {
             <Link
               key={cat.id}
               to={`/catalogo?category=${cat.id}`}
-              className="bg-gray-50 hover:bg-indigo-50 rounded-xl p-4 text-center transition-colors group"
+              className="bg-gray-50 hover:bg-coral-50 rounded-xl p-4 text-center transition-colors group"
             >
-              <span className="text-sm font-medium text-gray-900 group-hover:text-indigo-700">
+              <span className="text-sm font-medium text-gray-900 group-hover:text-coral-500">
                 {cat.name}
               </span>
               <span className="block text-xs text-gray-500 mt-1">{cat.count} diseños</span>
@@ -76,7 +76,7 @@ export default function HomePage() {
           </div>
           <Link
             to="/catalogo?sort=trending"
-            className="text-indigo-600 hover:text-indigo-700 flex items-center gap-1 text-sm font-medium"
+            className="text-coral-400 hover:text-coral-500 flex items-center gap-1 text-sm font-medium"
           >
             Ver todo <ArrowRight size={16} />
           </Link>
@@ -102,7 +102,7 @@ export default function HomePage() {
             </div>
             <Link
               to="/catalogo?sort=rating"
-              className="text-indigo-600 hover:text-indigo-700 flex items-center gap-1 text-sm font-medium"
+              className="text-coral-400 hover:text-coral-500 flex items-center gap-1 text-sm font-medium"
             >
               Ver todo <ArrowRight size={16} />
             </Link>
@@ -128,7 +128,7 @@ export default function HomePage() {
         </p>
         <Link
           to="/registro"
-          className="bg-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors inline-flex items-center gap-2"
+          className="bg-coral-400 text-white px-8 py-3 rounded-lg font-semibold hover:bg-coral-500 transition-colors inline-flex items-center gap-2"
         >
           Comenzar a vender <ArrowRight size={18} />
         </Link>

@@ -28,7 +28,7 @@ export default function Navbar() {
               <input
                 type="text"
                 placeholder="Buscar diseños..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -61,7 +61,7 @@ export default function Navbar() {
             ) : (
               <Link
                 to="/login"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700"
+                className="bg-coral-400 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-coral-500"
               >
                 Ingresar
               </Link>
@@ -86,7 +86,7 @@ export default function Navbar() {
                 <input
                   type="text"
                   placeholder="Buscar diseños..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
                 />
               </div>
             </div>
@@ -109,7 +109,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   to="/login"
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium text-center hover:bg-indigo-700"
+                  className="bg-coral-400 text-white px-4 py-2 rounded-lg text-sm font-medium text-center hover:bg-coral-500"
                 >
                   Ingresar
                 </Link>

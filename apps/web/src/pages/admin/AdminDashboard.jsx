@@ -195,8 +195,8 @@ export default function AdminDashboard() {
         </div>
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <BarChart3 size={20} className="text-purple-600" />
+            <div className="p-2 bg-teal-100 rounded-lg">
+              <BarChart3 size={20} className="text-teal-600" />
             </div>
             <span className="text-sm text-gray-500">Comisiones</span>
           </div>
@@ -224,7 +224,7 @@ export default function AdminDashboard() {
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               activeTab === tab.id
-                ? 'border-indigo-600 text-indigo-600'
+                ? 'border-coral-400 text-coral-400'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
@@ -267,7 +267,7 @@ export default function AdminDashboard() {
               <input
                 type="number"
                 defaultValue={20}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
               />
             </div>
             <div>
@@ -277,7 +277,7 @@ export default function AdminDashboard() {
               <input
                 type="number"
                 defaultValue={18}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
               />
             </div>
             <div>
@@ -287,7 +287,7 @@ export default function AdminDashboard() {
               <input
                 type="number"
                 defaultValue={15}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
               />
             </div>
             <div>
@@ -297,7 +297,7 @@ export default function AdminDashboard() {
               <input
                 type="number"
                 defaultValue={150}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
               />
             </div>
             <div>
@@ -310,14 +310,14 @@ export default function AdminDashboard() {
                     <input
                       type="checkbox"
                       defaultChecked={['PDF', 'PNG', 'ZIP'].includes(format)}
-                      className="text-indigo-600 focus:ring-indigo-500 rounded"
+                      className="text-coral-400 focus:ring-coral-500 rounded"
                     />
                     <span className="text-sm text-gray-600">{format}</span>
                   </label>
                 ))}
               </div>
             </div>
-            <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+            <button className="bg-coral-400 text-white px-6 py-2 rounded-lg font-medium hover:bg-coral-500 transition-colors">
               Guardar configuración
             </button>
           </div>
@@ -380,7 +380,7 @@ function ModerationCard({ design }) {
                   <h3 className="font-medium text-gray-900">{design.title}</h3>
                   <Link
                     to={`/diseno/${design.id}`}
-                    className="text-indigo-600 hover:text-indigo-700"
+                    className="text-coral-400 hover:text-coral-500"
                     title="Ver diseño completo"
                   >
                     <ExternalLink size={14} />
@@ -397,8 +397,8 @@ function ModerationCard({ design }) {
             <p className="text-sm text-gray-600 mb-3 line-clamp-2">{design.description}</p>
 
             {/* Category assignment */}
-            <div className="bg-indigo-50 rounded-lg p-3 mb-3">
-              <p className="text-xs font-medium text-indigo-700 mb-2">
+            <div className="bg-coral-50 rounded-lg p-3 mb-3">
+              <p className="text-xs font-medium text-coral-500 mb-2">
                 Categoría sugerida por el vendedor:{' '}
                 <span className="font-bold">{design.category}</span>
               </p>
@@ -414,7 +414,7 @@ function ModerationCard({ design }) {
                       setAssignedCategory(e.target.value);
                     }
                   }}
-                  className="flex-1 px-3 py-1.5 text-sm border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                  className="flex-1 px-3 py-1.5 text-sm border border-coral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500 bg-white"
                 >
                   <option value="">Asignar categoría existente</option>
                   {categories.map((cat) => (
@@ -430,7 +430,7 @@ function ModerationCard({ design }) {
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
                     placeholder="Nueva categoría..."
-                    className="flex-1 px-3 py-1.5 text-sm border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="flex-1 px-3 py-1.5 text-sm border border-coral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
                   />
                 )}
               </div>
@@ -439,7 +439,7 @@ function ModerationCard({ design }) {
             {/* Checklist */}
             <button
               onClick={() => setShowChecklist(!showChecklist)}
-              className="text-sm text-indigo-600 hover:text-indigo-700 mb-3"
+              className="text-sm text-coral-400 hover:text-coral-500 mb-3"
             >
               {showChecklist ? 'Ocultar checklist' : 'Mostrar checklist de moderación'}
             </button>
@@ -455,7 +455,7 @@ function ModerationCard({ design }) {
                   <label key={i} className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
-                      className="text-indigo-600 focus:ring-indigo-500 rounded"
+                      className="text-coral-400 focus:ring-coral-500 rounded"
                     />
                     <span className="text-gray-600">{item}</span>
                   </label>
@@ -520,7 +520,7 @@ function ModerationCard({ design }) {
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="Explicá por qué se rechaza este diseño. Este mensaje se enviará al vendedor."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500 resize-none"
                 rows={4}
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -584,7 +584,7 @@ function UsersSection() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+            className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500 text-sm"
           />
         </div>
         <select
@@ -593,7 +593,7 @@ function UsersSection() {
             setRoleFilter(e.target.value);
             setPage(1);
           }}
-          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500 text-sm"
         >
           <option value="all">Todos los roles</option>
           <option value="vendedor">Vendedores</option>
@@ -635,7 +635,7 @@ function UsersSection() {
                     <span
                       className={`text-xs px-2 py-1 rounded-full ${
                         user.role === 'Vendedor'
-                          ? 'bg-indigo-50 text-indigo-700'
+                          ? 'bg-coral-50 text-coral-500'
                           : 'bg-gray-100 text-gray-700'
                       }`}
                     >
@@ -660,7 +660,7 @@ function UsersSection() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="text-sm text-indigo-600 hover:text-indigo-700">
+                    <button className="text-sm text-coral-400 hover:text-coral-500">
                       Ver detalle
                     </button>
                   </td>
@@ -689,7 +689,7 @@ function UsersSection() {
                   key={p}
                   onClick={() => setPage(p)}
                   className={`w-8 h-8 rounded-lg text-sm font-medium ${
-                    p === page ? 'bg-indigo-600 text-white' : 'hover:bg-gray-200 text-gray-700'
+                    p === page ? 'bg-coral-400 text-white' : 'hover:bg-gray-200 text-gray-700'
                   }`}
                 >
                   {p}
@@ -728,7 +728,7 @@ function ReportsSection() {
             onClick={() => setFilter(f.id)}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
               filter === f.id
-                ? 'bg-indigo-600 text-white'
+                ? 'bg-coral-400 text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
@@ -762,7 +762,7 @@ function ReportsSection() {
                       <h3 className="font-medium text-gray-900">{report.designTitle}</h3>
                       <Link
                         to={`/diseno/${report.designId}`}
-                        className="text-indigo-600 hover:text-indigo-700"
+                        className="text-coral-400 hover:text-coral-500"
                         title="Ver diseño"
                       >
                         <ExternalLink size={14} />
@@ -854,12 +854,12 @@ function CategoriesSection() {
           onChange={(e) => setNewCategoryName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
           placeholder="Nueva categoría..."
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
         />
         <button
           onClick={handleAdd}
           disabled={!newCategoryName.trim()}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-coral-400 text-white px-4 py-2 rounded-lg font-medium hover:bg-coral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Agregar
         </button>
@@ -882,7 +882,7 @@ function CategoriesSection() {
                     if (e.key === 'Enter') handleSaveEdit(cat);
                     if (e.key === 'Escape') handleCancelEdit();
                   }}
-                  className="flex-1 px-3 py-1 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                  className="flex-1 px-3 py-1 border border-coral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500 text-sm"
                   autoFocus
                 />
                 <button
@@ -901,13 +901,13 @@ function CategoriesSection() {
             ) : (
               <>
                 <div className="flex items-center gap-3">
-                  <Tag size={16} className="text-indigo-500" />
+                  <Tag size={16} className="text-coral-500" />
                   <span className="text-sm font-medium text-gray-900">{cat}</span>
                 </div>
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => handleStartEdit(i, cat)}
-                    className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    className="p-1.5 text-gray-500 hover:text-coral-400 hover:bg-coral-50 rounded-lg transition-colors"
                     title="Editar"
                   >
                     <Pencil size={14} />

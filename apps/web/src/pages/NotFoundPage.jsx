@@ -11,7 +11,7 @@ export default function NotFoundPage() {
         <div className="flex justify-center gap-4">
           <Link
             to="/"
-            className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center gap-2"
+            className="bg-coral-400 text-white px-6 py-3 rounded-lg font-semibold hover:bg-coral-500 transition-colors flex items-center gap-2"
           >
             <Home size={18} />
             Ir al inicio

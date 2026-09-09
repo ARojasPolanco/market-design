@@ -10,7 +10,7 @@ export default function CheckoutPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Diseño no encontrado</h2>
-        <Link to="/catalogo" className="text-indigo-600 hover:text-indigo-700">
+        <Link to="/catalogo" className="text-coral-400 hover:text-coral-500">
           Volver al catálogo
         </Link>
       </div>
@@ -62,7 +62,7 @@ export default function CheckoutPage() {
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="font-semibold text-gray-900 mb-4">Método de pago</h2>
           <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg mb-4">
-            <CreditCard size={24} className="text-indigo-600" />
+            <CreditCard size={24} className="text-coral-400" />
             <div>
               <p className="font-medium text-gray-900">Mercado Pago</p>
               <p className="text-sm text-gray-500">Tarjeta, débito, efectivo</p>
@@ -72,7 +72,7 @@ export default function CheckoutPage() {
             <Shield size={16} />
             <span>Pago seguro con encriptación SSL</span>
           </div>
-          <button className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+          <button className="w-full bg-coral-400 text-white py-3 rounded-lg font-semibold hover:bg-coral-500 transition-colors">
             Pagar con Mercado Pago
           </button>
         </div>

@@ -33,7 +33,7 @@ export default function SellerDashboard() {
         <h1 className="text-2xl font-bold text-gray-900">Panel del vendedor</h1>
         <Link
           to="/vendedor/panel/subir"
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2"
+          className="bg-coral-400 text-white px-4 py-2 rounded-lg font-medium hover:bg-coral-500 transition-colors flex items-center gap-2"
         >
           <Upload size={18} />
           Subir diseño
@@ -76,8 +76,8 @@ export default function SellerDashboard() {
         </div>
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <TrendingUp size={20} className="text-purple-600" />
+            <div className="p-2 bg-teal-100 rounded-lg">
+              <TrendingUp size={20} className="text-teal-600" />
             </div>
             <span className="text-sm text-gray-500">Comisión</span>
           </div>
@@ -102,7 +102,7 @@ export default function SellerDashboard() {
             onClick={() => setActiveTab(tab.id)}
             className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
               activeTab === tab.id
-                ? 'border-indigo-600 text-indigo-600'
+                ? 'border-coral-400 text-coral-400'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
@@ -120,7 +120,7 @@ export default function SellerDashboard() {
               <h2 className="font-semibold text-gray-900">Ventas recientes</h2>
               <button
                 onClick={() => setActiveTab('sales')}
-                className="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                className="text-sm text-coral-400 hover:text-coral-500 flex items-center gap-1"
               >
                 Ver todas <ChevronRight size={14} />
               </button>
@@ -167,7 +167,7 @@ export default function SellerDashboard() {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className="bg-indigo-600 h-2 rounded-full transition-all"
+                    className="bg-coral-400 h-2 rounded-full transition-all"
                     style={{
                       width: `${Math.min((stats.totalSales / stats.nextLevel.salesNeeded) * 100, 100)}%`,
                     }}
@@ -177,7 +177,7 @@ export default function SellerDashboard() {
               <div className="bg-gray-50 rounded-lg p-4">
                 <p className="text-sm text-gray-600">
                   Te faltan{' '}
-                  <span className="font-medium text-indigo-600">
+                  <span className="font-medium text-coral-400">
                     {stats.nextLevel.salesNeeded - stats.totalSales} ventas
                   </span>{' '}
                   para bajar tu comisión a{' '}
@@ -287,7 +287,7 @@ export default function SellerDashboard() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <button className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+                  <button className="text-sm text-coral-400 hover:text-coral-500 font-medium">
                     Editar y reenviar
                   </button>
                   <span className="text-gray-300">|</span>

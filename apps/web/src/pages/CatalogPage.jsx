@@ -66,7 +66,7 @@ export default function CatalogPage() {
             <select
               value={filters.sort}
               onChange={(e) => updateFilter('sort', e.target.value)}
-              className="appearance-none bg-white border border-gray-300 rounded-lg pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+              className="appearance-none bg-white border border-gray-300 rounded-lg pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-500 cursor-pointer"
             >
               <option value="recent">Más recientes</option>
               <option value="popular">Más vendidos</option>
@@ -84,14 +84,14 @@ export default function CatalogPage() {
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 border rounded-lg px-3 py-2 text-sm transition-colors ${
               showFilters
-                ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
+                ? 'bg-coral-50 border-coral-300 text-coral-500'
                 : 'border-gray-300 hover:bg-gray-50'
             }`}
           >
             <SlidersHorizontal size={16} />
             <span className="hidden sm:inline">Filtros</span>
             {activeFilterCount > 0 && (
-              <span className="bg-indigo-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="bg-coral-400 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {activeFilterCount}
               </span>
             )}
@@ -103,22 +103,22 @@ export default function CatalogPage() {
       {hasActiveFilters && (
         <div className="flex flex-wrap gap-2 mb-4">
           {filters.category && (
-            <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 text-sm px-3 py-1 rounded-full">
+            <span className="inline-flex items-center gap-1 bg-coral-50 text-coral-500 text-sm px-3 py-1 rounded-full">
               {categories.find((c) => c.id === filters.category)?.name}
               <button
                 onClick={() => updateFilter('category', '')}
-                className="hover:text-indigo-900"
+                className="hover:text-coral-700"
               >
                 <X size={14} />
               </button>
             </span>
           )}
           {filters.technique && (
-            <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 text-sm px-3 py-1 rounded-full">
+            <span className="inline-flex items-center gap-1 bg-coral-50 text-coral-500 text-sm px-3 py-1 rounded-full">
               {techniques.find((t) => t.id === filters.technique)?.name}
               <button
                 onClick={() => updateFilter('technique', '')}
-                className="hover:text-indigo-900"
+                className="hover:text-coral-700"
               >
                 <X size={14} />
               </button>
@@ -143,7 +143,7 @@ export default function CatalogPage() {
                 {hasActiveFilters && (
                   <button
                     onClick={clearFilters}
-                    className="text-sm text-indigo-600 hover:text-indigo-700"
+                    className="text-sm text-coral-400 hover:text-coral-500"
                   >
                     Limpiar
                   </button>
@@ -163,7 +163,7 @@ export default function CatalogPage() {
                         onChange={() =>
                           updateFilter('category', filters.category === cat.id ? '' : cat.id)
                         }
-                        className="text-indigo-600 focus:ring-indigo-500"
+                        className="text-coral-400 focus:ring-coral-500"
                       />
                       <span className="text-sm text-gray-600 group-hover:text-gray-900">
                         {cat.name}
@@ -187,7 +187,7 @@ export default function CatalogPage() {
                         onChange={() =>
                           updateFilter('technique', filters.technique === tech.id ? '' : tech.id)
                         }
-                        className="text-indigo-600 focus:ring-indigo-500"
+                        className="text-coral-400 focus:ring-coral-500"
                       />
                       <span className="text-sm text-gray-600 group-hover:text-gray-900">
                         {tech.name}
@@ -208,7 +208,7 @@ export default function CatalogPage() {
                     onChange={(e) =>
                       updateFilter('priceMin', e.target.value ? Number(e.target.value) : '')
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-coral-500"
                   />
                   <input
                     type="number"
@@ -217,7 +217,7 @@ export default function CatalogPage() {
                     onChange={(e) =>
                       updateFilter('priceMax', e.target.value ? Number(e.target.value) : '')
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-coral-500"
                   />
                 </div>
               </div>

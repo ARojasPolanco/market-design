@@ -19,7 +19,7 @@ export function EmptyState({
       {actionLabel && actionTo && (
         <Link
           to={actionTo}
-          className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+          className="inline-flex items-center gap-2 bg-coral-400 text-white px-6 py-3 rounded-lg font-medium hover:bg-coral-500 transition-colors"
         >
           {actionLabel}
         </Link>
@@ -27,7 +27,7 @@ export function EmptyState({
       {actionLabel && onAction && (
         <button
           onClick={onAction}
-          className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+          className="inline-flex items-center gap-2 bg-coral-400 text-white px-6 py-3 rounded-lg font-medium hover:bg-coral-500 transition-colors"
         >
           {actionLabel}
         </button>

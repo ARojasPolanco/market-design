@@ -40,7 +40,7 @@ const cards = [
   {
     icon: Clock,
     title: 'Tiempo de moderación',
-    color: 'bg-purple-100 text-purple-600',
+    color: 'bg-teal-100 text-teal-600',
     items: [
       'Revisión en 24-48 horas hábiles',
       'Te notificamos por email si es aprobado o rechazado',
@@ -81,9 +81,9 @@ export default function OnboardingCards({ onComplete }) {
               key={i}
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 i === current
-                  ? 'w-8 bg-indigo-600'
+                  ? 'w-8 bg-coral-400'
                   : i < current
-                    ? 'w-4 bg-indigo-300'
+                    ? 'w-4 bg-coral-300'
                     : 'w-4 bg-gray-200'
               }`}
             />
@@ -112,7 +112,7 @@ export default function OnboardingCards({ onComplete }) {
           {/* Next button */}
           <button
             onClick={handleNext}
-            className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-coral-400 text-white py-3 rounded-lg font-semibold hover:bg-coral-500 transition-colors flex items-center justify-center gap-2"
           >
             {current < cards.length - 1 ? (
               <>

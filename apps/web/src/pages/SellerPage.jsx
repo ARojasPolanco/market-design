@@ -14,7 +14,7 @@ export default function SellerPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Vendedor no encontrado</h2>
-        <Link to="/catalogo" className="text-indigo-600 hover:text-indigo-700">
+        <Link to="/catalogo" className="text-coral-400 hover:text-coral-500">
           Volver al catálogo
         </Link>
       </div>

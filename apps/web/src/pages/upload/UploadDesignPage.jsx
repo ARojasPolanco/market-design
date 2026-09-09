@@ -133,7 +133,7 @@ export default function UploadDesignPage() {
               }}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 currentStep === step.num
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-coral-400 text-white'
                   : currentStep > step.num
                     ? 'bg-green-100 text-green-700 cursor-pointer'
                     : 'bg-gray-100 text-gray-400'
@@ -172,7 +172,7 @@ export default function UploadDesignPage() {
                     ? 'border-green-300 bg-green-50'
                     : designFileError
                       ? 'border-red-300 bg-red-50'
-                      : 'border-gray-300 hover:border-indigo-400 hover:bg-indigo-50'
+                      : 'border-gray-300 hover:border-coral-400 hover:bg-coral-50'
                 }`}
               >
                 {designFile ? (
@@ -194,7 +194,7 @@ export default function UploadDesignPage() {
                     <Upload size={48} className="mx-auto text-gray-400 mb-3" />
                     <p className="font-medium text-gray-900 mb-1">
                       Arrastrá tu archivo acá o{' '}
-                      <label className="text-indigo-600 cursor-pointer hover:underline">
+                      <label className="text-coral-400 cursor-pointer hover:underline">
                         seleccioná uno
                         <input type="file" className="hidden" onChange={handleDesignFileDrop} />
                       </label>
@@ -245,7 +245,7 @@ export default function UploadDesignPage() {
                     ? 'border-green-300 bg-green-50'
                     : previewError
                       ? 'border-red-300 bg-red-50'
-                      : 'border-gray-300 hover:border-indigo-400 hover:bg-indigo-50'
+                      : 'border-gray-300 hover:border-coral-400 hover:bg-coral-50'
                 }`}
               >
                 {previewFile ? (
@@ -271,7 +271,7 @@ export default function UploadDesignPage() {
                     <Image size={48} className="mx-auto text-gray-400 mb-3" />
                     <p className="font-medium text-gray-900 mb-1">
                       Arrastrá tu preview acá o{' '}
-                      <label className="text-indigo-600 cursor-pointer hover:underline">
+                      <label className="text-coral-400 cursor-pointer hover:underline">
                         seleccioná una imagen
                         <input
                           type="file"
@@ -331,7 +331,7 @@ export default function UploadDesignPage() {
                     onChange={(e) => updateForm('title', e.target.value)}
                     placeholder="Ej: Mandala Tribal Geométrico"
                     maxLength={100}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
                   />
                   <p className="text-xs text-gray-400 mt-1">
                     {formData.title.length}/100 caracteres
@@ -349,7 +349,7 @@ export default function UploadDesignPage() {
                     placeholder="Describí qué incluye el archivo, para qué sirve, técnicas recomendadas..."
                     maxLength={1000}
                     rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500 resize-none"
                   />
                   <p className="text-xs text-gray-400 mt-1">
                     {formData.description.length}/1000 caracteres
@@ -369,7 +369,7 @@ export default function UploadDesignPage() {
                       onChange={(e) => updateForm('category', e.target.value)}
                       placeholder="Ej: Sublimado, Infantil, Papelería..."
                       maxLength={50}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
                     />
                     <datalist id="category-suggestions">
                       {categories.map((cat) => (
@@ -387,7 +387,7 @@ export default function UploadDesignPage() {
                     <select
                       value={formData.technique}
                       onChange={(e) => updateForm('technique', e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
                     >
                       <option value="">Seleccionar</option>
                       {TECHNIQUES.map((tech) => (
@@ -414,7 +414,7 @@ export default function UploadDesignPage() {
                       onChange={(e) => updateForm('price', e.target.value)}
                       placeholder="2000"
                       min="1"
-                      className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
                     />
                   </div>
                   {formData.price > 0 && (
@@ -484,7 +484,7 @@ export default function UploadDesignPage() {
                   type="checkbox"
                   checked={formData.declaration}
                   onChange={(e) => updateForm('declaration', e.target.checked)}
-                  className="mt-1 text-indigo-600 focus:ring-indigo-500 rounded"
+                  className="mt-1 text-coral-400 focus:ring-coral-500 rounded"
                 />
                 <span className="text-sm text-gray-700">
                   Declaro que este diseño es de mi autoría o tengo los derechos para venderlo.
@@ -496,7 +496,7 @@ export default function UploadDesignPage() {
               <button
                 onClick={handleSubmit}
                 disabled={!canProceedStep4 || isSubmitting}
-                className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-coral-400 text-white py-3 rounded-lg font-semibold hover:bg-coral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>
@@ -533,7 +533,7 @@ export default function UploadDesignPage() {
                   (currentStep === 2 && !canProceedStep2) ||
                   (currentStep === 3 && !canProceedStep3)
                 }
-                className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 bg-coral-400 text-white px-6 py-2 rounded-lg font-medium hover:bg-coral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Siguiente <ArrowRight size={18} />
               </button>
