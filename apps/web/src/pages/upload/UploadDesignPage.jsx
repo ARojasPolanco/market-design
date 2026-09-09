@@ -14,6 +14,7 @@ import {
 import OnboardingCards, { shouldShowOnboarding } from '../../components/OnboardingCards.jsx';
 import DesignPreviewCard from '../../components/DesignPreviewCard.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
+import { useCategories } from '../../hooks/useCategories.js';
 
 const TECHNIQUES = [
   { id: 'sublimado', name: 'Sublimado' },
@@ -28,6 +29,7 @@ const MIN_FILE_SIZE = 1024; // 1KB
 export default function UploadDesignPage() {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { categories } = useCategories();
   const [showOnboarding, setShowOnboarding] = useState(shouldShowOnboarding());
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -362,14 +364,20 @@ export default function UploadDesignPage() {
                     </label>
                     <input
                       type="text"
+                      list="category-suggestions"
                       value={formData.category}
                       onChange={(e) => updateForm('category', e.target.value)}
                       placeholder="Ej: Sublimado, Infantil, Papelería..."
                       maxLength={50}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
+                    <datalist id="category-suggestions">
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat} />
+                      ))}
+                    </datalist>
                     <p className="text-xs text-gray-500 mt-1">
-                      Sugerí una categoría. El admin la revisará antes de publicar.
+                      Elegí una existente o escribí una nueva. El admin la revisará.
                     </p>
                   </div>
                   <div>

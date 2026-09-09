@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import { useAdminStats, usePendingDesigns } from '../../hooks/useDesigns.js';
+import { useCategories } from '../../hooks/useCategories.js';
 
 const MOCK_USERS = [
   {
@@ -322,16 +323,8 @@ export default function AdminDashboard() {
   );
 }
 
-const EXISTING_CATEGORIES = [
-  'Sublimado',
-  'Estampado',
-  'Papelería',
-  'Infantil',
-  'Deportivo',
-  'Religioso',
-];
-
 function ModerationCard({ design }) {
+  const { categories, addCategory } = useCategories();
   const [showChecklist, setShowChecklist] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
@@ -341,9 +334,8 @@ function ModerationCard({ design }) {
   const [isCustomCategory, setIsCustomCategory] = useState(false);
 
   const handleApprove = () => {
-    const finalCategory = isCustomCategory ? newCategory : assignedCategory;
-    if (!finalCategory && design.category) {
-      // Use suggested category if no assignment made
+    if (isCustomCategory && newCategory.trim()) {
+      addCategory(newCategory.trim());
     }
     setShowSuccess('approved');
     setTimeout(() => setShowSuccess(null), 3000);
@@ -418,7 +410,7 @@ function ModerationCard({ design }) {
                   className="flex-1 px-3 py-1.5 text-sm border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
                 >
                   <option value="">Asignar categoría existente</option>
-                  {EXISTING_CATEGORIES.map((cat) => (
+                  {categories.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
                     </option>
