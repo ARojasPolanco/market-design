@@ -63,11 +63,13 @@ export default function HomePage() {
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative">
           <div className="text-center max-w-3xl mx-auto">
-            <img
-              src="/logoSolo.png"
-              alt="Market Design"
-              className="h-20 md:h-28 mx-auto mb-6"
-            />
+            <div className="inline-block bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-8">
+              <img
+                src="/marketDesignLogo.png"
+                alt="Market Design"
+                className="h-20 md:h-28 mx-auto"
+              />
+            </div>
             <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
               Diseños digitales listos para imprimir
             </h1>
