@@ -30,6 +30,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 45,
     sales: 523,
+    isDiamante: true,
   },
   {
     id: 2,
@@ -39,6 +40,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 28,
     sales: 215,
+    isDiamante: true,
   },
   {
     id: 3,
@@ -48,6 +50,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 0,
     sales: 12,
+    isDiamante: false,
   },
   {
     id: 4,
@@ -57,6 +60,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 72,
     sales: 890,
+    isDiamante: true,
   },
   {
     id: 5,
@@ -66,6 +70,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 53,
     sales: 340,
+    isDiamante: false,
   },
   {
     id: 6,
@@ -660,9 +665,23 @@ function UsersSection() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="text-sm text-coral-400 hover:text-coral-500">
-                      Ver detalle
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      {user.role === 'Vendedor' && (
+                        <button
+                          className={`text-xs px-2 py-1 rounded-full font-medium transition-colors ${
+                            user.isDiamante
+                              ? 'bg-brand-teal/10 text-brand-teal hover:bg-brand-teal/20'
+                              : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                          }`}
+                          title={user.isDiamante ? 'Quitar rango Diamante' : 'Asignar rango Diamante'}
+                        >
+                          💎 {user.isDiamante ? 'Diamante' : '—'}
+                        </button>
+                      )}
+                      <button className="text-sm text-brand-teal hover:text-brand-teal-dark">
+                        Ver detalle
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

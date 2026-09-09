@@ -12,6 +12,7 @@ import SellerDashboard from './pages/SellerDashboard.jsx';
 import BuyerDashboard from './pages/BuyerDashboard.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import UploadDesignPage from './pages/upload/UploadDesignPage.jsx';
+import RankDemoPage from './pages/RankDemoPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
           <Route path="/vendedor/panel/subir" element={<UploadDesignPage />} />
           <Route path="/comprador/panel" element={<BuyerDashboard />} />
           <Route path="/admin/*" element={<AdminDashboard />} />
+          <Route path="/demo/rangos" element={<RankDemoPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
