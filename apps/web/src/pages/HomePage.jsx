@@ -1,9 +1,45 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, TrendingUp, Star, Search } from 'lucide-react';
+import {
+  ArrowRight,
+  TrendingUp,
+  Star,
+  Search,
+  Shield,
+  DollarSign,
+  Users,
+  Monitor,
+} from 'lucide-react';
 import { useDesigns, useTrending, useFeatured } from '../hooks/useDesigns.js';
 import DesignCard from '../components/DesignCard.jsx';
 import { DesignGridSkeleton } from '../components/Skeletons.jsx';
+
+const FEATURES = [
+  {
+    icon: Monitor,
+    title: 'Diseños digitales de calidad',
+    color: 'text-brand-violet',
+    bg: 'bg-brand-violet/10',
+  },
+  {
+    icon: Shield,
+    title: 'Compra segura y confiable',
+    color: 'text-brand-teal',
+    bg: 'bg-brand-teal/10',
+  },
+  {
+    icon: DollarSign,
+    title: 'Comisiones en descenso',
+    color: 'text-brand-rose',
+    bg: 'bg-brand-rose/10',
+  },
+  {
+    icon: Users,
+    title: 'Para diseñadores y emprendedores',
+    color: 'text-brand-orange',
+    bg: 'bg-brand-orange/10',
+  },
+];
 
 export default function HomePage() {
   const { categories } = useDesigns();
@@ -19,27 +55,37 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-coral-400 to-teal-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-          <div className="max-w-2xl">
+      <section className="bg-dark text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-brand-teal rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-brand-violet rounded-full blur-3xl" />
+          <div className="absolute top-40 right-1/3 w-64 h-64 bg-brand-rose rounded-full blur-3xl" />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative">
+          <div className="text-center max-w-3xl mx-auto">
+            <img
+              src="/logoSolo.png"
+              alt="Market Design"
+              className="h-20 md:h-28 mx-auto mb-6"
+            />
             <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
               Diseños digitales listos para imprimir
             </h1>
-            <p className="text-lg text-coral-100 mb-8">
+            <p className="text-lg text-gray-300 mb-8">
               Compra diseños originales de artistas independientes. Archivos en alta calidad para
               sublimación, estampado y papelería.
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 justify-center">
               <Link
                 to="/catalogo"
-                className="bg-white text-coral-500 px-6 py-3 rounded-lg font-semibold hover:bg-coral-50 transition-colors inline-flex items-center gap-2"
+                className="bg-brand-teal text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-teal-dark transition-colors inline-flex items-center gap-2"
               >
                 <Search size={18} />
                 Explorar diseños
               </Link>
               <Link
                 to="/registro"
-                className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors"
+                className="border-2 border-brand-orange text-brand-orange px-6 py-3 rounded-lg font-semibold hover:bg-brand-orange/10 transition-colors"
               >
                 Vender diseños
               </Link>
@@ -48,17 +94,41 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Features */}
+      <section className="border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            {FEATURES.map((feature) => (
+              <div key={feature.title} className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${feature.bg}`}>
+                  <feature.icon size={20} className={feature.color} />
+                </div>
+                <span className="text-sm font-medium text-gray-700">{feature.title}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Slogan */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+        <h2 className="text-2xl md:text-3xl font-bold text-dark italic">
+          Tu talento también se vende
+        </h2>
+        <div className="w-24 h-1 bg-gradient-to-r from-brand-rose to-brand-teal mx-auto mt-4 rounded-full" />
+      </section>
+
       {/* Categories */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Categorías</h2>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h2 className="text-2xl font-bold text-dark mb-6">Categorías</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {categories.map((cat) => (
             <Link
               key={cat.id}
               to={`/catalogo?category=${cat.id}`}
-              className="bg-gray-50 hover:bg-coral-50 rounded-xl p-4 text-center transition-colors group"
+              className="bg-gray-50 hover:bg-brand-teal/5 border border-gray-100 hover:border-brand-teal/30 rounded-xl p-4 text-center transition-all group"
             >
-              <span className="text-sm font-medium text-gray-900 group-hover:text-coral-500">
+              <span className="text-sm font-medium text-gray-900 group-hover:text-brand-teal">
                 {cat.name}
               </span>
               <span className="block text-xs text-gray-500 mt-1">{cat.count} diseños</span>
@@ -71,12 +141,12 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <TrendingUp className="text-orange-500" size={24} />
-            <h2 className="text-2xl font-bold text-gray-900">Tendencia</h2>
+            <TrendingUp className="text-brand-orange" size={24} />
+            <h2 className="text-2xl font-bold text-dark">Tendencia</h2>
           </div>
           <Link
             to="/catalogo?sort=trending"
-            className="text-coral-400 hover:text-coral-500 flex items-center gap-1 text-sm font-medium"
+            className="text-brand-teal hover:text-brand-teal-dark flex items-center gap-1 text-sm font-medium"
           >
             Ver todo <ArrowRight size={16} />
           </Link>
@@ -97,12 +167,12 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <Star className="text-yellow-500" size={24} />
-              <h2 className="text-2xl font-bold text-gray-900">Mejor valorados</h2>
+              <Star className="text-brand-orange" size={24} />
+              <h2 className="text-2xl font-bold text-dark">Mejor valorados</h2>
             </div>
             <Link
               to="/catalogo?sort=rating"
-              className="text-coral-400 hover:text-coral-500 flex items-center gap-1 text-sm font-medium"
+              className="text-brand-teal hover:text-brand-teal-dark flex items-center gap-1 text-sm font-medium"
             >
               Ver todo <ArrowRight size={16} />
             </Link>
@@ -120,18 +190,24 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">¿Sos diseñador?</h2>
-        <p className="text-gray-600 mb-8 max-w-xl mx-auto">
-          Subí tus diseños y empezá a vender. Cobramos una comisión solo cuando vendés. Sin
-          suscripciones, sin costos fijos.
-        </p>
-        <Link
-          to="/registro"
-          className="bg-coral-400 text-white px-8 py-3 rounded-lg font-semibold hover:bg-coral-500 transition-colors inline-flex items-center gap-2"
-        >
-          Comenzar a vender <ArrowRight size={18} />
-        </Link>
+      <section className="bg-dark text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 right-20 w-64 h-64 bg-brand-rose rounded-full blur-3xl" />
+          <div className="absolute bottom-10 left-20 w-80 h-80 bg-brand-teal rounded-full blur-3xl" />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center relative">
+          <h2 className="text-3xl font-bold mb-4">¿Sos diseñador?</h2>
+          <p className="text-gray-300 mb-8 max-w-xl mx-auto">
+            Subí tus diseños y empezá a vender. Cobramos una comisión solo cuando vendés. Sin
+            suscripciones, sin costos fijos.
+          </p>
+          <Link
+            to="/registro"
+            className="bg-brand-orange text-dark px-8 py-3 rounded-lg font-semibold hover:bg-brand-orange-light transition-colors inline-flex items-center gap-2"
+          >
+            Comenzar a vender <ArrowRight size={18} />
+          </Link>
+        </div>
       </section>
     </div>
   );

@@ -3,24 +3,21 @@
 @theme {
   --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
 
-  --color-coral-50: #fef2f2;
-  --color-coral-100: #fee2e2;
-  --color-coral-200: #fecaca;
-  --color-coral-300: #fca5a5;
-  --color-coral-400: #f87171;
-  --color-coral-500: #ef4444;
-  --color-coral-600: #dc2626;
-  --color-coral-700: #b91c1c;
+  --color-dark: #0F2A44;
+  --color-dark-light: #1a3a5c;
 
-  --color-teal-50: #f0fdfa;
-  --color-teal-100: #ccfbf1;
-  --color-teal-200: #99f6e4;
-  --color-teal-300: #5eead4;
-  --color-teal-400: #2dd4bf;
-  --color-teal-500: #14b8a6;
-  --color-teal-600: #0d9488;
-  --color-teal-700: #0f766e;
-  --color-teal-800: #115e59;
+  --color-brand-teal: #00C2B8;
+  --color-brand-teal-light: #33d4cc;
+  --color-brand-teal-dark: #009e96;
+
+  --color-brand-violet: #8B5CF6;
+  --color-brand-violet-light: #a78bfa;
+
+  --color-brand-rose: #FF5B8F;
+  --color-brand-rose-light: #ff85b1;
+
+  --color-brand-orange: #FFB347;
+  --color-brand-orange-light: #ffc570;
 }
 
 body {
