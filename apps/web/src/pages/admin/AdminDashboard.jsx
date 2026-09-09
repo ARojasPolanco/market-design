@@ -20,8 +20,9 @@ import {
 } from 'lucide-react';
 import { useAdminStats, usePendingDesigns } from '../../hooks/useDesigns.js';
 import { useCategories } from '../../hooks/useCategories.js';
+import { RankBadge, MANUAL_RANKS } from '../../components/RankBadge.jsx';
 
-const MOCK_USERS = [
+const INITIAL_USERS = [
   {
     id: 1,
     name: 'Diseños María',
@@ -30,7 +31,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 45,
     sales: 523,
-    isDiamante: true,
+    rank: 'diamante',
   },
   {
     id: 2,
@@ -40,7 +41,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 28,
     sales: 215,
-    isDiamante: true,
+    rank: 'diamante',
   },
   {
     id: 3,
@@ -50,7 +51,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 0,
     sales: 12,
-    isDiamante: false,
+    rank: 'bronce',
   },
   {
     id: 4,
@@ -60,7 +61,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 72,
     sales: 890,
-    isDiamante: true,
+    rank: 'diamante',
   },
   {
     id: 5,
@@ -70,7 +71,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 53,
     sales: 340,
-    isDiamante: false,
+    rank: 'oro',
   },
   {
     id: 6,
@@ -80,6 +81,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 0,
     sales: 8,
+    rank: 'bronce',
   },
   {
     id: 7,
@@ -89,6 +91,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 0,
     sales: 15,
+    rank: 'bronce',
   },
   {
     id: 8,
@@ -98,6 +101,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 0,
     sales: 6,
+    rank: 'bronce',
   },
   {
     id: 9,
@@ -107,6 +111,7 @@ const MOCK_USERS = [
     status: 'suspended',
     designs: 0,
     sales: 0,
+    rank: 'bronce',
   },
   {
     id: 10,
@@ -116,6 +121,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 0,
     sales: 22,
+    rank: 'bronce',
   },
   {
     id: 11,
@@ -125,6 +131,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 0,
     sales: 4,
+    rank: 'bronce',
   },
   {
     id: 12,
@@ -134,6 +141,7 @@ const MOCK_USERS = [
     status: 'active',
     designs: 0,
     sales: 9,
+    rank: 'bronce',
   },
 ];
 
@@ -561,9 +569,11 @@ function UsersSection() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('vendedor');
   const [page, setPage] = useState(1);
+  const [users, setUsers] = useState(INITIAL_USERS);
+  const [showRankModal, setShowRankModal] = useState(null);
   const perPage = 5;
 
-  const filtered = MOCK_USERS.filter((user) => {
+  const filtered = users.filter((user) => {
     const matchesSearch =
       !search ||
       user.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -574,6 +584,11 @@ function UsersSection() {
 
   const totalPages = Math.ceil(filtered.length / perPage);
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
+
+  const handleRankChange = (userId, newRank) => {
+    setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, rank: newRank } : u)));
+    setShowRankModal(null);
+  };
 
   return (
     <div>
@@ -619,11 +634,9 @@ function UsersSection() {
               <tr className="border-b bg-gray-50">
                 <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">Usuario</th>
                 <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">Rol</th>
+                <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">Rango</th>
                 <th className="text-left text-sm font-medium text-gray-500 px-6 py-3 hidden sm:table-cell">
-                  Diseños
-                </th>
-                <th className="text-left text-sm font-medium text-gray-500 px-6 py-3 hidden sm:table-cell">
-                  Compras/Ventas
+                  Ventas
                 </th>
                 <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">Estado</th>
                 <th className="text-right text-sm font-medium text-gray-500 px-6 py-3">Acciones</th>
@@ -647,8 +660,8 @@ function UsersSection() {
                       {user.role}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600 hidden sm:table-cell">
-                    {user.designs || '—'}
+                  <td className="px-6 py-4">
+                    <RankBadge rank={user.rank} size={20} />
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600 hidden sm:table-cell">
                     {user.sales}
@@ -668,14 +681,10 @@ function UsersSection() {
                     <div className="flex items-center justify-end gap-2">
                       {user.role === 'Vendedor' && (
                         <button
-                          className={`text-xs px-2 py-1 rounded-full font-medium transition-colors ${
-                            user.isDiamante
-                              ? 'bg-brand-teal/10 text-brand-teal hover:bg-brand-teal/20'
-                              : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                          }`}
-                          title={user.isDiamante ? 'Quitar rango Diamante' : 'Asignar rango Diamante'}
+                          onClick={() => setShowRankModal(user)}
+                          className="text-xs px-2 py-1 rounded-full font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
                         >
-                          💎 {user.isDiamante ? 'Diamante' : '—'}
+                          Cambiar rango
                         </button>
                       )}
                       <button className="text-sm text-brand-teal hover:text-brand-teal-dark">
@@ -708,7 +717,9 @@ function UsersSection() {
                   key={p}
                   onClick={() => setPage(p)}
                   className={`w-8 h-8 rounded-lg text-sm font-medium ${
-                    p === page ? 'bg-dark text-white' : 'hover:bg-gray-200 text-gray-700'
+                    p === page
+                      ? 'bg-brand-teal text-white'
+                      : 'hover:bg-gray-200 text-gray-700'
                   }`}
                 >
                   {p}
@@ -725,6 +736,72 @@ function UsersSection() {
           </div>
         )}
       </div>
+
+      {/* Rank modal */}
+      {showRankModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Cambiar rango</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Vendedor: <span className="font-medium">{showRankModal.name}</span>
+            </p>
+            <p className="text-xs text-gray-500 mb-4">
+              Rango actual: <RankBadge rank={showRankModal.rank} size={18} />
+            </p>
+
+            <div className="space-y-2 mb-6">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Rangos manuales (solo admin)
+              </p>
+              {MANUAL_RANKS.map((rank) => (
+                <button
+                  key={rank}
+                  onClick={() => handleRankChange(showRankModal.id, rank)}
+                  className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
+                    showRankModal.rank === rank
+                      ? 'border-brand-teal bg-brand-teal/5'
+                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  <RankBadge rank={rank} size={24} />
+                  <span className="text-sm text-gray-600">
+                    {rank === 'diamante' ? '10% comisión' : '12% comisión'}
+                  </span>
+                </button>
+              ))}
+
+              <div className="border-t border-gray-200 pt-2 mt-2">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                  Rangos automáticos
+                </p>
+                {['oro', 'plata', 'bronce'].map((rank) => (
+                  <button
+                    key={rank}
+                    onClick={() => handleRankChange(showRankModal.id, rank)}
+                    className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
+                      showRankModal.rank === rank
+                        ? 'border-brand-teal bg-brand-teal/5'
+                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    <RankBadge rank={rank} size={24} />
+                    <span className="text-sm text-gray-600">
+                      {rank === 'oro' ? '15%' : rank === 'plata' ? '18%' : '20%'} comisión
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowRankModal(null)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

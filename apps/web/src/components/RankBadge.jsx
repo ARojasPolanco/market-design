@@ -85,6 +85,42 @@ export function RankOro({ size = 24, showLabel = true }) {
   );
 }
 
+export function RankPlatino({ size = 28, showLabel = true }) {
+  return (
+    <div className="inline-flex items-center gap-1.5">
+      <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+        <defs>
+          <linearGradient id="platino-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#E5E4E2" />
+            <stop offset="50%" stopColor="#B0B0B0" />
+            <stop offset="100%" stopColor="#E5E4E2" />
+          </linearGradient>
+          <filter id="platino-glow">
+            <feGaussianBlur stdDeviation="1" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+        <path
+          d="M16 2L4 8v8c0 7.18 5.12 13.88 12 16 6.88-2.12 12-8.82 12-16V8L16 2z"
+          fill="url(#platino-grad)"
+          stroke="#808080"
+          strokeWidth="0.5"
+          filter="url(#platino-glow)"
+        />
+        <path d="M16 2L4 8h24L16 2z" fill="white" opacity="0.4" />
+        <text x="16" y="20" textAnchor="middle" fill="#333" fontSize="9" fontWeight="bold">
+          P
+        </text>
+      </svg>
+      {showLabel && (
+        <span className="text-xs font-bold" style={{ color: '#808080' }}>
+          Platino
+        </span>
+      )}
+    </div>
+  );
+}
+
 export function RankDiamante({ size = 28, showLabel = true }) {
   return (
     <div className="inline-flex items-center gap-1.5">
@@ -125,6 +161,8 @@ export function RankBadge({ rank = 'bronce', size = 24, showLabel = true }) {
   switch (rank) {
     case 'diamante':
       return <RankDiamante size={size} showLabel={showLabel} />;
+    case 'platino':
+      return <RankPlatino size={size} showLabel={showLabel} />;
     case 'oro':
       return <RankOro size={size} showLabel={showLabel} />;
     case 'plata':
@@ -137,10 +175,15 @@ export function RankBadge({ rank = 'bronce', size = 24, showLabel = true }) {
 
 export function getRankInfo(rank) {
   const ranks = {
-    bronce: { name: 'Bronce', commission: 20, color: '#CD7F32', salesNeeded: 0 },
-    plata: { name: 'Plata', commission: 18, color: '#808080', salesNeeded: 50 },
-    oro: { name: 'Oro', commission: 15, color: '#DAA520', salesNeeded: 200 },
-    diamante: { name: 'Diamante', commission: 10, color: '#00C2B8', salesNeeded: 0 },
+    bronce: { name: 'Bronce', commission: 20, color: '#CD7F32', type: 'auto', salesNeeded: 0 },
+    plata: { name: 'Plata', commission: 18, color: '#808080', type: 'auto', salesNeeded: 50 },
+    oro: { name: 'Oro', commission: 15, color: '#DAA520', type: 'auto', salesNeeded: 200 },
+    platino: { name: 'Platino', commission: 12, color: '#808080', type: 'manual', salesNeeded: 0 },
+    diamante: { name: 'Diamante', commission: 10, color: '#00C2B8', type: 'manual', salesNeeded: 0 },
   };
   return ranks[rank] || ranks.bronce;
 }
+
+export const ALL_RANKS = ['bronce', 'plata', 'oro', 'platino', 'diamante'];
+export const MANUAL_RANKS = ['platino', 'diamante'];
+export const AUTO_RANKS = ['bronce', 'plata', 'oro'];
