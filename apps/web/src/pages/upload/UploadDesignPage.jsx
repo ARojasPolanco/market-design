@@ -133,7 +133,7 @@ export default function UploadDesignPage() {
               }}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 currentStep === step.num
-                  ? 'bg-coral-400 text-white'
+                  ? 'bg-dark text-white'
                   : currentStep > step.num
                     ? 'bg-green-100 text-green-700 cursor-pointer'
                     : 'bg-gray-100 text-gray-400'
@@ -496,7 +496,7 @@ export default function UploadDesignPage() {
               <button
                 onClick={handleSubmit}
                 disabled={!canProceedStep4 || isSubmitting}
-                className="w-full bg-coral-400 text-white py-3 rounded-lg font-semibold hover:bg-coral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-dark text-white py-3 rounded-lg font-semibold hover:bg-dark-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>
@@ -533,7 +533,7 @@ export default function UploadDesignPage() {
                   (currentStep === 2 && !canProceedStep2) ||
                   (currentStep === 3 && !canProceedStep3)
                 }
-                className="flex items-center gap-2 bg-coral-400 text-white px-6 py-2 rounded-lg font-medium hover:bg-coral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 bg-dark text-white px-6 py-2 rounded-lg font-medium hover:bg-dark-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Siguiente <ArrowRight size={18} />
               </button>

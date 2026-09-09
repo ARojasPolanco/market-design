@@ -317,7 +317,7 @@ export default function AdminDashboard() {
                 ))}
               </div>
             </div>
-            <button className="bg-coral-400 text-white px-6 py-2 rounded-lg font-medium hover:bg-coral-500 transition-colors">
+            <button className="bg-dark text-white px-6 py-2 rounded-lg font-medium hover:bg-dark-light transition-colors">
               Guardar configuración
             </button>
           </div>
@@ -689,7 +689,7 @@ function UsersSection() {
                   key={p}
                   onClick={() => setPage(p)}
                   className={`w-8 h-8 rounded-lg text-sm font-medium ${
-                    p === page ? 'bg-coral-400 text-white' : 'hover:bg-gray-200 text-gray-700'
+                    p === page ? 'bg-dark text-white' : 'hover:bg-gray-200 text-gray-700'
                   }`}
                 >
                   {p}
@@ -728,7 +728,7 @@ function ReportsSection() {
             onClick={() => setFilter(f.id)}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
               filter === f.id
-                ? 'bg-coral-400 text-white'
+                ? 'bg-dark text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
@@ -859,7 +859,7 @@ function CategoriesSection() {
         <button
           onClick={handleAdd}
           disabled={!newCategoryName.trim()}
-          className="bg-coral-400 text-white px-4 py-2 rounded-lg font-medium hover:bg-coral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-dark text-white px-4 py-2 rounded-lg font-medium hover:bg-dark-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Agregar
         </button>

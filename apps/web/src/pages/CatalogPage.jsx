@@ -91,7 +91,7 @@ export default function CatalogPage() {
             <SlidersHorizontal size={16} />
             <span className="hidden sm:inline">Filtros</span>
             {activeFilterCount > 0 && (
-              <span className="bg-coral-400 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="bg-dark text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {activeFilterCount}
               </span>
             )}

@@ -55,15 +55,10 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-dark text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-brand-teal rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-brand-violet rounded-full blur-3xl" />
-          <div className="absolute top-40 right-1/3 w-64 h-64 bg-brand-rose rounded-full blur-3xl" />
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative">
+      <section className="bg-[#1a3a5c] text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-block bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-8">
+            <div className="inline-block bg-white/10 rounded-2xl p-6 mb-8">
               <img
                 src="/marketDesignLogo.png"
                 alt="Market Design"
@@ -73,7 +68,7 @@ export default function HomePage() {
             <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
               Diseños digitales listos para imprimir
             </h1>
-            <p className="text-lg text-gray-300 mb-8">
+            <p className="text-lg text-gray-200 mb-8">
               Compra diseños originales de artistas independientes. Archivos en alta calidad para
               sublimación, estampado y papelería.
             </p>

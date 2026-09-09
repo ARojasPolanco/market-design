@@ -72,7 +72,7 @@ export default function CheckoutPage() {
             <Shield size={16} />
             <span>Pago seguro con encriptación SSL</span>
           </div>
-          <button className="w-full bg-coral-400 text-white py-3 rounded-lg font-semibold hover:bg-coral-500 transition-colors">
+          <button className="w-full bg-dark text-white py-3 rounded-lg font-semibold hover:bg-dark-light transition-colors">
             Pagar con Mercado Pago
           </button>
         </div>

@@ -116,7 +116,7 @@ export default function DesignDetailPage() {
           <div className="flex gap-4 mb-8">
             <Link
               to={`/checkout/${design.id}`}
-              className="flex-1 bg-coral-400 text-white py-3 px-6 rounded-lg font-semibold hover:bg-coral-500 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 bg-dark text-white py-3 px-6 rounded-lg font-semibold hover:bg-dark-light transition-colors flex items-center justify-center gap-2"
             >
               <ShoppingCart size={18} />
               Comprar ahora

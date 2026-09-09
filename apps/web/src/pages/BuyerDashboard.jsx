@@ -82,7 +82,7 @@ export default function BuyerDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3 mt-4">
-                        <button className="flex items-center gap-2 bg-coral-400 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-coral-500 transition-colors">
+                        <button className="flex items-center gap-2 bg-dark text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-dark-light transition-colors">
                           <Download size={16} />
                           Descargar
                         </button>

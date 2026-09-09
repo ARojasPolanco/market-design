@@ -112,7 +112,7 @@ export default function OnboardingCards({ onComplete }) {
           {/* Next button */}
           <button
             onClick={handleNext}
-            className="w-full bg-coral-400 text-white py-3 rounded-lg font-semibold hover:bg-coral-500 transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-dark text-white py-3 rounded-lg font-semibold hover:bg-dark-light transition-colors flex items-center justify-center gap-2"
           >
             {current < cards.length - 1 ? (
               <>

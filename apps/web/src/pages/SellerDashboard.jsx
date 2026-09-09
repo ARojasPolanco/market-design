@@ -33,7 +33,7 @@ export default function SellerDashboard() {
         <h1 className="text-2xl font-bold text-gray-900">Panel del vendedor</h1>
         <Link
           to="/vendedor/panel/subir"
-          className="bg-coral-400 text-white px-4 py-2 rounded-lg font-medium hover:bg-coral-500 transition-colors flex items-center gap-2"
+          className="bg-dark text-white px-4 py-2 rounded-lg font-medium hover:bg-dark-light transition-colors flex items-center gap-2"
         >
           <Upload size={18} />
           Subir diseño

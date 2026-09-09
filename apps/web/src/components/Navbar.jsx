@@ -62,7 +62,7 @@ export default function Navbar() {
             ) : (
               <Link
                 to="/login"
-                className="bg-coral-400 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-coral-500"
+                className="bg-dark text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-dark-light"
               >
                 Ingresar
               </Link>
@@ -110,7 +110,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   to="/login"
-                  className="bg-coral-400 text-white px-4 py-2 rounded-lg text-sm font-medium text-center hover:bg-coral-500"
+                  className="bg-dark text-white px-4 py-2 rounded-lg text-sm font-medium text-center hover:bg-dark-light"
                 >
                   Ingresar
                 </Link>
