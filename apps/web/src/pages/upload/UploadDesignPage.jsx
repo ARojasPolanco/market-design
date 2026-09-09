@@ -15,15 +15,6 @@ import OnboardingCards, { shouldShowOnboarding } from '../../components/Onboardi
 import DesignPreviewCard from '../../components/DesignPreviewCard.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 
-const CATEGORIES = [
-  { id: 'sublimado', name: 'Sublimado' },
-  { id: 'estampado', name: 'Estampado' },
-  { id: 'papeleria', name: 'Papelería' },
-  { id: 'infantil', name: 'Infantil' },
-  { id: 'deportivo', name: 'Deportivo' },
-  { id: 'religioso', name: 'Religioso' },
-];
-
 const TECHNIQUES = [
   { id: 'sublimado', name: 'Sublimado' },
   { id: 'estampado', name: 'Estampado' },
@@ -367,20 +358,19 @@ export default function UploadDesignPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Categoría <span className="text-red-500">*</span>
+                      Categoría sugerida <span className="text-red-500">*</span>
                     </label>
-                    <select
+                    <input
+                      type="text"
                       value={formData.category}
                       onChange={(e) => updateForm('category', e.target.value)}
+                      placeholder="Ej: Sublimado, Infantil, Papelería..."
+                      maxLength={50}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                      <option value="">Seleccionar</option>
-                      {CATEGORIES.map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </option>
-                      ))}
-                    </select>
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Sugerí una categoría. El admin la revisará antes de publicar.
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -466,7 +456,7 @@ export default function UploadDesignPage() {
                     </p>
                   </div>
                   <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-xs text-gray-500">Categoría</p>
+                    <p className="text-xs text-gray-500">Categoría sugerida</p>
                     <p className="text-sm font-medium text-gray-900 capitalize">
                       {formData.category}
                     </p>

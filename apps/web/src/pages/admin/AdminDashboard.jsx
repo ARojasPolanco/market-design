@@ -322,13 +322,29 @@ export default function AdminDashboard() {
   );
 }
 
+const EXISTING_CATEGORIES = [
+  'Sublimado',
+  'Estampado',
+  'Papelería',
+  'Infantil',
+  'Deportivo',
+  'Religioso',
+];
+
 function ModerationCard({ design }) {
   const [showChecklist, setShowChecklist] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [showSuccess, setShowSuccess] = useState(null);
+  const [assignedCategory, setAssignedCategory] = useState('');
+  const [newCategory, setNewCategory] = useState('');
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
 
   const handleApprove = () => {
+    const finalCategory = isCustomCategory ? newCategory : assignedCategory;
+    if (!finalCategory && design.category) {
+      // Use suggested category if no assignment made
+    }
     setShowSuccess('approved');
     setTimeout(() => setShowSuccess(null), 3000);
   };
@@ -380,6 +396,46 @@ function ModerationCard({ design }) {
               </span>
             </div>
             <p className="text-sm text-gray-600 mb-3 line-clamp-2">{design.description}</p>
+
+            {/* Category assignment */}
+            <div className="bg-indigo-50 rounded-lg p-3 mb-3">
+              <p className="text-xs font-medium text-indigo-700 mb-2">
+                Categoría sugerida por el vendedor:{' '}
+                <span className="font-bold">{design.category}</span>
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <select
+                  value={isCustomCategory ? '__custom__' : assignedCategory}
+                  onChange={(e) => {
+                    if (e.target.value === '__custom__') {
+                      setIsCustomCategory(true);
+                      setAssignedCategory('');
+                    } else {
+                      setIsCustomCategory(false);
+                      setAssignedCategory(e.target.value);
+                    }
+                  }}
+                  className="flex-1 px-3 py-1.5 text-sm border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                >
+                  <option value="">Asignar categoría existente</option>
+                  {EXISTING_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                  <option value="__custom__">+ Crear nueva categoría</option>
+                </select>
+                {isCustomCategory && (
+                  <input
+                    type="text"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    placeholder="Nueva categoría..."
+                    className="flex-1 px-3 py-1.5 text-sm border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                )}
+              </div>
+            </div>
 
             {/* Checklist */}
             <button
