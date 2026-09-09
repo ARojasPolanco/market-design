@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Star, Heart, ShoppingCart, Eye, ArrowLeft, X } from 'lucide-react';
 import { useDesign } from '../hooks/useDesigns.js';
 import { useFavorites } from '../context/FavoritesContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import RatingStars from '../components/RatingStars.jsx';
 import SellerBadge from '../components/SellerBadge.jsx';
 import DesignCard from '../components/DesignCard.jsx';
@@ -13,6 +14,7 @@ export default function DesignDetailPage() {
   const { id } = useParams();
   const { design, related, reviews, error } = useDesign(id);
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [showZoom, setShowZoom] = useState(false);
 
@@ -113,14 +115,23 @@ export default function DesignDetailPage() {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-4 mb-8">
-            <Link
-              to={`/checkout/${design.id}`}
-              className="flex-1 bg-dark text-white py-3 px-6 rounded-lg font-semibold hover:bg-dark-light transition-colors flex items-center justify-center gap-2"
-            >
-              <ShoppingCart size={18} />
-              Comprar ahora
-            </Link>
+          <div className="flex gap-4 mb-4">
+            {user ? (
+              <Link
+                to={`/checkout/${design.id}`}
+                className="flex-1 bg-dark text-white py-3 px-6 rounded-lg font-semibold hover:bg-dark-light transition-colors flex items-center justify-center gap-2"
+              >
+                <ShoppingCart size={18} />
+                Comprar ahora
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="flex-1 bg-dark text-white py-3 px-6 rounded-lg font-semibold hover:bg-dark-light transition-colors flex items-center justify-center gap-2"
+              >
+                Iniciá sesión para comprar
+              </Link>
+            )}
             <button
               onClick={() => (fav ? removeFavorite(design.id) : addFavorite(design.id))}
               className={`p-3 border rounded-lg transition-colors ${
@@ -132,6 +143,12 @@ export default function DesignDetailPage() {
               <Heart size={20} className={fav ? 'fill-red-500 text-red-500' : 'text-gray-600'} />
             </button>
           </div>
+          {!user && (
+            <p className="text-xs text-gray-500 mb-8">
+              <Link to="/login" className="text-brand-teal hover:underline">Iniciá sesión</Link> o{' '}
+              <Link to="/registro" className="text-brand-teal hover:underline">regístrate</Link> para comprar y dejar tu review.
+            </p>
+          )}
 
           {/* Seller card */}
           <Link
@@ -189,6 +206,20 @@ export default function DesignDetailPage() {
           </div>
         </section>
       )}
+
+      {/* Leave review CTA */}
+      <section className="mt-8 bg-gray-50 rounded-xl p-6 text-center">
+        <h3 className="font-semibold text-gray-900 mb-2">¿Compraste este diseño?</h3>
+        {user ? (
+          <p className="text-sm text-gray-500">
+            Dejá tu review para ayudar a otros compradores.
+          </p>
+        ) : (
+          <p className="text-sm text-gray-500">
+            <Link to="/login" className="text-brand-teal hover:underline">Iniciá sesión</Link> para dejar tu review y ayudar a otros compradores.
+          </p>
+        )}
+      </section>
 
       {/* Related designs */}
       {related.length > 0 && (
