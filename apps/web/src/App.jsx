@@ -11,6 +11,7 @@ import RegisterPage from './pages/RegisterPage.jsx';
 import SellerDashboard from './pages/SellerDashboard.jsx';
 import BuyerDashboard from './pages/BuyerDashboard.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
+import UploadDesignPage from './pages/upload/UploadDesignPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/registro" element={<RegisterPage />} />
           <Route path="/vendedor/panel" element={<SellerDashboard />} />
+          <Route path="/vendedor/panel/subir" element={<UploadDesignPage />} />
           <Route path="/comprador/panel" element={<BuyerDashboard />} />
           <Route path="/admin/*" element={<AdminDashboard />} />
           <Route path="*" element={<NotFoundPage />} />

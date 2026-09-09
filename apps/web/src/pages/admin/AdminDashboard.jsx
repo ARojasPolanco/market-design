@@ -18,18 +18,114 @@ import {
 import { useAdminStats, usePendingDesigns } from '../../hooks/useDesigns.js';
 
 const MOCK_USERS = [
-  { id: 1, name: 'Diseños María', email: 'maria@email.com', role: 'Vendedor', status: 'active', designs: 45, sales: 523 },
-  { id: 2, name: 'Arte Digital Juan', email: 'juan@email.com', role: 'Vendedor', status: 'active', designs: 28, sales: 215 },
-  { id: 3, name: 'Carlos López', email: 'carlos@email.com', role: 'Comprador', status: 'active', designs: 0, sales: 12 },
-  { id: 4, name: 'SublimeArte', email: 'sublime@email.com', role: 'Vendedor', status: 'active', designs: 72, sales: 890 },
-  { id: 5, name: 'Papelería Creativa', email: 'papeleria@email.com', role: 'Vendedor', status: 'active', designs: 53, sales: 340 },
-  { id: 6, name: 'Laura Fernández', email: 'laura@email.com', role: 'Comprador', status: 'active', designs: 0, sales: 8 },
-  { id: 7, name: 'Pedro Sánchez', email: 'pedro@email.com', role: 'Comprador', status: 'active', designs: 0, sales: 15 },
-  { id: 8, name: 'Ana Martínez', email: 'ana@email.com', role: 'Comprador', status: 'active', designs: 0, sales: 6 },
-  { id: 9, name: 'Usuario Suspendido', email: 'suspendido@email.com', role: 'Comprador', status: 'suspended', designs: 0, sales: 0 },
-  { id: 10, name: 'Roberto Díaz', email: 'roberto@email.com', role: 'Comprador', status: 'active', designs: 0, sales: 22 },
-  { id: 11, name: 'María García', email: 'maria.g@email.com', role: 'Comprador', status: 'active', designs: 0, sales: 4 },
-  { id: 12, name: 'Jorge Ruiz', email: 'jorge@email.com', role: 'Comprador', status: 'active', designs: 0, sales: 9 },
+  {
+    id: 1,
+    name: 'Diseños María',
+    email: 'maria@email.com',
+    role: 'Vendedor',
+    status: 'active',
+    designs: 45,
+    sales: 523,
+  },
+  {
+    id: 2,
+    name: 'Arte Digital Juan',
+    email: 'juan@email.com',
+    role: 'Vendedor',
+    status: 'active',
+    designs: 28,
+    sales: 215,
+  },
+  {
+    id: 3,
+    name: 'Carlos López',
+    email: 'carlos@email.com',
+    role: 'Comprador',
+    status: 'active',
+    designs: 0,
+    sales: 12,
+  },
+  {
+    id: 4,
+    name: 'SublimeArte',
+    email: 'sublime@email.com',
+    role: 'Vendedor',
+    status: 'active',
+    designs: 72,
+    sales: 890,
+  },
+  {
+    id: 5,
+    name: 'Papelería Creativa',
+    email: 'papeleria@email.com',
+    role: 'Vendedor',
+    status: 'active',
+    designs: 53,
+    sales: 340,
+  },
+  {
+    id: 6,
+    name: 'Laura Fernández',
+    email: 'laura@email.com',
+    role: 'Comprador',
+    status: 'active',
+    designs: 0,
+    sales: 8,
+  },
+  {
+    id: 7,
+    name: 'Pedro Sánchez',
+    email: 'pedro@email.com',
+    role: 'Comprador',
+    status: 'active',
+    designs: 0,
+    sales: 15,
+  },
+  {
+    id: 8,
+    name: 'Ana Martínez',
+    email: 'ana@email.com',
+    role: 'Comprador',
+    status: 'active',
+    designs: 0,
+    sales: 6,
+  },
+  {
+    id: 9,
+    name: 'Usuario Suspendido',
+    email: 'suspendido@email.com',
+    role: 'Comprador',
+    status: 'suspended',
+    designs: 0,
+    sales: 0,
+  },
+  {
+    id: 10,
+    name: 'Roberto Díaz',
+    email: 'roberto@email.com',
+    role: 'Comprador',
+    status: 'active',
+    designs: 0,
+    sales: 22,
+  },
+  {
+    id: 11,
+    name: 'María García',
+    email: 'maria.g@email.com',
+    role: 'Comprador',
+    status: 'active',
+    designs: 0,
+    sales: 4,
+  },
+  {
+    id: 12,
+    name: 'Jorge Ruiz',
+    email: 'jorge@email.com',
+    role: 'Comprador',
+    status: 'active',
+    designs: 0,
+    sales: 9,
+  },
 ];
 
 const MOCK_REPORTS = [
@@ -111,7 +207,11 @@ export default function AdminDashboard() {
         {[
           { id: 'pending', label: `Pendientes (${pending.length})`, icon: Clock },
           { id: 'users', label: 'Usuarios', icon: Users },
-          { id: 'reports', label: `Denuncias (${MOCK_REPORTS.filter((r) => r.status === 'pending').length})`, icon: AlertTriangle },
+          {
+            id: 'reports',
+            label: `Denuncias (${MOCK_REPORTS.filter((r) => r.status === 'pending').length})`,
+            icon: AlertTriangle,
+          },
           { id: 'config', label: 'Configuración', icon: Settings },
         ].map((tab) => (
           <button
@@ -534,9 +634,7 @@ function UsersSection() {
                   key={p}
                   onClick={() => setPage(p)}
                   className={`w-8 h-8 rounded-lg text-sm font-medium ${
-                    p === page
-                      ? 'bg-indigo-600 text-white'
-                      : 'hover:bg-gray-200 text-gray-700'
+                    p === page ? 'bg-indigo-600 text-white' : 'hover:bg-gray-200 text-gray-700'
                   }`}
                 >
                   {p}
