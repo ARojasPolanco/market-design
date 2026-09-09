@@ -14,6 +14,9 @@ import {
   ChevronRight,
   Eye,
   X,
+  Tag,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 import { useAdminStats, usePendingDesigns } from '../../hooks/useDesigns.js';
 import { useCategories } from '../../hooks/useCategories.js';
@@ -214,6 +217,7 @@ export default function AdminDashboard() {
             icon: AlertTriangle,
           },
           { id: 'config', label: 'Configuración', icon: Settings },
+          { id: 'categories', label: 'Categorías', icon: Tag },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -319,6 +323,9 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {/* Categories */}
+      {activeTab === 'categories' && <CategoriesSection />}
     </div>
   );
 }
@@ -793,6 +800,163 @@ function ReportsSection() {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function CategoriesSection() {
+  const { categories, addCategory, updateCategory, deleteCategory } = useCategories();
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingValue, setEditingValue] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+
+  const handleAdd = () => {
+    if (addCategory(newCategoryName)) {
+      setNewCategoryName('');
+    }
+  };
+
+  const handleStartEdit = (index, name) => {
+    setEditingIndex(index);
+    setEditingValue(name);
+  };
+
+  const handleSaveEdit = (oldName) => {
+    if (updateCategory(oldName, editingValue)) {
+      setEditingIndex(null);
+      setEditingValue('');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIndex(null);
+    setEditingValue('');
+  };
+
+  const handleDelete = (name) => {
+    deleteCategory(name);
+    setShowDeleteConfirm(null);
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm p-6">
+      <h2 className="font-semibold text-gray-900 mb-2">Gestión de categorías</h2>
+      <p className="text-sm text-gray-500 mb-6">
+        Las categorías que crees acá van a estar disponibles para los vendedores al cargar diseños.
+      </p>
+
+      {/* Add new */}
+      <div className="flex gap-2 mb-6">
+        <input
+          type="text"
+          value={newCategoryName}
+          onChange={(e) => setNewCategoryName(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+          placeholder="Nueva categoría..."
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <button
+          onClick={handleAdd}
+          disabled={!newCategoryName.trim()}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Agregar
+        </button>
+      </div>
+
+      {/* List */}
+      <div className="space-y-2">
+        {categories.map((cat, i) => (
+          <div
+            key={cat}
+            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg group hover:bg-gray-100 transition-colors"
+          >
+            {editingIndex === i ? (
+              <div className="flex items-center gap-2 flex-1">
+                <input
+                  type="text"
+                  value={editingValue}
+                  onChange={(e) => setEditingValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSaveEdit(cat);
+                    if (e.key === 'Escape') handleCancelEdit();
+                  }}
+                  className="flex-1 px-3 py-1 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                  autoFocus
+                />
+                <button
+                  onClick={() => handleSaveEdit(cat)}
+                  className="text-green-600 hover:text-green-700 text-sm font-medium"
+                >
+                  Guardar
+                </button>
+                <button
+                  onClick={handleCancelEdit}
+                  className="text-gray-500 hover:text-gray-700 text-sm"
+                >
+                  Cancelar
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-3">
+                  <Tag size={16} className="text-indigo-500" />
+                  <span className="text-sm font-medium text-gray-900">{cat}</span>
+                </div>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => handleStartEdit(i, cat)}
+                    className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    title="Editar"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteConfirm(cat)}
+                    className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Eliminar"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Delete confirmation */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Eliminar categoría</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              ¿Seguro que querés eliminar <span className="font-medium">"{showDeleteConfirm}"</span>?
+              Los diseños que la usen no se verán afectados.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(null)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => handleDelete(showDeleteConfirm)}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Count */}
+      <p className="text-xs text-gray-400 mt-4">
+        {categories.length} {categories.length === 1 ? 'categoría' : 'categorías'} en total
+      </p>
     </div>
   );
 }

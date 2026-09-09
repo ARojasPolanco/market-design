@@ -16,7 +16,6 @@ function getStoredCategories() {
     const stored = localStorage.getItem(CATEGORIES_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      // Merge with defaults, removing duplicates
       const merged = [...new Set([...DEFAULT_CATEGORIES, ...parsed])];
       return merged.sort();
     }
@@ -37,7 +36,6 @@ export function useCategories() {
     const trimmed = name.trim();
     if (!trimmed) return false;
 
-    // Check if already exists (case insensitive)
     const exists = categories.some((c) => c.toLowerCase() === trimmed.toLowerCase());
     if (exists) return false;
 
@@ -47,9 +45,31 @@ export function useCategories() {
     return true;
   };
 
+  const updateCategory = (oldName, newName) => {
+    const trimmed = newName.trim();
+    if (!trimmed) return false;
+
+    // Check if new name already exists (but not the old one)
+    const exists = categories.some(
+      (c) => c.toLowerCase() === trimmed.toLowerCase() && c !== oldName
+    );
+    if (exists) return false;
+
+    const updated = categories.map((c) => (c === oldName ? trimmed : c)).sort();
+    setCategories(updated);
+    saveCategories(updated);
+    return true;
+  };
+
+  const deleteCategory = (name) => {
+    const updated = categories.filter((c) => c !== name);
+    setCategories(updated);
+    saveCategories(updated);
+  };
+
   const categoryExists = (name) => {
     return categories.some((c) => c.toLowerCase() === name.trim().toLowerCase());
   };
 
-  return { categories, addCategory, categoryExists };
+  return { categories, addCategory, updateCategory, deleteCategory, categoryExists };
 }
