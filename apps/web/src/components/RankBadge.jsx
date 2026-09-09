@@ -91,9 +91,9 @@ export function RankPlatino({ size = 28, showLabel = true }) {
       <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
         <defs>
           <linearGradient id="platino-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#E5E4E2" />
-            <stop offset="50%" stopColor="#B0B0B0" />
-            <stop offset="100%" stopColor="#E5E4E2" />
+            <stop offset="0%" stopColor="#8ECFCF" />
+            <stop offset="50%" stopColor="#6DBFBF" />
+            <stop offset="100%" stopColor="#8ECFCF" />
           </linearGradient>
           <filter id="platino-glow">
             <feGaussianBlur stdDeviation="1" result="blur" />
@@ -103,17 +103,17 @@ export function RankPlatino({ size = 28, showLabel = true }) {
         <path
           d="M16 2L4 8v8c0 7.18 5.12 13.88 12 16 6.88-2.12 12-8.82 12-16V8L16 2z"
           fill="url(#platino-grad)"
-          stroke="#808080"
+          stroke="#5AABAB"
           strokeWidth="0.5"
           filter="url(#platino-glow)"
         />
         <path d="M16 2L4 8h24L16 2z" fill="white" opacity="0.4" />
-        <text x="16" y="20" textAnchor="middle" fill="#333" fontSize="9" fontWeight="bold">
+        <text x="16" y="20" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">
           P
         </text>
       </svg>
       {showLabel && (
-        <span className="text-xs font-bold" style={{ color: '#808080' }}>
+        <span className="text-xs font-bold" style={{ color: '#5AABAB' }}>
           Platino
         </span>
       )}
@@ -178,7 +178,7 @@ export function getRankInfo(rank) {
     bronce: { name: 'Bronce', commission: 20, color: '#CD7F32', type: 'auto', salesNeeded: 0 },
     plata: { name: 'Plata', commission: 18, color: '#808080', type: 'auto', salesNeeded: 50 },
     oro: { name: 'Oro', commission: 15, color: '#DAA520', type: 'auto', salesNeeded: 200 },
-    platino: { name: 'Platino', commission: 12, color: '#808080', type: 'manual', salesNeeded: 0 },
+    platino: { name: 'Platino', commission: 12, color: '#5AABAB', type: 'manual', salesNeeded: 0 },
     diamante: { name: 'Diamante', commission: 10, color: '#00C2B8', type: 'manual', salesNeeded: 0 },
   };
   return ranks[rank] || ranks.bronce;

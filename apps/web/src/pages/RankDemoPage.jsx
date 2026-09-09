@@ -67,6 +67,24 @@ const RANKS = [
     label: '200+ ventas',
   },
   {
+    rank: 'platino',
+    seller: {
+      name: 'Vendedor Élite',
+      username: 'EliteDesigns',
+      storeName: 'Diseños Élite',
+      avatar: 'https://placehold.co/200x200/5AABAB/ffffff?text=PL',
+      description: 'Ventas masivas, reconocido por el admin. Rango Platino exclusivo.',
+      rating: 4.9,
+      salesCount: 800,
+      isVerified: true,
+      isTopSeller: true,
+      isDiamante: false,
+      totalDesigns: 95,
+    },
+    stats: { totalEarnings: 380000, totalSales: 800, avgRating: 4.9, commission: 12 },
+    label: 'Solo admin',
+  },
+  {
     rank: 'diamante',
     seller: {
       name: 'Primer Diseñador',
