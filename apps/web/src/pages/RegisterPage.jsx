@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext.jsx';
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     fullname: '',
+    username: '',
     email: '',
     password: '',
     storeName: '',
@@ -50,10 +51,27 @@ export default function RegisterPage() {
                 name="fullname"
                 value={formData.fullname}
                 onChange={handleChange}
-                placeholder="Tu nombre real (no se muestra públicamente)"
+                placeholder="Tu nombre real (para facturación)"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
                 required
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nombre de usuario
+              </label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="Ej: Roxana, JuanArte, MariaDiseños..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Este nombre se muestra en reviews y compras.
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -109,7 +127,7 @@ export default function RegisterPage() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Este es el nombre que van a ver los compradores. Podés cambiarlo después.
+                  Este es el nombre de tu tienda. Los compradores te ven así.
                 </p>
               </div>
             )}
