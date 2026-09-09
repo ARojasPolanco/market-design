@@ -55,7 +55,7 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-[#1a3a5c] text-white">
+      <section className="bg-[#4A90B8] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-block bg-white/10 rounded-2xl p-6 mb-8">
