@@ -1,0 +1,21 @@
+FROM node:22-alpine
+
+RUN apk add --no-cache python3 make g++
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY apps/api/package*.json ./apps/api/
+COPY packages/shared/package*.json ./packages/shared/
+
+RUN npm install --workspace=apps/api --ignore-scripts
+RUN cd /app/node_modules/bcrypt && npm run install
+
+COPY apps/api ./apps/api
+COPY packages/shared ./packages/shared
+
+WORKDIR /app/apps/api
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]
