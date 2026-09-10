@@ -416,7 +416,7 @@ function ModerationCard({ design }) {
                 onChange={(e) => setAssignedCategory(e.target.value)}
                 className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal bg-white"
               >
-                <option value="">Asignar otra categoría</option>
+                <option value="" disabled>Asignar otra categoría</option>
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
                     {cat}
