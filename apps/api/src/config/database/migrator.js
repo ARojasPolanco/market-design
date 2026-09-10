@@ -1,7 +1,6 @@
 import { Umzug } from 'umzug';
 import { SequelizeStorage } from 'umzug';
 import sequelize from './database.js';
-import { info, warn, error, debug } from '../logger.js';
 
 const migrator = new Umzug({
   migrations: {
@@ -9,7 +8,7 @@ const migrator = new Umzug({
   },
   context: sequelize.getQueryInterface(),
   storage: new SequelizeStorage({ sequelize }),
-  logger: { info, warn, error, debug },
+  logger: console,
 });
 
 export const runMigrations = async () => {

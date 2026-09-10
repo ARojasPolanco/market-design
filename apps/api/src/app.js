@@ -29,8 +29,9 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Routes placeholder
-// app.use('/api/v1', router);
+// Routes
+import router from './routes/routes.js';
+app.use('/api/v1', router);
 
 // Catch-all 404
 app.all('*', (req, _res, next) => {
