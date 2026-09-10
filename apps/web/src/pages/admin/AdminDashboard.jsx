@@ -344,19 +344,14 @@ export default function AdminDashboard() {
 }
 
 function ModerationCard({ design }) {
-  const { categories, addCategory } = useCategories();
+  const { categories } = useCategories();
   const [showChecklist, setShowChecklist] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [showSuccess, setShowSuccess] = useState(null);
   const [assignedCategory, setAssignedCategory] = useState('');
-  const [newCategory, setNewCategory] = useState('');
-  const [isCustomCategory, setIsCustomCategory] = useState(false);
 
   const handleApprove = () => {
-    if (isCustomCategory && newCategory.trim()) {
-      addCategory(newCategory.trim());
-    }
     setShowSuccess('approved');
     setTimeout(() => setShowSuccess(null), 3000);
   };
@@ -410,43 +405,24 @@ function ModerationCard({ design }) {
             <p className="text-sm text-gray-600 mb-3 line-clamp-2">{design.description}</p>
 
             {/* Category assignment */}
-            <div className="bg-coral-50 rounded-lg p-3 mb-3">
-              <p className="text-xs font-medium text-coral-500 mb-2">
-                Categoría sugerida por el vendedor:{' '}
-                <span className="font-bold">{design.category}</span>
-              </p>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <select
-                  value={isCustomCategory ? '__custom__' : assignedCategory}
-                  onChange={(e) => {
-                    if (e.target.value === '__custom__') {
-                      setIsCustomCategory(true);
-                      setAssignedCategory('');
-                    } else {
-                      setIsCustomCategory(false);
-                      setAssignedCategory(e.target.value);
-                    }
-                  }}
-                  className="flex-1 px-3 py-1.5 text-sm border border-coral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500 bg-white"
-                >
-                  <option value="">Asignar categoría existente</option>
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                  <option value="__custom__">+ Crear nueva categoría</option>
-                </select>
-                {isCustomCategory && (
-                  <input
-                    type="text"
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    placeholder="Nueva categoría..."
-                    className="flex-1 px-3 py-1.5 text-sm border border-coral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
-                  />
-                )}
-              </div>
+            <div className="flex items-center gap-3 mb-3 p-3 bg-gray-50 rounded-lg">
+              <span className="text-xs text-gray-500 shrink-0">Categoría:</span>
+              <span className="text-xs font-medium text-gray-700 bg-white px-2.5 py-1 rounded-full border border-gray-200">
+                {design.category}
+              </span>
+              <span className="text-gray-300">→</span>
+              <select
+                value={assignedCategory}
+                onChange={(e) => setAssignedCategory(e.target.value)}
+                className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal bg-white"
+              >
+                <option value="">Asignar otra categoría</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Checklist */}
