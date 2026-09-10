@@ -276,7 +276,6 @@ function SuggestionsSection({ interests }) {
 }
 
 function ProfileSection({ buyer }) {
-  const [fullname, setFullname] = useState(buyer.name);
   const [username, setUsername] = useState(buyer.username);
   const [avatarPreview, setAvatarPreview] = useState(buyer.avatar);
   const [interests, setInterests] = useState(buyer.interests);
@@ -328,22 +327,6 @@ function ProfileSection({ buyer }) {
             <p className="font-medium text-gray-900">{buyer.name}</p>
             <p className="text-sm text-gray-500">@{buyer.username}</p>
           </div>
-        </div>
-
-        {/* Fullname */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nombre completo
-          </label>
-          <input
-            type="text"
-            value={fullname}
-            onChange={(e) => setFullname(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Este nombre se usa para facturación y datos internos.
-          </p>
         </div>
 
         {/* Username */}
