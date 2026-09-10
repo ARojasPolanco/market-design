@@ -13,7 +13,7 @@ beforeAll(async () => {
   try {
     await sequelize.authenticate();
     console.log('Test DB connected');
-  } catch (error) {
+  } catch (_error) {
     console.log('Test DB not available, skipping tests');
     return;
   }
@@ -21,7 +21,7 @@ beforeAll(async () => {
   // Run migrations
   try {
     await runMigrations();
-  } catch (error) {
+  } catch (_error) {
     // Migrations might already be applied
   }
 
