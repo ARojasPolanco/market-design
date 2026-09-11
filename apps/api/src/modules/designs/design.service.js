@@ -21,11 +21,11 @@ export class DesignService {
     if (filters.search) {
       where[Op.or] = [
         sequelize.where(
-          sequelize.fn('LOWER', sequelize.col('title')),
+          sequelize.fn('LOWER', sequelize.col('Design.title')),
           { [Op.like]: `%${filters.search.toLowerCase()}%` }
         ),
         sequelize.where(
-          sequelize.fn('LOWER', sequelize.col('description')),
+          sequelize.fn('LOWER', sequelize.col('Design.description')),
           { [Op.like]: `%${filters.search.toLowerCase()}%` }
         ),
       ];
@@ -65,7 +65,7 @@ export class DesignService {
         {
           model: User,
           as: 'seller',
-          attributes: ['id', 'fullname', 'username', 'storeName', 'avatarUrl', 'rank', 'isVerified', 'isTopSeller', 'rating'],
+          attributes: ['id', 'fullname', 'username', 'storeName', 'avatarUrl', 'rank', 'isVerified', 'isTopSeller'],
         },
       ],
     });

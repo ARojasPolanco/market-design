@@ -7,30 +7,31 @@ import { runMigrations } from '../config/database/migrator.js';
 let server;
 let authToken;
 let userId;
+let dbAvailable = false;
 
 beforeAll(async () => {
-  // Connect to test database
+  server = app;
+
   try {
     await sequelize.authenticate();
     console.log('Test DB connected');
+    dbAvailable = true;
   } catch (_error) {
-    console.log('Test DB not available, skipping tests');
+    console.log('Test DB not available, skipping DB tests');
     return;
   }
 
-  // Run migrations
   try {
     await runMigrations();
   } catch (_error) {
     // Migrations might already be applied
   }
-
-  server = app;
 });
 
 describe('Auth Module', () => {
   describe('POST /api/v1/auth/register', () => {
     it('should register a new user successfully', async () => {
+      if (!dbAvailable) return;
       const res = await request(server)
         .post('/api/v1/auth/register')
         .send({
