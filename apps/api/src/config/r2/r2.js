@@ -7,12 +7,12 @@ const s3Client = new S3Client({
   region: 'auto',
   endpoint: `https://${envs.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   credentials: {
-    accessKeyId: envs.R2_ACCESS_KEY_ID || '',
-    secretAccessKey: envs.R2_SECRET_ACCESS_KEY || '',
+    accessKeyId: envs.R2_ACCESS_KEY_ID,
+    secretAccessKey: envs.R2_SECRET_ACCESS_KEY,
   },
 });
 
-const BUCKET = envs.R2_BUCKET_NAME || 'marketplace-diseños';
+const BUCKET = envs.R2_BUCKET_NAME;
 
 export class R2Storage {
   async uploadFile(fileBuffer, fileName, contentType) {
