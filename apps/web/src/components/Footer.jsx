@@ -4,8 +4,38 @@ import { ArrowRight } from 'lucide-react';
 export default function Footer() {
   return (
     <footer className="bg-dark text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+        {/* Mobile: stacked compact */}
+        <div className="md:hidden space-y-4">
+          {/* Brand + CTA inline */}
+          <div className="flex items-center justify-between">
+            <Link to="/">
+              <img src="/logoSolo.png" alt="Market Design" className="h-7" />
+            </Link>
+            <Link
+              to="/registro"
+              className="bg-brand-orange text-dark px-4 py-1.5 rounded-lg font-semibold text-xs inline-flex items-center gap-1"
+            >
+              Vender <ArrowRight size={12} />
+            </Link>
+          </div>
+
+          {/* Links horizontal */}
+          <div className="flex justify-between text-xs">
+            <div className="flex gap-6">
+              <Link to="/catalogo" className="text-gray-400 hover:text-brand-teal">Catálogo</Link>
+              <Link to="/catalogo?sort=popular" className="text-gray-400 hover:text-brand-teal">Más vendidos</Link>
+              <Link to="/catalogo?sort=trending" className="text-gray-400 hover:text-brand-teal">Tendencia</Link>
+            </div>
+            <div className="flex gap-4">
+              <Link to="/terminos" className="text-gray-400 hover:text-brand-violet">Términos</Link>
+              <Link to="/privacidad" className="text-gray-400 hover:text-brand-violet">Privacidad</Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop: grid original */}
+        <div className="hidden md:grid md:grid-cols-3 gap-8 items-center">
           {/* Brand */}
           <div>
             <Link to="/" className="inline-block mb-3">
@@ -50,7 +80,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-6 pt-4 text-[10px] text-center text-gray-600">
+        <div className="border-t border-gray-800 mt-4 md:mt-6 pt-3 md:pt-4 text-[10px] text-center text-gray-600">
           © {new Date().getFullYear()} Market Design
         </div>
       </div>
