@@ -173,7 +173,7 @@ describe('Purchases Module', () => {
       expect(res.status).toBe(201);
       expect(res.body.status).toBe('success');
       expect(res.body.purchase).toBeDefined();
-      expect(res.body.purchase.price).toBe(2500);
+      expect(res.body.purchase.price).toBe('2500.00');
     });
 
     it('should fail duplicate purchase', async () => {

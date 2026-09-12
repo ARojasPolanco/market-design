@@ -112,7 +112,7 @@ export class PurchaseService {
 
   async hasPurchased(buyerId, designId) {
     const purchase = await Purchase.findOne({
-      where: { buyerId, designId, status: 'completed' },
+      where: { buyerId, designId, status: ['pending', 'completed'] },
     });
     return !!purchase;
   }

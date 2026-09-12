@@ -29,8 +29,17 @@ export const createPurchase = catchAsync(async (req, res, next) => {
     return next(new AppError('Ya compraste este diseño.', 400));
   }
 
-  // Calculate commission (default 20%)
-  const commissionRate = 0.20;
+  // Calculate commission based on seller rank
+  const COMMISSION_RATES = {
+    bronce: 0.20,
+    plata: 0.18,
+    oro: 0.15,
+    platino: 0.12,
+    diamante: 0.10,
+  };
+
+  const sellerRank = design.seller?.rank || 'bronce';
+  const commissionRate = COMMISSION_RATES[sellerRank] || 0.20;
   const commission = Math.round(design.price * commissionRate * 100) / 100;
   const sellerEarnings = Math.round((design.price - commission) * 100) / 100;
 
@@ -45,6 +54,7 @@ export const createPurchase = catchAsync(async (req, res, next) => {
   });
 
   // Create MP preference
+  let preferenceData = null;
   try {
     const preference = await mpService.createPreference(
       [
@@ -58,20 +68,23 @@ export const createPurchase = catchAsync(async (req, res, next) => {
     );
 
     await purchase.update({ mpPreferenceId: preference.id });
-
-    res.status(201).json({
-      status: 'success',
-      purchase: {
-        id: purchase.id,
-        price: purchase.price,
-        preferenceId: preference.id,
-        initPoint: preference.init_point,
-      },
-    });
-  } catch (_error) {
-    await purchase.update({ status: 'refunded' });
-    return next(new AppError('Error al crear la preferencia de pago.', 500));
+    preferenceData = {
+      preferenceId: preference.id,
+      initPoint: preference.init_point,
+    };
+  } catch (mpError) {
+    console.error('MP preference error:', mpError.message);
+    // Purchase created but payment link failed - can be retried
   }
+
+  res.status(201).json({
+    status: 'success',
+    purchase: {
+      id: purchase.id,
+      price: purchase.price,
+      ...preferenceData,
+    },
+  });
 });
 
 export const handleWebhook = catchAsync(async (req, res) => {
