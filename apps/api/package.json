@@ -12,6 +12,8 @@
     "migrate": "node src/config/database/migrate.js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1131.0",
+    "@aws-sdk/s3-request-presigner": "^3.1131.0",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.0",
@@ -19,11 +21,11 @@
     "express-rate-limit": "^7.4.0",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.0",
-    "mercadopago": "^2.1.0",
+    "mercadopago": "^2.13.0",
     "multer": "^1.4.5-lts.1",
     "pg": "^8.13.0",
     "pg-hstore": "^2.3.4",
-    "resend": "^4.0.0",
+    "resend": "^4.8.0",
     "sequelize": "^6.37.0",
     "sharp": "^0.33.0",
     "umzug": "^3.8.0",
