@@ -29,6 +29,7 @@ Favorite.init(
     modelName: 'Favorite',
     tableName: 'favorites',
     underscored: true,
+    updatedAt: false,
   }
 );
 

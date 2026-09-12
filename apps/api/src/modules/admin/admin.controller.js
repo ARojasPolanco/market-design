@@ -125,7 +125,7 @@ export const getStats = catchAsync(async (req, res) => {
 
 // Users
 export const getUsers = catchAsync(async (req, res) => {
-  const { role, search, page, limit } = req.query;
+  const { role, search, page = '1', limit = '20' } = req.query;
   const result = await adminService.getUsers({ role, search, page: Number(page), limit: Number(limit) });
   res.status(200).json({ status: 'success', ...result });
 });

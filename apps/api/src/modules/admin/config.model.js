@@ -25,6 +25,8 @@ Config.init(
     modelName: 'Config',
     tableName: 'config',
     underscored: true,
+    updatedAt: 'updated_at',
+    createdAt: false,
   }
 );
 
