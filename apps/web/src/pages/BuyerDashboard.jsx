@@ -69,12 +69,12 @@ export default function BuyerDashboard() {
               </span>
             </div>
           </div>
-          <Link
-            to="/comprador/perfil"
+          <button
+            onClick={() => setActiveTab('profile')}
             className="text-sm text-brand-teal hover:text-brand-teal-dark font-medium"
           >
             Editar perfil
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -327,12 +327,24 @@ function SuggestionsSection() {
 
 function ProfileSection({ user }) {
   const [username, setUsername] = useState(user?.username || '');
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const [saved, setSaved] = useState(false);
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setAvatarPreview(url);
+    }
+  };
 
   const handleSave = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
+
+  const displayName = user?.username || 'U';
+  const avatarUrl = avatarPreview || `https://placehold.co/200x200/0F2A44/ffffff?text=${displayName.charAt(0).toUpperCase()}`;
 
   return (
     <div className="max-w-2xl">
@@ -342,12 +354,19 @@ function ProfileSection({ user }) {
         {/* Avatar */}
         <div className="flex items-center gap-6 mb-6">
           <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-bold text-gray-500">
-              {user?.username?.charAt(0).toUpperCase() || 'U'}
-            </div>
+            <img
+              src={avatarUrl}
+              alt="Avatar"
+              className="w-24 h-24 rounded-full object-cover"
+            />
             <label className="absolute bottom-0 right-0 p-1.5 bg-brand-teal text-white rounded-full cursor-pointer hover:bg-brand-teal-dark transition-colors">
               <Camera size={14} />
-              <input type="file" accept="image/*" className="hidden" />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
             </label>
           </div>
           <div>
