@@ -18,10 +18,18 @@ export const getAllDesigns = catchAsync(async (req, res) => {
 });
 
 export const getDesign = catchAsync(async (req, res, next) => {
-  const design = await designService.findById(req.params.id);
+  const { id } = req.params;
+
+  // Validate UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(id)) {
+    return next(new AppError('ID de diseño inválido.', 400));
+  }
+
+  const design = await designService.findById(id);
 
   if (!design) {
-    return next(new AppError('Diseño no encontrado', 404));
+    return next(new AppError('Diseño no encontrado.', 404));
   }
 
   // Increment view count
