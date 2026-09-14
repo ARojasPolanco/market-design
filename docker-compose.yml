@@ -21,6 +21,8 @@ services:
       dockerfile: Dockerfile.api
     ports:
       - '3000:3000'
+    env_file:
+      - ./apps/api/.env
     environment:
       PORT: 3000
       NODE_ENV: development
