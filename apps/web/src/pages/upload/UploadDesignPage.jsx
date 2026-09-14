@@ -42,10 +42,11 @@ export default function UploadDesignPage() {
   });
   const [designFile, setDesignFile] = useState(null);
   const [designFileError, setDesignFileError] = useState('');
-  const [previewFile, setPreviewFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState('');
+  const [previewFiles, setPreviewFiles] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
   const [previewError, setPreviewError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const MAX_PREVIEWS = 3;
 
   const updateForm = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -75,23 +76,40 @@ export default function UploadDesignPage() {
   // Step 2: Preview upload
   const handlePreviewDrop = useCallback((e) => {
     e.preventDefault();
-    const file = e.dataTransfer?.files?.[0] || e.target?.files?.[0];
-    if (!file) return;
+    const files = e.dataTransfer?.files || e.target?.files;
+    if (!files || files.length === 0) return;
 
     setPreviewError('');
 
-    if (!file.type.startsWith('image/')) {
-      setPreviewError('El preview debe ser una imagen (JPG, PNG, WebP).');
+    // Check if adding these files would exceed the limit
+    if (previewFiles.length + files.length > MAX_PREVIEWS) {
+      setPreviewError(`Máximo ${MAX_PREVIEWS} imágenes de preview.`);
       return;
     }
 
-    setPreviewFile(file);
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-  }, []);
+    const newFiles = [];
+    const newUrls = [];
+
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) {
+        setPreviewError('El preview debe ser una imagen (JPG, PNG, WebP).');
+        return;
+      }
+      newFiles.push(file);
+      newUrls.push(URL.createObjectURL(file));
+    }
+
+    setPreviewFiles(prev => [...prev, ...newFiles]);
+    setPreviewUrls(prev => [...prev, ...newUrls]);
+  }, [previewFiles]);
+
+  const removePreview = (index) => {
+    setPreviewFiles(prev => prev.filter((_, i) => i !== index));
+    setPreviewUrls(prev => prev.filter((_, i) => i !== index));
+  };
 
   const canProceedStep1 = designFile && !designFileError;
-  const canProceedStep2 = previewFile && !previewError;
+  const canProceedStep2 = previewFiles.length > 0 && !previewError;
   const canProceedStep3 =
     formData.title.trim().length >= 3 &&
     formData.description.trim().length >= 10 &&
@@ -233,58 +251,82 @@ export default function UploadDesignPage() {
           {currentStep === 2 && (
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                2. Subí una imagen de preview
+                2. Subí imágenes de preview (hasta 3)
               </h2>
+              <p className="text-sm text-gray-500 mb-4">
+                Subí entre 1 y 3 imágenes de preview. La primera será la principal en el catálogo.
+              </p>
 
-              {/* Drop zone */}
-              <div
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={handlePreviewDrop}
-                className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
-                  previewFile
-                    ? 'border-green-300 bg-green-50'
-                    : previewError
-                      ? 'border-red-300 bg-red-50'
-                      : 'border-gray-300 hover:border-coral-400 hover:bg-coral-50'
-                }`}
-              >
-                {previewFile ? (
-                  <div>
-                    <img
-                      src={previewUrl}
-                      alt="Preview"
-                      className="max-h-48 mx-auto rounded-lg mb-3"
-                    />
-                    <p className="font-medium text-gray-900">{previewFile.name}</p>
-                    <button
-                      onClick={() => {
-                        setPreviewFile(null);
-                        setPreviewUrl('');
-                      }}
-                      className="text-sm text-red-600 hover:text-red-700 mt-2 flex items-center gap-1 mx-auto"
-                    >
-                      <X size={14} /> Quitar imagen
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <Image size={48} className="mx-auto text-gray-400 mb-3" />
-                    <p className="font-medium text-gray-900 mb-1">
-                      Arrastrá tu preview acá o{' '}
-                      <label className="text-coral-400 cursor-pointer hover:underline">
-                        seleccioná una imagen
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handlePreviewDrop}
+              {/* Preview grid */}
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                {[0, 1, 2].map((index) => (
+                  <div
+                    key={index}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const files = e.dataTransfer?.files;
+                      if (files && files[0]) {
+                        const event = { target: { files: [files[0]] } };
+                        handlePreviewDrop(event);
+                      }
+                    }}
+                    className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors aspect-square flex flex-col items-center justify-center ${
+                      previewUrls[index]
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-gray-300 hover:border-coral-400 hover:bg-coral-50'
+                    }`}
+                  >
+                    {previewUrls[index] ? (
+                      <div className="relative w-full h-full">
+                        <img
+                          src={previewUrls[index]}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-full object-cover rounded-lg"
                         />
-                      </label>
-                    </p>
-                    <p className="text-sm text-gray-500">JPG, PNG, WebP — Recomendado 800x800px</p>
-                  </>
-                )}
+                        <button
+                          onClick={() => removePreview(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                        >
+                          <X size={12} />
+                        </button>
+                        {index === 0 && (
+                          <span className="absolute bottom-2 left-2 bg-dark text-white text-xs px-2 py-1 rounded-full">
+                            Principal
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        <Image size={24} className="text-gray-400 mb-2" />
+                        <p className="text-xs text-gray-500">
+                          {index === 0 ? 'Principal' : `Preview ${index + 1}`}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                ))}
               </div>
+
+              {/* Upload button */}
+              {previewFiles.length < MAX_PREVIEWS && (
+                <div className="text-center">
+                  <label className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg cursor-pointer transition-colors">
+                    <Image size={16} />
+                    {previewFiles.length === 0 ? 'Seleccionar imágenes' : 'Agregar más imágenes'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handlePreviewDrop}
+                    />
+                  </label>
+                  <p className="text-xs text-gray-400 mt-2">
+                    {previewFiles.length}/{MAX_PREVIEWS} imágenes seleccionadas
+                  </p>
+                </div>
+              )}
 
               {/* Error */}
               {previewError && (
@@ -448,7 +490,9 @@ export default function UploadDesignPage() {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                   <Image size={20} className="text-gray-500" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{previewFile?.name}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {previewFiles.length} {previewFiles.length === 1 ? 'preview' : 'previews'}
+                    </p>
                   </div>
                   <CheckCircle size={16} className="text-green-500 ml-auto" />
                 </div>
@@ -545,7 +589,7 @@ export default function UploadDesignPage() {
         <div className="hidden lg:block">
           <div className="sticky top-24">
             <p className="text-sm font-medium text-gray-500 mb-3">Vista previa en el catálogo</p>
-            <DesignPreviewCard formData={formData} previewImage={previewUrl} />
+            <DesignPreviewCard formData={formData} previewImage={previewUrls[0]} />
           </div>
         </div>
       </div>

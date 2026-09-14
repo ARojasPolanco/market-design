@@ -62,6 +62,16 @@ Design.init(
       allowNull: true,
       field: 'preview_key',
     },
+    previewUrls: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+      field: 'preview_urls',
+    },
+    previewKeys: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+      field: 'preview_keys',
+    },
     originalFileKey: {
       type: DataTypes.STRING(500),
       allowNull: true,

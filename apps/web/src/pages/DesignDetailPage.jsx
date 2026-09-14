@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, Heart, ShoppingCart, Eye, ArrowLeft, X } from 'lucide-react';
+import { Star, Heart, ShoppingCart, Eye, ArrowLeft, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useDesign } from '../hooks/useDesigns.js';
 import { useFavorites } from '../context/FavoritesContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -17,6 +17,14 @@ export default function DesignDetailPage() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [showZoom, setShowZoom] = useState(false);
+  const [currentPreview, setCurrentPreview] = useState(0);
+
+  // Get all preview URLs (support both single and multiple)
+  const previewUrls = design?.previewUrls?.length > 0
+    ? design.previewUrls
+    : design?.previewUrl
+      ? [design.previewUrl]
+      : [];
 
   useEffect(() => {
     setIsLoading(true);
@@ -58,14 +66,14 @@ export default function DesignDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Image */}
+        {/* Image carousel */}
         <div className="relative">
           <div
             className="aspect-square rounded-2xl overflow-hidden bg-gray-100 cursor-zoom-in group"
             onClick={() => setShowZoom(true)}
           >
             <img
-              src={design.previewUrl}
+              src={previewUrls[currentPreview] || design.previewUrl}
               alt={design.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
@@ -74,7 +82,52 @@ export default function DesignDetailPage() {
                 Click para ampliar
               </span>
             </div>
+
+            {/* Navigation arrows */}
+            {previewUrls.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentPreview((prev) => (prev === 0 ? previewUrls.length - 1 : prev - 1));
+                  }}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-colors"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentPreview((prev) => (prev === previewUrls.length - 1 ? 0 : prev + 1));
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-colors"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </>
+            )}
           </div>
+
+          {/* Thumbnails */}
+          {previewUrls.length > 1 && (
+            <div className="flex gap-2 mt-3">
+              {previewUrls.map((url, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPreview(index)}
+                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
+                    currentPreview === index ? 'border-brand-teal' : 'border-transparent hover:border-gray-300'
+                  }`}
+                >
+                  <img
+                    src={url}
+                    alt={`Preview ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Info */}
@@ -245,12 +298,57 @@ export default function DesignDetailPage() {
           >
             <X size={32} />
           </button>
+
+          {/* Navigation in zoom */}
+          {previewUrls.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentPreview((prev) => (prev === 0 ? previewUrls.length - 1 : prev - 1));
+                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white p-3 rounded-full z-10"
+              >
+                <ChevronLeft size={24} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentPreview((prev) => (prev === previewUrls.length - 1 ? 0 : prev + 1));
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white p-3 rounded-full z-10"
+              >
+                <ChevronRight size={24} />
+              </button>
+            </>
+          )}
+
           <img
-            src={design.previewUrl}
+            src={previewUrls[currentPreview] || design.previewUrl}
             alt={design.title}
             className="max-w-full max-h-full object-contain"
             onClick={(e) => e.stopPropagation()}
           />
+
+          {/* Thumbnail strip */}
+          {previewUrls.length > 1 && (
+            <div className="absolute bottom-4 flex gap-2">
+              {previewUrls.map((url, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentPreview(index);
+                  }}
+                  className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-colors ${
+                    currentPreview === index ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <img src={url} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
