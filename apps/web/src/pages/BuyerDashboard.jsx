@@ -348,16 +348,22 @@ function ProfileSection({ user }) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const updateData = {};
-      if (username && username !== user?.username) {
-        updateData.username = username;
+      // Upload avatar if changed
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append('file', avatarFile);
+        await api.post('/v1/auth/upload-avatar', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
       }
 
-      if (Object.keys(updateData).length > 0) {
-        await api.patch('/v1/auth/profile', updateData);
+      // Update username if changed
+      if (username && username !== user?.username) {
+        await api.patch('/v1/auth/profile', { username });
       }
 
       await refreshUser();
+      setAvatarFile(null);
       setSaved(true);
       showToast('Perfil actualizado correctamente', { type: 'success' });
       setTimeout(() => setSaved(false), 3000);

@@ -489,6 +489,16 @@ function ProfileSection({ seller }) {
   const handleSave = async () => {
     setSaving(true);
     try {
+      // Upload avatar if changed
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append('file', avatarFile);
+        await api.post('/v1/auth/upload-avatar', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+
+      // Update profile fields if changed
       const updateData = {};
       if (storeName !== seller.storeName) updateData.storeName = storeName;
       if (description !== seller.description) updateData.description = description;
@@ -498,6 +508,7 @@ function ProfileSection({ seller }) {
       }
 
       await refreshUser();
+      setAvatarFile(null);
       setSaved(true);
       showToast('Perfil actualizado correctamente', { type: 'success' });
       setTimeout(() => setSaved(false), 3000);

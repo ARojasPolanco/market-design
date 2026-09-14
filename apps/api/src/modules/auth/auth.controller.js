@@ -3,6 +3,7 @@ import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
 import { generateJWT } from '../../config/plugins/generate-jwt.js';
 import { comparePassword } from '../../config/plugins/encrypted-password.js';
+import { r2Storage } from '../../config/r2/r2.js';
 import {
   validateRegister,
   validateLogin,
@@ -212,5 +213,29 @@ export const activateSeller = catchAsync(async (req, res, next) => {
       description: updated.description,
       rank: updated.rank,
     },
+  });
+});
+
+export const uploadAvatar = catchAsync(async (req, res, next) => {
+  if (!req.file) {
+    return next(new AppError('No se seleccionó ninguna imagen.', 400));
+  }
+
+  // Upload to R2
+  const result = await r2Storage.uploadFile(
+    req.file.buffer,
+    `avatar-${Date.now()}-${req.file.originalname}`,
+    req.file.mimetype
+  );
+
+  // Update user avatar URL
+  const updated = await authService.update(req.sessionUser.id, {
+    avatarUrl: result.url,
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Foto de perfil actualizada correctamente',
+    avatarUrl: updated.avatarUrl,
   });
 });
