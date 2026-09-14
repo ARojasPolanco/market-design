@@ -59,12 +59,12 @@ export const login = catchAsync(async (req, res, next) => {
 
   const user = await authService.findOneByEmail(data.email);
   if (!user) {
-    return next(new AppError('Credenciales inválidas', 401));
+    return next(new AppError('El email o la contraseña son incorrectos', 401));
   }
 
   const isPasswordValid = await comparePassword(data.password, user.password);
   if (!isPasswordValid) {
-    return next(new AppError('Credenciales inválidas', 401));
+    return next(new AppError('El email o la contraseña son incorrectos', 401));
   }
 
   const token = generateJWT({ id: user.id, role: user.role });

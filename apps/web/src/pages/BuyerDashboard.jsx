@@ -96,7 +96,7 @@ export default function BuyerDashboard() {
             </p>
           </div>
           <Link
-            to="/vendedor/panel/subir"
+            to="/vendedor/activar"
             className="bg-brand-teal text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-teal-dark transition-colors"
           >
             Activar vendedor
