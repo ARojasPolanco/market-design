@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 
@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const { showToast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,8 +17,10 @@ export default function LoginPage() {
     try {
       await login(email, password);
       showToast('Sesión iniciada correctamente', { type: 'success' });
-    } catch {
-      showToast('Email o contraseña incorrectos', { type: 'error' });
+      navigate('/');
+    } catch (err) {
+      const message = err.response?.data?.message || 'Email o contraseña incorrectos';
+      showToast(message, { type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -35,7 +38,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
                 required
               />
             </div>
@@ -50,7 +53,7 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
                 required
               />
             </div>
@@ -64,7 +67,7 @@ export default function LoginPage() {
           </form>
           <p className="text-center text-sm text-gray-500 mt-6">
             ¿No tenés cuenta?{' '}
-            <Link to="/registro" className="text-coral-400 hover:text-coral-500 font-medium">
+            <Link to="/registro" className="text-brand-teal hover:text-brand-teal-dark font-medium">
               Registrate
             </Link>
           </p>

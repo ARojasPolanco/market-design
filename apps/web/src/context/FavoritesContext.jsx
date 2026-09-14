@@ -1,23 +1,64 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import api from '../config/api.js';
+import { useAuth } from './AuthContext.jsx';
 
 const FavoritesContext = createContext(null);
 
 export function FavoritesProvider({ children }) {
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem('favorites');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [favorites, setFavorites] = useState([]);
+  const { token } = useAuth();
 
   useEffect(() => {
-    localStorage.setItem('favorites', JSON.stringify(favorites));
-  }, [favorites]);
+    if (token) {
+      fetchFavorites();
+    } else {
+      // Load from localStorage for non-logged users
+      const saved = localStorage.getItem('favorites');
+      setFavorites(saved ? JSON.parse(saved) : []);
+    }
+  }, [token]);
 
-  const addFavorite = (designId) => {
-    setFavorites((prev) => (prev.includes(designId) ? prev : [...prev, designId]));
+  const fetchFavorites = async () => {
+    try {
+      const res = await api.get('/v1/favorites/my');
+      setFavorites(res.data.favorites?.map(f => f.designId) || []);
+    } catch (err) {
+      console.error('Error fetching favorites:', err);
+    }
   };
 
-  const removeFavorite = (designId) => {
-    setFavorites((prev) => prev.filter((id) => id !== designId));
+  const addFavorite = async (designId) => {
+    if (!favorites.includes(designId)) {
+      setFavorites(prev => [...prev, designId]);
+
+      if (token) {
+        try {
+          await api.post('/v1/favorites', { designId });
+        } catch (err) {
+          console.error('Error adding favorite:', err);
+          // Revert
+          setFavorites(prev => prev.filter(id => id !== designId));
+        }
+      } else {
+        localStorage.setItem('favorites', JSON.stringify([...favorites, designId]));
+      }
+    }
+  };
+
+  const removeFavorite = async (designId) => {
+    setFavorites(prev => prev.filter(id => id !== designId));
+
+    if (token) {
+      try {
+        await api.delete(`/v1/favorites/${designId}`);
+      } catch (err) {
+        console.error('Error removing favorite:', err);
+        // Revert
+        setFavorites(prev => [...prev, designId]);
+      }
+    } else {
+      localStorage.setItem('favorites', JSON.stringify(favorites.filter(id => id !== designId)));
+    }
   };
 
   const isFavorite = (designId) => favorites.includes(designId);

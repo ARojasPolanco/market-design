@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 
@@ -15,6 +15,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const { showToast } = useToast();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -24,10 +25,14 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await register({ ...formData, role: wantToSell ? 'seller' : 'buyer' });
+      const data = { ...formData };
+      if (!wantToSell) delete data.storeName;
+      await register(data);
       showToast('Cuenta creada correctamente', { type: 'success' });
-    } catch {
-      showToast('Error al crear la cuenta', { type: 'error' });
+      navigate('/');
+    } catch (err) {
+      const message = err.response?.data?.message || 'Error al crear la cuenta';
+      showToast(message, { type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -52,7 +57,7 @@ export default function RegisterPage() {
                 value={formData.fullname}
                 onChange={handleChange}
                 placeholder="Tu nombre real (para facturación)"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
                 required
               />
             </div>
@@ -66,7 +71,7 @@ export default function RegisterPage() {
                 value={formData.username}
                 onChange={handleChange}
                 placeholder="Ej: Roxana, JuanArte, MariaDiseños..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
                 required
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -80,7 +85,7 @@ export default function RegisterPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
                 required
               />
             </div>
@@ -91,7 +96,7 @@ export default function RegisterPage() {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
                 required
                 minLength={8}
               />
@@ -124,7 +129,7 @@ export default function RegisterPage() {
                   value={formData.storeName}
                   onChange={handleChange}
                   placeholder="Ej: Roxin Diseños, Arte Digital Juan..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Este es el nombre de tu tienda. Los compradores te ven así.

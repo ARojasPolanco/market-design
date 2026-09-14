@@ -11,12 +11,26 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (token) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      // TODO: fetch profile
-      setLoading(false);
+      fetchProfile();
     } else {
       setLoading(false);
     }
-  }, [token]);
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const res = await api.get('/v1/auth/profile');
+      setUser(res.data.user);
+    } catch (_error) {
+      // Token invalid or expired
+      localStorage.removeItem('token');
+      setToken(null);
+      setUser(null);
+      delete api.defaults.headers.common['Authorization'];
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const login = async (email, password) => {
     const res = await api.post('/v1/auth/login', { email, password });

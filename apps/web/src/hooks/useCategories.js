@@ -1,6 +1,5 @@
-import { useState } from 'react';
-
-const CATEGORIES_KEY = 'marketplace_categories';
+import { useState, useEffect } from 'react';
+import api from '../config/api.js';
 
 const DEFAULT_CATEGORIES = [
   'Sublimado',
@@ -11,28 +10,27 @@ const DEFAULT_CATEGORIES = [
   'Religioso',
 ];
 
-function getStoredCategories() {
-  try {
-    const stored = localStorage.getItem(CATEGORIES_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      const merged = [...new Set([...DEFAULT_CATEGORIES, ...parsed])];
-      return merged.sort();
-    }
-  } catch {
-    // ignore
-  }
-  return [...DEFAULT_CATEGORIES].sort();
-}
-
-function saveCategories(categories) {
-  localStorage.setItem(CATEGORIES_KEY, JSON.stringify(categories));
-}
-
 export function useCategories() {
-  const [categories, setCategories] = useState(getStoredCategories);
+  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
 
-  const addCategory = (name) => {
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await api.get('/v1/admin/config');
+      const config = res.data.config || {};
+      if (config.categories) {
+        setCategories(config.categories);
+      }
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+      // Keep defaults
+    }
+  };
+
+  const addCategory = async (name) => {
     const trimmed = name.trim();
     if (!trimmed) return false;
 
@@ -41,15 +39,21 @@ export function useCategories() {
 
     const updated = [...categories, trimmed].sort();
     setCategories(updated);
-    saveCategories(updated);
+
+    // Save to backend
+    try {
+      await api.put('/v1/admin/config', { key: 'categories', value: updated });
+    } catch (err) {
+      console.error('Error saving categories:', err);
+    }
+
     return true;
   };
 
-  const updateCategory = (oldName, newName) => {
+  const updateCategory = async (oldName, newName) => {
     const trimmed = newName.trim();
     if (!trimmed) return false;
 
-    // Check if new name already exists (but not the old one)
     const exists = categories.some(
       (c) => c.toLowerCase() === trimmed.toLowerCase() && c !== oldName
     );
@@ -57,14 +61,25 @@ export function useCategories() {
 
     const updated = categories.map((c) => (c === oldName ? trimmed : c)).sort();
     setCategories(updated);
-    saveCategories(updated);
+
+    try {
+      await api.put('/v1/admin/config', { key: 'categories', value: updated });
+    } catch (err) {
+      console.error('Error updating categories:', err);
+    }
+
     return true;
   };
 
-  const deleteCategory = (name) => {
+  const deleteCategory = async (name) => {
     const updated = categories.filter((c) => c !== name);
     setCategories(updated);
-    saveCategories(updated);
+
+    try {
+      await api.put('/v1/admin/config', { key: 'categories', value: updated });
+    } catch (err) {
+      console.error('Error deleting category:', err);
+    }
   };
 
   const categoryExists = (name) => {
