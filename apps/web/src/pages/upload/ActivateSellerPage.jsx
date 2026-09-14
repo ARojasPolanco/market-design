@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+import api from '../../config/api.js';
 import { Store, CreditCard, ArrowRight, CheckCircle } from 'lucide-react';
 import BackButton from '../../components/BackButton.jsx';
 
@@ -10,6 +12,7 @@ export default function ActivateSellerPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+  const { refreshUser } = useAuth();
 
   const handleActivate = async () => {
     if (!storeName.trim()) {
@@ -17,14 +20,23 @@ export default function ActivateSellerPage() {
       return;
     }
     setLoading(true);
-    // TODO: Call API to activate seller role
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setLoading(false);
-    setStep(2);
+    try {
+      const res = await api.post('/v1/auth/activate-seller', {
+        storeName: storeName.trim(),
+        description: description.trim(),
+      });
+      await refreshUser();
+      showToast(res.data.message, { type: 'success' });
+      setStep(2);
+    } catch (err) {
+      const message = err.response?.data?.message || 'Error al activar la cuenta de vendedor';
+      showToast(message, { type: 'error' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleConnectMP = () => {
-    // TODO: Redirect to MP OAuth
     showToast('Función de Mercado Pago próximamente', { type: 'info' });
   };
 

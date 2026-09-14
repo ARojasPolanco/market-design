@@ -32,6 +32,16 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const res = await api.get('/v1/auth/profile');
+      setUser(res.data.user);
+      return res.data.user;
+    } catch (_error) {
+      return null;
+    }
+  };
+
   const login = async (email, password) => {
     const res = await api.post('/v1/auth/login', { email, password });
     const { token: newToken, user: userData } = res.data;
@@ -60,7 +70,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

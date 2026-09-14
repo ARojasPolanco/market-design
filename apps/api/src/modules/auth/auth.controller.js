@@ -179,3 +179,38 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
     message: 'Email verificado correctamente',
   });
 });
+
+export const activateSeller = catchAsync(async (req, res, next) => {
+  const { storeName, description } = req.body;
+
+  if (!storeName || storeName.trim().length < 2) {
+    return next(new AppError('El nombre de la tienda es requerido (mínimo 2 caracteres)', 422));
+  }
+
+  const user = req.sessionUser;
+
+  if (user.role === 'seller') {
+    return next(new AppError('Ya tenés una cuenta de vendedor activa.', 400));
+  }
+
+  const updated = await authService.update(user.id, {
+    role: 'seller',
+    storeName: storeName.trim(),
+    description: description?.trim() || '',
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: '¡Cuenta de vendedor activada correctamente!',
+    user: {
+      id: updated.id,
+      fullname: updated.fullname,
+      username: updated.username,
+      email: updated.email,
+      role: updated.role,
+      storeName: updated.storeName,
+      description: updated.description,
+      rank: updated.rank,
+    },
+  });
+});

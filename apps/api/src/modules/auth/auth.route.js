@@ -6,6 +6,7 @@ import {
   updateProfile,
   changePassword,
   verifyEmail,
+  activateSeller,
 } from './auth.controller.js';
 import { protect } from './auth.middleware.js';
 
@@ -19,5 +20,6 @@ router.get('/verify-email/:token', verifyEmail);
 router.get('/profile', protect, getProfile);
 router.patch('/profile', protect, updateProfile);
 router.patch('/change-password', protect, changePassword);
+router.post('/activate-seller', protect, activateSeller);
 
 export default router;
