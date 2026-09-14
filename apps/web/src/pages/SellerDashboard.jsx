@@ -34,7 +34,30 @@ export default function SellerDashboard() {
   const { designs: myDesigns } = useSellerDesigns('s1');
   const { designs: pending } = usePendingDesigns();
   const { designs: rejected } = useRejectedDesigns();
-  const { seller } = useCurrentSeller();
+  const { seller, isLoading } = useCurrentSeller();
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-32 bg-gray-200 rounded" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!seller || seller.role !== 'seller') {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8 text-center">
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Acceso no disponible</h2>
+        <p className="text-gray-500 mb-4">Esta sección es solo para vendedores.</p>
+        <Link to="/registro" className="text-brand-teal hover:underline">
+          Registrate como vendedor
+        </Link>
+      </div>
+    );
+  }
 
   const rankInfo = getRankInfo(seller.rank);
   const isDiamante = seller.isDiamante;

@@ -1,14 +1,21 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Star, Heart, BadgeCheck, TrendingUp } from 'lucide-react';
 import { useFavorites } from '../context/FavoritesContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export default function DesignCard({ design }) {
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const fav = isFavorite(design.id);
 
   const handleFavoriteClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     if (fav) {
       removeFavorite(design.id);
     } else {
@@ -30,6 +37,7 @@ export default function DesignCard({ design }) {
           <button
             onClick={handleFavoriteClick}
             className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
+            title={user ? (fav ? 'Quitar de favoritos' : 'Agregar a favoritos') : 'Iniciá sesión para agregar a favoritos'}
           >
             <Heart size={18} className={fav ? 'fill-red-500 text-red-500' : 'text-gray-600'} />
           </button>

@@ -9,6 +9,13 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const { favorites } = useFavorites();
 
+  const getPanelLink = () => {
+    if (!user) return '/login';
+    if (user.role === 'admin') return '/admin';
+    if (user.role === 'seller') return '/vendedor/panel';
+    return '/comprador/panel';
+  };
+
   return (
     <header className="bg-white shadow-sm sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,7 +36,7 @@ export default function Navbar() {
               <input
                 type="text"
                 placeholder="Buscar diseños..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent"
               />
             </div>
           </div>
@@ -50,8 +57,9 @@ export default function Navbar() {
             {user ? (
               <div className="flex items-center gap-4">
                 <Link
-                  to={user.role === 'admin' ? '/admin' : '/vendedor/panel'}
+                  to={getPanelLink()}
                   className="text-gray-600 hover:text-gray-900"
+                  title="Mi panel"
                 >
                   <User size={20} />
                 </Link>
@@ -87,7 +95,7 @@ export default function Navbar() {
                 <input
                   type="text"
                   placeholder="Buscar diseños..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
                 />
               </div>
             </div>
@@ -100,7 +108,7 @@ export default function Navbar() {
               </Link>
               {user ? (
                 <>
-                  <Link to="/vendedor/panel" className="text-gray-600 hover:text-gray-900">
+                  <Link to={getPanelLink()} className="text-gray-600 hover:text-gray-900">
                     Mi Panel
                   </Link>
                   <button onClick={logout} className="text-left text-gray-600 hover:text-gray-900">
