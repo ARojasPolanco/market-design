@@ -4,6 +4,7 @@ import designsRouter from '../modules/designs/design.route.js';
 import purchasesRouter from '../modules/purchases/purchase.route.js';
 import favoritesRouter from '../modules/favorites/favorite.route.js';
 import adminRouter from '../modules/admin/admin.route.js';
+import badgesRouter from '../modules/badges/badge.route.js';
 
 const router = Router();
 
@@ -12,5 +13,6 @@ router.use('/designs', designsRouter);
 router.use('/purchases', purchasesRouter);
 router.use('/favorites', favoritesRouter);
 router.use('/admin', adminRouter);
+router.use('/badges', badgesRouter);
 
 export default router;
