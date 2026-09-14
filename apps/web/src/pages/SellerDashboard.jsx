@@ -18,6 +18,8 @@ import {
   Target,
   Users,
 } from 'lucide-react';
+import BackButton from '../components/BackButton.jsx';
+import CommissionInfo from '../components/CommissionInfo.jsx';
 import {
   useSellerSales,
   useSellerDesigns,
@@ -64,6 +66,8 @@ export default function SellerDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <BackButton label="Volver al inicio" />
+
       {/* Diamante banner */}
       {isDiamante && (
         <div className="mb-6 bg-gradient-to-r from-brand-teal via-brand-violet to-brand-teal rounded-2xl p-6 text-white relative overflow-hidden">
@@ -201,6 +205,9 @@ export default function SellerDashboard() {
           </div>
         </div>
       )}
+
+      {/* Commission info */}
+      <CommissionInfo variant="compact" />
 
       {/* Tabs */}
       <div className="flex gap-1 border-b mb-6 overflow-x-auto">

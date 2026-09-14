@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext.jsx';
 import { Store, CreditCard, ArrowRight, CheckCircle } from 'lucide-react';
+import BackButton from '../../components/BackButton.jsx';
 
 export default function ActivateSellerPage() {
   const [storeName, setStoreName] = useState('');
@@ -58,6 +59,7 @@ export default function ActivateSellerPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
+      <BackButton label="Volver" />
       <h1 className="text-2xl font-bold text-gray-900 mb-2">Activar cuenta de vendedor</h1>
       <p className="text-gray-500 mb-8">
         Completá los datos de tu tienda para empezar a vender diseños.
