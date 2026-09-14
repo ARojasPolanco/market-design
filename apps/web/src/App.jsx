@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 import HomePage from './pages/HomePage.jsx';
 import CatalogPage from './pages/CatalogPage.jsx';
 import DesignDetailPage from './pages/DesignDetailPage.jsx';
@@ -29,10 +30,38 @@ function App() {
           <Route path="/checkout/:id" element={<CheckoutPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/registro" element={<RegisterPage />} />
-          <Route path="/vendedor/panel" element={<SellerDashboard />} />
-          <Route path="/vendedor/panel/subir" element={<UploadDesignPage />} />
-          <Route path="/vendedor/activar" element={<ActivateSellerPage />} />
-          <Route path="/comprador/panel" element={<BuyerDashboard />} />
+          <Route
+            path="/vendedor/panel"
+            element={
+              <ProtectedRoute>
+                <SellerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vendedor/panel/subir"
+            element={
+              <ProtectedRoute>
+                <UploadDesignPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vendedor/activar"
+            element={
+              <ProtectedRoute>
+                <ActivateSellerPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/comprador/panel"
+            element={
+              <ProtectedRoute>
+                <BuyerDashboard />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/admin/*" element={<AdminDashboard />} />
           <Route path="/demo/rangos" element={<RankDemoPage />} />
           <Route path="*" element={<NotFoundPage />} />
