@@ -76,12 +76,13 @@ export class BadgeService {
       const updates = {};
 
       // Check verified badge: email + MP + profile complete
-      const isVerified =
+      const isVerified = Boolean(
         seller.emailVerified &&
         seller.mpConnected &&
         seller.fullname &&
         seller.username &&
-        (seller.storeName || seller.description);
+        (seller.storeName || seller.description)
+      );
 
       if (isVerified !== seller.isVerified) {
         updates.isVerified = isVerified;

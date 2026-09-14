@@ -64,13 +64,14 @@ describe('Designs Module', () => {
     });
 
     it('should register an admin', async () => {
-      const email = `admin_${Date.now()}@test.com`;
+      const ts = Date.now();
+      const email = `admin_${ts}@test.com`;
 
       const res = await request(server)
         .post('/api/v1/auth/register')
         .send({
           fullname: 'Admin Test',
-          username: 'admin_' + Date.now(),
+          username: 'admin_' + ts,
           email,
           password: 'password123',
         });
