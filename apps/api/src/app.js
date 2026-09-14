@@ -20,7 +20,7 @@ app.use(cors({ origin: envs.CORS_ORIGIN }));
 const limiter = rateLimit({
   windowMs: envs.RATE_LIMIT_WINDOW_MS,
   max: envs.RATE_LIMIT_MAX,
-  message: 'Too many requests from this IP, please try again later.',
+  message: 'Demasiadas solicitudes. Por favor, intentá de nuevo más tarde.',
 });
 app.use('/api', limiter);
 

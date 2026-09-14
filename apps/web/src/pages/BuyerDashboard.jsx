@@ -13,6 +13,7 @@ import {
   TrendingUp,
   Clock,
   User,
+  Upload,
 } from 'lucide-react';
 import { usePurchases, useDesigns } from '../hooks/useDesigns.js';
 import { useFavorites } from '../context/FavoritesContext.jsx';
@@ -69,16 +70,37 @@ export default function BuyerDashboard() {
                 <ShoppingBag size={14} /> {MOCK_BUYER.totalPurchases} compras
               </span>
               <span className="flex items-center gap-1">
-                <Calendar size={14} /> Miembro desde {new Date(MOCK_BUYER.joinedAt).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
+                Miembro desde {new Date(MOCK_BUYER.joinedAt).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
               </span>
             </div>
           </div>
-          <button
-            onClick={() => setActiveTab('profile')}
+          <Link
+            to="/vendedor/panel"
             className="text-sm text-brand-teal hover:text-brand-teal-dark font-medium"
           >
             Editar perfil
-          </button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Upgrade to seller banner */}
+      <div className="bg-gradient-to-r from-brand-teal/10 to-brand-violet/10 border border-brand-teal/20 rounded-2xl p-6 mb-8">
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="p-3 bg-brand-teal/20 rounded-xl">
+            <Upload size={24} className="text-brand-teal" />
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <h3 className="font-semibold text-gray-900">¿Querés vender diseños?</h3>
+            <p className="text-sm text-gray-600">
+              Activá tu cuenta de vendedor para empezar a vender tus diseños y ganar dinero.
+            </p>
+          </div>
+          <Link
+            to="/vendedor/panel/subir"
+            className="bg-brand-teal text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-teal-dark transition-colors"
+          >
+            Activar vendedor
+          </Link>
         </div>
       </div>
 
@@ -405,26 +427,5 @@ function ProfileSection({ buyer }) {
         </div>
       </div>
     </div>
-  );
-}
-
-function Calendar({ size = 16, ...props }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-      <line x1="16" x2="16" y1="2" y2="6" />
-      <line x1="8" x2="8" y1="2" y2="6" />
-      <line x1="3" x2="21" y1="10" y2="10" />
-    </svg>
   );
 }
