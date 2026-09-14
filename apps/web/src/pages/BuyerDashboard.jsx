@@ -11,25 +11,14 @@ import {
   ShoppingBag,
   Sparkles,
   TrendingUp,
-  Clock,
   User,
   Upload,
 } from 'lucide-react';
 import { usePurchases, useDesigns } from '../hooks/useDesigns.js';
 import { useFavorites } from '../context/FavoritesContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import DesignCard from '../components/DesignCard.jsx';
 import { EmptyPurchases, EmptyFavorites } from '../components/EmptyStates.jsx';
-
-const MOCK_BUYER = {
-  name: 'Carlos López',
-  username: 'CarlosL',
-  email: 'carlos@email.com',
-  avatar: 'https://placehold.co/200x200/1a1a2e/ffffff?text=CL',
-  interests: ['sublimado', 'infantil'],
-  joinedAt: '2024-08-15',
-  totalPurchases: 5,
-  totalSpent: 12200,
-};
 
 const INTEREST_OPTIONS = [
   { id: 'sublimado', name: 'Sublimado' },
@@ -45,7 +34,12 @@ export default function BuyerDashboard() {
   const { purchases } = usePurchases();
   const { favorites } = useFavorites();
   const { designs: allDesigns } = useDesigns();
+  const { user } = useAuth();
   const favoriteDesigns = allDesigns.filter((d) => favorites.includes(d.id));
+
+  const displayName = user?.username || user?.fullname || 'Usuario';
+  const avatarLetter = displayName.charAt(0).toUpperCase();
+  const avatarUrl = user?.avatarUrl || `https://placehold.co/200x200/0F2A44/ffffff?text=${avatarLetter}`;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -54,8 +48,8 @@ export default function BuyerDashboard() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
           <div className="relative">
             <img
-              src={MOCK_BUYER.avatar}
-              alt={MOCK_BUYER.name}
+              src={avatarUrl}
+              alt={displayName}
               className="w-20 h-20 rounded-full object-cover"
             />
             <div className="absolute -bottom-1 -right-1 p-1 bg-brand-teal text-white rounded-full">
@@ -63,19 +57,16 @@ export default function BuyerDashboard() {
             </div>
           </div>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900">{MOCK_BUYER.name}</h1>
-            <p className="text-sm text-gray-500">@{MOCK_BUYER.username}</p>
+            <h1 className="text-2xl font-bold text-gray-900">{displayName}</h1>
+            <p className="text-sm text-gray-500">@{user?.username || 'usuario'}</p>
             <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
               <span className="flex items-center gap-1">
-                <ShoppingBag size={14} /> {MOCK_BUYER.totalPurchases} compras
-              </span>
-              <span className="flex items-center gap-1">
-                Miembro desde {new Date(MOCK_BUYER.joinedAt).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
+                <ShoppingBag size={14} /> {purchases.length} {purchases.length === 1 ? 'compra' : 'compras'}
               </span>
             </div>
           </div>
           <Link
-            to="/vendedor/panel"
+            to="/comprador/perfil"
             className="text-sm text-brand-teal hover:text-brand-teal-dark font-medium"
           >
             Editar perfil
@@ -84,25 +75,27 @@ export default function BuyerDashboard() {
       </div>
 
       {/* Upgrade to seller banner */}
-      <div className="bg-gradient-to-r from-brand-teal/10 to-brand-violet/10 border border-brand-teal/20 rounded-2xl p-6 mb-8">
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          <div className="p-3 bg-brand-teal/20 rounded-xl">
-            <Upload size={24} className="text-brand-teal" />
+      {user?.role !== 'seller' && (
+        <div className="bg-gradient-to-r from-brand-teal/10 to-brand-violet/10 border border-brand-teal/20 rounded-2xl p-6 mb-8">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="p-3 bg-brand-teal/20 rounded-xl">
+              <Upload size={24} className="text-brand-teal" />
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <h3 className="font-semibold text-gray-900">¿Querés vender diseños?</h3>
+              <p className="text-sm text-gray-600">
+                Activá tu cuenta de vendedor para empezar a vender tus diseños y ganar dinero.
+              </p>
+            </div>
+            <Link
+              to="/vendedor/activar"
+              className="bg-brand-teal text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-teal-dark transition-colors"
+            >
+              Activar vendedor
+            </Link>
           </div>
-          <div className="flex-1 text-center sm:text-left">
-            <h3 className="font-semibold text-gray-900">¿Querés vender diseños?</h3>
-            <p className="text-sm text-gray-600">
-              Activá tu cuenta de vendedor para empezar a vender tus diseños y ganar dinero.
-            </p>
-          </div>
-          <Link
-            to="/vendedor/activar"
-            className="bg-brand-teal text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-teal-dark transition-colors"
-          >
-            Activar vendedor
-          </Link>
         </div>
-      </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-1 border-b mb-6 overflow-x-auto">
@@ -140,8 +133,8 @@ export default function BuyerDashboard() {
                   <div className="flex flex-col sm:flex-row">
                     <div className="sm:w-32 sm:h-32 h-48 shrink-0">
                       <img
-                        src={purchase.design.previewUrl}
-                        alt={purchase.design.title}
+                        src={purchase.design?.previewUrl || '/designs/lobo-geometrico.png'}
+                        alt={purchase.design?.title || 'Diseño'}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -153,14 +146,14 @@ export default function BuyerDashboard() {
                               to={`/diseno/${purchase.designId}`}
                               className="font-semibold text-gray-900 hover:text-brand-teal"
                             >
-                              {purchase.design.title}
+                              {purchase.design?.title || 'Diseño'}
                             </Link>
                             <p className="text-sm text-gray-500">
-                              {purchase.design.seller.name}
+                              {purchase.design?.seller?.storeName || 'Vendedor'}
                             </p>
                           </div>
                           <span className="text-lg font-bold text-gray-900">
-                            ${purchase.price.toLocaleString()}
+                            ${Number(purchase.price).toLocaleString()}
                           </span>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -169,7 +162,7 @@ export default function BuyerDashboard() {
                             {new Date(purchase.createdAt).toLocaleDateString('es-AR')}
                           </span>
                           <span>·</span>
-                          <span>{purchase.downloadCount} descargas</span>
+                          <span>{purchase.downloadCount || 0} descargas</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 mt-4">
@@ -211,21 +204,20 @@ export default function BuyerDashboard() {
       )}
 
       {/* Suggestions tab */}
-      {activeTab === 'suggestions' && <SuggestionsSection interests={MOCK_BUYER.interests} />}
+      {activeTab === 'suggestions' && <SuggestionsSection />}
 
       {/* Profile tab */}
-      {activeTab === 'profile' && <ProfileSection buyer={MOCK_BUYER} />}
+      {activeTab === 'profile' && <ProfileSection user={user} />}
     </div>
   );
 }
 
-function SuggestionsSection({ interests }) {
+function SuggestionsSection() {
   const { designs } = useDesigns();
-  const [selectedInterest, setSelectedInterest] = useState(interests[0] || '');
+  const [selectedCategory, setSelectedCategory] = useState('sublimado');
 
   const suggestedDesigns = designs
-    .filter((d) => d.category === selectedInterest || d.technique === selectedInterest)
-    .sort((a, b) => b.salesCount - a.salesCount)
+    .filter((d) => d.category === selectedCategory)
     .slice(0, 8);
 
   const trending = [...designs]
@@ -244,9 +236,9 @@ function SuggestionsSection({ interests }) {
           {INTEREST_OPTIONS.map((interest) => (
             <button
               key={interest.id}
-              onClick={() => setSelectedInterest(interest.id)}
+              onClick={() => setSelectedCategory(interest.id)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                selectedInterest === interest.id
+                selectedCategory === interest.id
                   ? 'bg-brand-teal text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
@@ -269,53 +261,26 @@ function SuggestionsSection({ interests }) {
       </div>
 
       {/* Trending */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <TrendingUp size={18} className="text-brand-orange" />
-          Los más vendidos esta semana
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {trending.map((design) => (
-            <DesignCard key={design.id} design={design} />
-          ))}
+      {trending.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <TrendingUp size={18} className="text-brand-orange" />
+            Los más vendidos esta semana
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {trending.map((design) => (
+              <DesignCard key={design.id} design={design} />
+            ))}
+          </div>
         </div>
-      </div>
-
-      {/* Recently viewed (decorative) */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Clock size={18} className="text-gray-400" />
-          Vistos recientemente
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {designs.slice(0, 4).map((design) => (
-            <DesignCard key={design.id} design={design} />
-          ))}
-        </div>
-      </div>
+      )}
     </div>
   );
 }
 
-function ProfileSection({ buyer }) {
-  const [username, setUsername] = useState(buyer.username);
-  const [avatarPreview, setAvatarPreview] = useState(buyer.avatar);
-  const [interests, setInterests] = useState(buyer.interests);
+function ProfileSection({ user }) {
+  const [username, setUsername] = useState(user?.username || '');
   const [saved, setSaved] = useState(false);
-
-  const handleAvatarChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setAvatarPreview(url);
-    }
-  };
-
-  const toggleInterest = (id) => {
-    setInterests((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
-  };
 
   const handleSave = () => {
     setSaved(true);
@@ -330,29 +295,22 @@ function ProfileSection({ buyer }) {
         {/* Avatar */}
         <div className="flex items-center gap-6 mb-6">
           <div className="relative">
-            <img
-              src={avatarPreview}
-              alt="Avatar"
-              className="w-24 h-24 rounded-full object-cover"
-            />
+            <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-bold text-gray-500">
+              {user?.username?.charAt(0).toUpperCase() || 'U'}
+            </div>
             <label className="absolute bottom-0 right-0 p-1.5 bg-brand-teal text-white rounded-full cursor-pointer hover:bg-brand-teal-dark transition-colors">
               <Camera size={14} />
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAvatarChange}
-              />
+              <input type="file" accept="image/*" className="hidden" />
             </label>
           </div>
           <div>
-            <p className="font-medium text-gray-900">{buyer.name}</p>
-            <p className="text-sm text-gray-500">@{buyer.username}</p>
+            <p className="font-medium text-gray-900">{user?.fullname || 'Usuario'}</p>
+            <p className="text-sm text-gray-500">@{user?.username || 'usuario'}</p>
           </div>
         </div>
 
         {/* Username */}
-        <div className="mb-4">
+        <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Nombre de usuario
           </label>
@@ -367,46 +325,15 @@ function ProfileSection({ buyer }) {
           </p>
         </div>
 
-        {/* Interests */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Tus intereses
-          </label>
-          <p className="text-xs text-gray-500 mb-3">
-            Seleccioná las categorías que te interesan para recibir sugerencias personalizadas.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {INTEREST_OPTIONS.map((interest) => (
-              <button
-                key={interest.id}
-                onClick={() => toggleInterest(interest.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  interests.includes(interest.id)
-                    ? 'bg-brand-teal text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {interest.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Stats (decorative) */}
-        <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900">{buyer.totalPurchases}</p>
+            <p className="text-2xl font-bold text-gray-900">0</p>
             <p className="text-xs text-gray-500">Compras</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900">
-              ${buyer.totalSpent.toLocaleString()}
-            </p>
-            <p className="text-xs text-gray-500">Gastado</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900">{interests.length}</p>
-            <p className="text-xs text-gray-500">Intereses</p>
+            <p className="text-2xl font-bold text-gray-900">0</p>
+            <p className="text-xs text-gray-500">Favoritos</p>
           </div>
         </div>
 
