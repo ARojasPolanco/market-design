@@ -16,10 +16,10 @@ const sendProdError = (err, res) => {
       message: err.message,
     });
   } else {
-    console.error('💥 Unexpected error:', err);
+    console.error('💥 Error inesperado:', err);
     res.status(500).json({
       status: 'error',
-      message: 'Something went very wrong!',
+      message: 'Ocurrió un error inesperado. Por favor, intentá de nuevo más tarde.',
     });
   }
 };

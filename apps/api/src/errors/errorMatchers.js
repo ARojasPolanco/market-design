@@ -1,35 +1,35 @@
 import { AppError } from './appError.js';
 
 const handleSequelizeUniqueConstraint = (err) => {
-  const field = err.errors?.[0]?.path || 'field';
-  return new AppError(`The value for '${field}' already exists.`, 400);
+  const field = err.errors?.[0]?.path || 'campo';
+  return new AppError(`El valor para '${field}' ya existe.`, 400);
 };
 
 const handleSequelizeValidationError = (err) => {
   const messages = err.errors.map((e) => e.message).join('. ');
-  return new AppError(`Validation error: ${messages}`, 400);
+  return new AppError(`Error de validación: ${messages}`, 400);
 };
 
-const handleJwtExpired = () => new AppError('Your token has expired. Please log in again.', 401);
-const handleJwtInvalid = () => new AppError('Invalid token. Please log in again.', 401);
+const handleJwtExpired = () => new AppError('Tu sesión ha expirado. Por favor, iniciá sesión de nuevo.', 401);
+const handleJwtInvalid = () => new AppError('Token inválido. Por favor, iniciá sesión de nuevo.', 401);
 
 const handlePgUniqueViolation = (err) => {
   const detail = err.detail || '';
   const match = detail.match(/\(([^)]+)\)=\(([^)]+)\)/);
-  const field = match ? match[1] : 'field';
-  return new AppError(`The value for '${field}' already exists.`, 400);
+  const field = match ? match[1] : 'campo';
+  return new AppError(`El valor para '${field}' ya existe.`, 400);
 };
 
-const handlePgForeignKeyViolation = () => new AppError('Referenced record does not exist.', 400);
+const handlePgForeignKeyViolation = () => new AppError('El registro referenciado no existe.', 400);
 
 const handlePgValueTooLong = () =>
-  new AppError('One or more values exceed the allowed length.', 400);
+  new AppError('Uno o más valores exceden la longitud permitida.', 400);
 
-const handlePgInvalidType = () => new AppError('Invalid data type provided.', 400);
+const handlePgInvalidType = () => new AppError('Tipo de dato inválido.', 400);
 
-const handleMulterFileSize = () => new AppError('File size exceeds the maximum allowed.', 400);
+const handleMulterFileSize = () => new AppError('El archivo excede el tamaño máximo permitido.', 400);
 
-const handleMulterUnexpectedFile = () => new AppError('Unexpected file field.', 400);
+const handleMulterUnexpectedFile = () => new AppError('Campo de archivo inesperado.', 400);
 
 export const errorMatchers = [
   {

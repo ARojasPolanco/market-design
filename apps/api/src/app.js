@@ -35,7 +35,7 @@ app.use('/api/v1', router);
 
 // Catch-all 404
 app.all('*', (req, _res, next) => {
-  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+  next(new AppError(`No se encontró la ruta ${req.originalUrl}`, 404));
 });
 
 // Global error handler
