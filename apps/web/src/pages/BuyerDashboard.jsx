@@ -19,6 +19,8 @@ import BackButton from '../components/BackButton.jsx';
 import { usePurchases, useDesigns } from '../hooks/useDesigns.js';
 import { useFavorites } from '../context/FavoritesContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useToast } from '../context/ToastContext.jsx';
+import api from '../config/api.js';
 import DesignCard from '../components/DesignCard.jsx';
 import { EmptyPurchases, EmptyFavorites } from '../components/EmptyStates.jsx';
 
@@ -327,24 +329,48 @@ function SuggestionsSection() {
 
 function ProfileSection({ user }) {
   const [username, setUsername] = useState(user?.username || '');
+  const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const { refreshUser } = useAuth();
+  const { showToast } = useToast();
 
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      setAvatarFile(file);
       const url = URL.createObjectURL(file);
       setAvatarPreview(url);
     }
   };
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const updateData = {};
+      if (username && username !== user?.username) {
+        updateData.username = username;
+      }
+
+      if (Object.keys(updateData).length > 0) {
+        await api.patch('/v1/auth/profile', updateData);
+      }
+
+      await refreshUser();
+      setSaved(true);
+      showToast('Perfil actualizado correctamente', { type: 'success' });
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      const message = err.response?.data?.message || 'Error al guardar el perfil';
+      showToast(message, { type: 'error' });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const displayName = user?.username || 'U';
-  const avatarUrl = avatarPreview || `https://placehold.co/200x200/0F2A44/ffffff?text=${displayName.charAt(0).toUpperCase()}`;
+  const avatarUrl = avatarPreview || user?.avatarUrl || `https://placehold.co/200x200/0F2A44/ffffff?text=${displayName.charAt(0).toUpperCase()}`;
 
   return (
     <div className="max-w-2xl">
@@ -372,6 +398,9 @@ function ProfileSection({ user }) {
           <div>
             <p className="font-medium text-gray-900">{user?.fullname || 'Usuario'}</p>
             <p className="text-sm text-gray-500">@{user?.username || 'usuario'}</p>
+            {avatarFile && (
+              <p className="text-xs text-brand-teal mt-1">Nueva foto seleccionada</p>
+            )}
           </div>
         </div>
 
@@ -407,10 +436,11 @@ function ProfileSection({ user }) {
         <div className="flex items-center gap-3">
           <button
             onClick={handleSave}
-            className="bg-brand-teal text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-teal-dark transition-colors flex items-center gap-2"
+            disabled={saving}
+            className="bg-brand-teal text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-teal-dark transition-colors flex items-center gap-2 disabled:opacity-50"
           >
             <Save size={16} />
-            Guardar cambios
+            {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
           {saved && (
             <span className="text-sm text-brand-teal flex items-center gap-1">

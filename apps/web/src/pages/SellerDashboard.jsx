@@ -27,6 +27,9 @@ import {
   useRejectedDesigns,
 } from '../hooks/useDesigns.js';
 import { useCurrentSeller } from '../hooks/useSeller.js';
+import { useAuth } from '../context/AuthContext.jsx';
+import { useToast } from '../context/ToastContext.jsx';
+import api from '../config/api.js';
 import RatingStars from '../components/RatingStars.jsx';
 import { RankBadge, getRankInfo } from '../components/RankBadge.jsx';
 
@@ -467,20 +470,43 @@ export default function SellerDashboard() {
 function ProfileSection({ seller }) {
   const [storeName, setStoreName] = useState(seller.storeName);
   const [description, setDescription] = useState(seller.description);
+  const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(seller.avatar);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const { refreshUser } = useAuth();
+  const { showToast } = useToast();
 
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      setAvatarFile(file);
       const url = URL.createObjectURL(file);
       setAvatarPreview(url);
     }
   };
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const updateData = {};
+      if (storeName !== seller.storeName) updateData.storeName = storeName;
+      if (description !== seller.description) updateData.description = description;
+
+      if (Object.keys(updateData).length > 0) {
+        await api.patch('/v1/auth/profile', updateData);
+      }
+
+      await refreshUser();
+      setSaved(true);
+      showToast('Perfil actualizado correctamente', { type: 'success' });
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      const message = err.response?.data?.message || 'Error al guardar el perfil';
+      showToast(message, { type: 'error' });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -510,6 +536,9 @@ function ProfileSection({ seller }) {
             <p className="font-medium text-gray-900">{seller.name}</p>
             <p className="text-sm text-gray-500">@{seller.username}</p>
             <RankBadge rank={seller.rank} size={20} />
+            {avatarFile && (
+              <p className="text-xs text-brand-teal mt-1">Nueva foto seleccionada</p>
+            )}
           </div>
         </div>
 
@@ -550,10 +579,11 @@ function ProfileSection({ seller }) {
         <div className="flex items-center gap-3">
           <button
             onClick={handleSave}
-            className="bg-dark text-white px-6 py-2 rounded-lg font-medium hover:bg-dark-light transition-colors flex items-center gap-2"
+            disabled={saving}
+            className="bg-dark text-white px-6 py-2 rounded-lg font-medium hover:bg-dark-light transition-colors flex items-center gap-2 disabled:opacity-50"
           >
             <Save size={16} />
-            Guardar cambios
+            {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
           {saved && (
             <span className="text-sm text-brand-teal flex items-center gap-1">
