@@ -19,13 +19,13 @@ export function useCategories() {
 
   const fetchCategories = async () => {
     try {
-      const res = await api.get('/v1/admin/config');
-      const config = res.data.config || {};
-      if (config.categories) {
-        setCategories(config.categories);
+      const res = await api.get('/v1/admin/categories');
+      if (res.data.categories && res.data.categories.length > 0) {
+        setCategories(res.data.categories);
       }
-    } catch (_err) {
-      // Expected for non-admin users — use defaults
+    } catch (err) {
+      // Use defaults if endpoint fails
+      console.error('Error fetching categories:', err);
     }
   };
 
@@ -39,7 +39,6 @@ export function useCategories() {
     const updated = [...categories, trimmed].sort();
     setCategories(updated);
 
-    // Save to backend
     try {
       await api.put('/v1/admin/config', { key: 'categories', value: updated });
     } catch (err) {

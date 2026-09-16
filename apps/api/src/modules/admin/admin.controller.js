@@ -157,3 +157,16 @@ export const calculateRanks = catchAsync(async (req, res) => {
   await adminService.calculateRanks();
   res.status(200).json({ status: 'success', message: 'Rangos calculados correctamente.' });
 });
+
+export const getPublicCategories = catchAsync(async (req, res) => {
+  const config = await adminService.getConfig('categories');
+  const categories = config || [
+    'Sublimado',
+    'Estampado',
+    'Papelería',
+    'Infantil',
+    'Deportivo',
+    'Religioso',
+  ];
+  res.status(200).json({ status: 'success', categories });
+});

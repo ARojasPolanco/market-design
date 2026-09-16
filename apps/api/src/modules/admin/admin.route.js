@@ -12,13 +12,17 @@ import {
   suspendUser,
   updateUserRank,
   calculateRanks,
+  getPublicCategories,
 } from './admin.controller.js';
 import { createReport } from './admin.controller.js';
 import { protect, restrictTo } from '../auth/auth.middleware.js';
 
 const router = Router();
 
-// All admin routes require auth + admin role
+// Public routes (no auth required)
+router.get('/categories', getPublicCategories);
+
+// All other admin routes require auth
 router.use(protect);
 
 // Reports (any authenticated user can create)
