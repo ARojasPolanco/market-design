@@ -141,7 +141,7 @@ export function useSellerDesigns(sellerId) {
 
   const fetchSellerDesigns = async () => {
     try {
-      const res = await api.get(`/v1/designs?sellerId=${sellerId}&limit=50`);
+      const res = await api.get('/v1/designs/my');
       setDesigns(res.data.designs || []);
     } catch (err) {
       console.error('Error fetching seller designs:', err);
@@ -193,16 +193,13 @@ export function useSellerSales() {
 
   const fetchSales = async () => {
     try {
-      const res = await api.get('/v1/purchases/seller');
-      setSales(res.data.sales || []);
-
-      // Calculate stats from sales
-      const totalEarnings = res.data.sales?.reduce((sum, s) => sum + (s.sellerEarnings || 0), 0) || 0;
-      const totalSales = res.data.sales?.length || 0;
+      // TODO: Create endpoint for seller sales
+      // For now, return empty data
+      setSales([]);
       setStats({
-        totalEarnings,
-        totalSales,
-        avgRating: 4.8, // TODO: calculate from reviews
+        totalEarnings: 0,
+        totalSales: 0,
+        avgRating: 0,
         commissionRate: 20,
         commissionLevel: 'Bronce',
         nextLevel: { rate: 18, salesNeeded: 50 },
