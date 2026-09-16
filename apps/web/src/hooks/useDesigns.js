@@ -291,3 +291,91 @@ export function useAdminStats() {
 
   return { stats, isLoading };
 }
+
+export function useAdminUsers(filters = {}) {
+  const [users, setUsers] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [filters.role, filters.search, filters.page]);
+
+  const fetchUsers = async () => {
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (filters.role && filters.role !== 'all') params.set('role', filters.role);
+      if (filters.search) params.set('search', filters.search);
+      params.set('page', String(filters.page || 1));
+      params.set('limit', '10');
+
+      const res = await api.get(`/v1/admin/users?${params.toString()}`);
+      setUsers(res.data.users || []);
+      setTotal(res.data.total || 0);
+    } catch (err) {
+      console.error('Error fetching users:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { users, total, isLoading, refetch: fetchUsers };
+}
+
+export function useAdminReports(status = null) {
+  const [reports, setReports] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchReports();
+  }, [status]);
+
+  const fetchReports = async () => {
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (status) params.set('status', status);
+      const res = await api.get(`/v1/admin/reports?${params.toString()}`);
+      setReports(res.data.reports || []);
+    } catch (err) {
+      console.error('Error fetching reports:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { reports, isLoading, refetch: fetchReports };
+}
+
+export function useAdminCategories() {
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await api.get('/v1/admin/config');
+      const config = res.data.config || {};
+      setCategories(config.categories || []);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateCategories = async (newCategories) => {
+    try {
+      await api.put('/v1/admin/config', { key: 'categories', value: newCategories });
+      setCategories(newCategories);
+    } catch (err) {
+      console.error('Error updating categories:', err);
+    }
+  };
+
+  return { categories, isLoading, updateCategories, refetch: fetchCategories };
+}

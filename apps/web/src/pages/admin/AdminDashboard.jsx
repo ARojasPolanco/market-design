@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Users,
@@ -18,160 +18,16 @@ import {
   Pencil,
   Trash2,
 } from 'lucide-react';
-import { useAdminStats, usePendingDesigns } from '../../hooks/useDesigns.js';
+import { useAdminStats, usePendingDesigns, useAdminReports, useAdminUsers } from '../../hooks/useDesigns.js';
 import { useCategories } from '../../hooks/useCategories.js';
 import { RankBadge, MANUAL_RANKS } from '../../components/RankBadge.jsx';
-
-const INITIAL_USERS = [
-  {
-    id: 1,
-    name: 'Diseños María',
-    email: 'maria@email.com',
-    role: 'Vendedor',
-    status: 'active',
-    designs: 45,
-    sales: 523,
-    rank: 'diamante',
-  },
-  {
-    id: 2,
-    name: 'Arte Digital Juan',
-    email: 'juan@email.com',
-    role: 'Vendedor',
-    status: 'active',
-    designs: 28,
-    sales: 215,
-    rank: 'diamante',
-  },
-  {
-    id: 3,
-    name: 'Carlos López',
-    email: 'carlos@email.com',
-    role: 'Comprador',
-    status: 'active',
-    designs: 0,
-    sales: 12,
-    rank: 'bronce',
-  },
-  {
-    id: 4,
-    name: 'SublimeArte',
-    email: 'sublime@email.com',
-    role: 'Vendedor',
-    status: 'active',
-    designs: 72,
-    sales: 890,
-    rank: 'diamante',
-  },
-  {
-    id: 5,
-    name: 'Papelería Creativa',
-    email: 'papeleria@email.com',
-    role: 'Vendedor',
-    status: 'active',
-    designs: 53,
-    sales: 340,
-    rank: 'oro',
-  },
-  {
-    id: 6,
-    name: 'Laura Fernández',
-    email: 'laura@email.com',
-    role: 'Comprador',
-    status: 'active',
-    designs: 0,
-    sales: 8,
-    rank: 'bronce',
-  },
-  {
-    id: 7,
-    name: 'Pedro Sánchez',
-    email: 'pedro@email.com',
-    role: 'Comprador',
-    status: 'active',
-    designs: 0,
-    sales: 15,
-    rank: 'bronce',
-  },
-  {
-    id: 8,
-    name: 'Ana Martínez',
-    email: 'ana@email.com',
-    role: 'Comprador',
-    status: 'active',
-    designs: 0,
-    sales: 6,
-    rank: 'bronce',
-  },
-  {
-    id: 9,
-    name: 'Usuario Suspendido',
-    email: 'suspendido@email.com',
-    role: 'Comprador',
-    status: 'suspended',
-    designs: 0,
-    sales: 0,
-    rank: 'bronce',
-  },
-  {
-    id: 10,
-    name: 'Roberto Díaz',
-    email: 'roberto@email.com',
-    role: 'Comprador',
-    status: 'active',
-    designs: 0,
-    sales: 22,
-    rank: 'bronce',
-  },
-  {
-    id: 11,
-    name: 'María García',
-    email: 'maria.g@email.com',
-    role: 'Comprador',
-    status: 'active',
-    designs: 0,
-    sales: 4,
-    rank: 'bronce',
-  },
-  {
-    id: 12,
-    name: 'Jorge Ruiz',
-    email: 'jorge@email.com',
-    role: 'Comprador',
-    status: 'active',
-    designs: 0,
-    sales: 9,
-    rank: 'bronce',
-  },
-];
-
-const MOCK_REPORTS = [
-  {
-    id: 1,
-    designId: '24',
-    designTitle: 'Spider-Man Fan Art',
-    designImage: 'https://placehold.co/120x120/ff0000/ffffff?text=Spider-Man',
-    reporter: 'SublimeArte',
-    reason: 'Contiene personaje con derechos de autor (Marvel)',
-    status: 'pending',
-    createdAt: '2025-02-15T10:00:00Z',
-  },
-  {
-    id: 2,
-    designId: '22',
-    designTitle: 'Logo Nike Adaptado',
-    designImage: 'https://placehold.co/120x120/1a1a2e/53d8fb?text=Nike',
-    reporter: 'Diseños María',
-    reason: 'Usa marca registrada sin autorización',
-    status: 'reviewed',
-    createdAt: '2025-02-12T14:00:00Z',
-  },
-];
+import api from '../../config/api.js';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('pending');
   const { stats } = useAdminStats();
   const { designs: pending } = usePendingDesigns();
+  const { reports } = useAdminReports();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -226,7 +82,7 @@ export default function AdminDashboard() {
           { id: 'users', label: 'Usuarios', icon: Users },
           {
             id: 'reports',
-            label: `Denuncias (${MOCK_REPORTS.filter((r) => r.status === 'pending').length})`,
+            label: `Denuncias (${reports.filter((r) => r.status === 'pending').length})`,
             icon: AlertTriangle,
           },
           { id: 'config', label: 'Configuración', icon: Settings },
@@ -545,25 +401,30 @@ function UsersSection() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('vendedor');
   const [page, setPage] = useState(1);
-  const [users, setUsers] = useState(INITIAL_USERS);
   const [showRankModal, setShowRankModal] = useState(null);
-  const perPage = 5;
-
-  const filtered = users.filter((user) => {
-    const matchesSearch =
-      !search ||
-      user.name.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase());
-    const matchesRole = roleFilter === 'all' || user.role.toLowerCase() === roleFilter;
-    return matchesSearch && matchesRole;
+  const { users, total } = useAdminUsers({
+    role: roleFilter,
+    search,
+    page,
   });
+  const [localUsers, setLocalUsers] = useState([]);
+  const perPage = 10;
 
-  const totalPages = Math.ceil(filtered.length / perPage);
-  const paginated = filtered.slice((page - 1) * perPage, page * perPage);
+  useEffect(() => {
+    setLocalUsers(users);
+  }, [users]);
 
-  const handleRankChange = (userId, newRank) => {
-    setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, rank: newRank } : u)));
-    setShowRankModal(null);
+  const filtered = localUsers;
+  const totalPages = Math.ceil(total / perPage);
+
+  const handleRankChange = async (userId, newRank) => {
+    try {
+      await api.patch(`/v1/admin/users/${userId}/rank`, { rank: newRank });
+      setLocalUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, rank: newRank } : u)));
+      setShowRankModal(null);
+    } catch (err) {
+      console.error('Error updating rank:', err);
+    }
   };
 
   return (
@@ -619,7 +480,7 @@ function UsersSection() {
               </tr>
             </thead>
             <tbody>
-              {paginated.map((user) => (
+              {filtered.map((user) => (
                 <tr key={user.id} className="border-b last:border-0 hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <p className="text-sm font-medium text-gray-900">{user.name}</p>
@@ -784,8 +645,9 @@ function UsersSection() {
 
 function ReportsSection() {
   const [filter, setFilter] = useState('all');
+  const { reports } = useAdminReports(filter === 'all' ? null : filter);
 
-  const filtered = MOCK_REPORTS.filter((r) => filter === 'all' || r.status === filter);
+  const filtered = reports;
 
   return (
     <div>
