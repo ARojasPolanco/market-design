@@ -24,9 +24,8 @@ export function useCategories() {
       if (config.categories) {
         setCategories(config.categories);
       }
-    } catch (err) {
-      console.error('Error fetching categories:', err);
-      // Keep defaults
+    } catch (_err) {
+      // Expected for non-admin users — use defaults
     }
   };
 
