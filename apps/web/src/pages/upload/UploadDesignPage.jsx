@@ -15,6 +15,7 @@ import OnboardingCards, { shouldShowOnboarding } from '../../components/Onboardi
 import DesignPreviewCard from '../../components/DesignPreviewCard.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useCategories } from '../../hooks/useCategories.js';
+import api from '../../config/api.js';
 
 const TECHNIQUES = [
   { id: 'sublimado', name: 'Sublimado' },
@@ -120,11 +121,37 @@ export default function UploadDesignPage() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
-    showToast('Diseño enviado a revisión. Te notificaremos por email.', { type: 'success' });
-    navigate('/vendedor/panel');
+    try {
+      const submitData = new FormData();
+      submitData.append('title', formData.title);
+      submitData.append('description', formData.description);
+      submitData.append('price', formData.price);
+      submitData.append('category', formData.category);
+      submitData.append('categorySuggested', formData.category);
+      submitData.append('technique', formData.technique);
+
+      // Append design file
+      if (designFile) {
+        submitData.append('file', designFile);
+      }
+
+      // Append preview files
+      previewFiles.forEach((file) => {
+        submitData.append('previews', file);
+      });
+
+      await api.post('/v1/designs', submitData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      showToast('Diseño enviado a revisión. Te notificaremos por email.', { type: 'success' });
+      navigate('/vendedor/panel');
+    } catch (err) {
+      const message = err.response?.data?.message || 'Error al enviar el diseño';
+      showToast(message, { type: 'error' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (showOnboarding) {
