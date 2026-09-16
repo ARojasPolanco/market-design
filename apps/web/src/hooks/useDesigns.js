@@ -262,14 +262,15 @@ export function useRejectedDesigns() {
 }
 
 export function useAdminStats() {
-  const [stats, setStats] = useState({
+  const defaultStats = {
     pendingCount: 0,
     approvedToday: 0,
     totalUsers: 0,
     totalDesigns: 0,
     totalSales: 0,
     totalCommissions: 0,
-  });
+  };
+  const [stats, setStats] = useState(defaultStats);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -279,7 +280,8 @@ export function useAdminStats() {
   const fetchStats = async () => {
     try {
       const res = await api.get('/v1/admin/stats');
-      setStats(res.data.stats || stats);
+      const data = res.data.stats || {};
+      setStats({ ...defaultStats, ...data });
     } catch (err) {
       console.error('Error fetching stats:', err);
     } finally {

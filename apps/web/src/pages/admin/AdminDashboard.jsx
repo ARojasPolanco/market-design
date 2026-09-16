@@ -214,7 +214,7 @@ export default function AdminDashboard() {
             <span className="text-sm text-gray-500">Comisiones</span>
           </div>
           <p className="text-2xl font-bold text-gray-900">
-            ${stats.totalCommissions.toLocaleString()}
+            ${(stats.totalCommissions || 0).toLocaleString()}
           </p>
         </div>
       </div>
