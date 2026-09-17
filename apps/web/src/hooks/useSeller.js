@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../config/api.js';
+import logger from '../utils/logger.js';
 
 export function useSeller(id) {
   const [seller, setSeller] = useState(null);
@@ -15,7 +16,7 @@ export function useSeller(id) {
       const res = await api.get(`/v1/auth/profile/${id}`);
       setSeller(res.data.user);
     } catch (err) {
-      console.error('Error fetching seller:', err);
+      logger.error('Error fetching seller:', err);
       setError(err.message);
     } finally {
       setIsLoading(false);
@@ -38,7 +39,7 @@ export function useTopSellers() {
       const res = await api.get('/v1/admin/users?role=seller&limit=4');
       setSellers(res.data.users || []);
     } catch (err) {
-      console.error('Error fetching top sellers:', err);
+      logger.error('Error fetching top sellers:', err);
     } finally {
       setIsLoading(false);
     }
@@ -60,7 +61,7 @@ export function useCurrentSeller() {
       const res = await api.get('/v1/auth/profile');
       setSeller(res.data.user);
     } catch (err) {
-      console.error('Error fetching current seller:', err);
+      logger.error('Error fetching current seller:', err);
     } finally {
       setIsLoading(false);
     }

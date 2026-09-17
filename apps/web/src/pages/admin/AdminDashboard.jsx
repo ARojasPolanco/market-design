@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import logger from '../../utils/logger.js';
 import {
   Users,
   CheckCircle,
@@ -423,7 +424,7 @@ function UsersSection() {
       setLocalUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, rank: newRank } : u)));
       setShowRankModal(null);
     } catch (err) {
-      console.error('Error updating rank:', err);
+      logger.error('Error updating rank:', err);
     }
   };
 

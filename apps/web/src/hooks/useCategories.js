@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../config/api.js';
+import logger from '../utils/logger.js';
 
 const DEFAULT_CATEGORIES = [
   'Sublimado',
@@ -25,7 +26,7 @@ export function useCategories() {
       }
     } catch (err) {
       // Use defaults if endpoint fails
-      console.error('Error fetching categories:', err);
+      logger.error('Error fetching categories:', err);
     }
   };
 
@@ -42,7 +43,7 @@ export function useCategories() {
     try {
       await api.put('/v1/admin/config', { key: 'categories', value: updated });
     } catch (err) {
-      console.error('Error saving categories:', err);
+      logger.error('Error saving categories:', err);
     }
 
     return true;
@@ -63,7 +64,7 @@ export function useCategories() {
     try {
       await api.put('/v1/admin/config', { key: 'categories', value: updated });
     } catch (err) {
-      console.error('Error updating categories:', err);
+      logger.error('Error updating categories:', err);
     }
 
     return true;
@@ -76,7 +77,7 @@ export function useCategories() {
     try {
       await api.put('/v1/admin/config', { key: 'categories', value: updated });
     } catch (err) {
-      console.error('Error deleting category:', err);
+      logger.error('Error deleting category:', err);
     }
   };
 

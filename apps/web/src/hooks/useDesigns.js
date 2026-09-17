@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../config/api.js';
+import logger from '../utils/logger.js';
 
 export function useDesigns(filters = {}) {
   const [designs, setDesigns] = useState([]);
@@ -39,7 +40,7 @@ export function useDesigns(filters = {}) {
       const uniqueCategories = [...new Set(res.data.designs?.map(d => d.category) || [])];
       setCategories(uniqueCategories.map(c => ({ id: c, name: c.charAt(0).toUpperCase() + c.slice(1), count: 0 })));
     } catch (err) {
-      console.error('Error fetching designs:', err);
+      logger.error('Error fetching designs:', err);
       setError(err.message);
       // Fallback to empty
       setDesigns([]);
@@ -77,7 +78,7 @@ export function useDesign(id) {
       const reviewsRes = await api.get(`/v1/purchases/ratings/${id}`);
       setReviews(reviewsRes.data.ratings || []);
     } catch (err) {
-      console.error('Error fetching design:', err);
+      logger.error('Error fetching design:', err);
       setError(err.message);
     } finally {
       setIsLoading(false);
@@ -100,7 +101,7 @@ export function useTrending() {
       const res = await api.get('/v1/designs/trending?limit=4');
       setDesigns(res.data.designs || []);
     } catch (err) {
-      console.error('Error fetching trending:', err);
+      logger.error('Error fetching trending:', err);
     } finally {
       setIsLoading(false);
     }
@@ -122,7 +123,7 @@ export function useFeatured() {
       const res = await api.get('/v1/designs/featured?limit=4');
       setDesigns(res.data.designs || []);
     } catch (err) {
-      console.error('Error fetching featured:', err);
+      logger.error('Error fetching featured:', err);
     } finally {
       setIsLoading(false);
     }
@@ -144,7 +145,7 @@ export function useSellerDesigns(sellerId) {
       const res = await api.get('/v1/designs/my');
       setDesigns(res.data.designs || []);
     } catch (err) {
-      console.error('Error fetching seller designs:', err);
+      logger.error('Error fetching seller designs:', err);
     } finally {
       setIsLoading(false);
     }
@@ -166,7 +167,7 @@ export function usePurchases() {
       const res = await api.get('/v1/purchases/my');
       setPurchases(res.data.purchases || []);
     } catch (err) {
-      console.error('Error fetching purchases:', err);
+      logger.error('Error fetching purchases:', err);
     } finally {
       setIsLoading(false);
     }
@@ -206,7 +207,7 @@ export function useSellerSales() {
         nextLevel: { rate: 18, salesNeeded: 50 },
       });
     } catch (err) {
-      console.error('Error fetching sales:', err);
+      logger.error('Error fetching sales:', err);
     } finally {
       setIsLoading(false);
     }
@@ -228,7 +229,7 @@ export function usePendingDesigns() {
       const res = await api.get('/v1/admin/designs/pending');
       setDesigns(res.data.designs || []);
     } catch (err) {
-      console.error('Error fetching pending:', err);
+      logger.error('Error fetching pending:', err);
     } finally {
       setIsLoading(false);
     }
@@ -251,7 +252,7 @@ export function useRejectedDesigns() {
       const allDesigns = res.data.designs || [];
       setDesigns(allDesigns.filter((d) => d.status === 'rejected'));
     } catch (err) {
-      console.error('Error fetching rejected:', err);
+      logger.error('Error fetching rejected:', err);
     } finally {
       setIsLoading(false);
     }
@@ -282,7 +283,7 @@ export function useAdminStats() {
       const data = res.data.stats || {};
       setStats({ ...defaultStats, ...data });
     } catch (err) {
-      console.error('Error fetching stats:', err);
+      logger.error('Error fetching stats:', err);
     } finally {
       setIsLoading(false);
     }
@@ -313,7 +314,7 @@ export function useAdminUsers(filters = {}) {
       setUsers(res.data.users || []);
       setTotal(res.data.total || 0);
     } catch (err) {
-      console.error('Error fetching users:', err);
+      logger.error('Error fetching users:', err);
     } finally {
       setIsLoading(false);
     }
@@ -338,7 +339,7 @@ export function useAdminReports(status = null) {
       const res = await api.get(`/v1/admin/reports?${params.toString()}`);
       setReports(res.data.reports || []);
     } catch (err) {
-      console.error('Error fetching reports:', err);
+      logger.error('Error fetching reports:', err);
     } finally {
       setIsLoading(false);
     }
@@ -361,7 +362,7 @@ export function useAdminCategories() {
       const config = res.data.config || {};
       setCategories(config.categories || []);
     } catch (err) {
-      console.error('Error fetching categories:', err);
+      logger.error('Error fetching categories:', err);
     } finally {
       setIsLoading(false);
     }
@@ -372,7 +373,7 @@ export function useAdminCategories() {
       await api.put('/v1/admin/config', { key: 'categories', value: newCategories });
       setCategories(newCategories);
     } catch (err) {
-      console.error('Error updating categories:', err);
+      logger.error('Error updating categories:', err);
     }
   };
 

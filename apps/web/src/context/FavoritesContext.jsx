@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../config/api.js';
 import { useAuth } from './AuthContext.jsx';
+import logger from '../utils/logger.js';
 
 const FavoritesContext = createContext(null);
 
@@ -23,7 +24,7 @@ export function FavoritesProvider({ children }) {
       const res = await api.get('/v1/favorites/my');
       setFavorites(res.data.favorites?.map(f => f.designId) || []);
     } catch (err) {
-      console.error('Error fetching favorites:', err);
+      logger.error('Error fetching favorites:', err);
     }
   };
 
@@ -35,7 +36,7 @@ export function FavoritesProvider({ children }) {
         try {
           await api.post('/v1/favorites', { designId });
         } catch (err) {
-          console.error('Error adding favorite:', err);
+          logger.error('Error adding favorite:', err);
           // Revert
           setFavorites(prev => prev.filter(id => id !== designId));
         }
@@ -52,7 +53,7 @@ export function FavoritesProvider({ children }) {
       try {
         await api.delete(`/v1/favorites/${designId}`);
       } catch (err) {
-        console.error('Error removing favorite:', err);
+        logger.error('Error removing favorite:', err);
         // Revert
         setFavorites(prev => [...prev, designId]);
       }
