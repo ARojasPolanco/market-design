@@ -115,7 +115,7 @@ export default function UploadDesignPage() {
     formData.title.trim().length >= 3 &&
     formData.description.trim().length >= 10 &&
     formData.technique &&
-    formData.price > 0;
+    Number(formData.price) > 0;
   const canProceedStep4 = formData.declaration;
 
   const handleSubmit = async () => {
