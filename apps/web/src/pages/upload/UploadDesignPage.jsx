@@ -37,7 +37,7 @@ export default function UploadDesignPage() {
     title: '',
     description: '',
     category: '',
-    technique: '',
+    technique: 'sublimado',
     price: '',
     declaration: false,
   });
@@ -114,7 +114,6 @@ export default function UploadDesignPage() {
   const canProceedStep3 =
     formData.title.trim().length >= 3 &&
     formData.description.trim().length >= 10 &&
-    formData.category &&
     formData.technique &&
     formData.price > 0;
   const canProceedStep4 = formData.declaration;
@@ -458,7 +457,6 @@ export default function UploadDesignPage() {
                       onChange={(e) => updateForm('technique', e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
                     >
-                      <option value="">Seleccionar</option>
                       {TECHNIQUES.map((tech) => (
                         <option key={tech.id} value={tech.id}>
                           {tech.name}
