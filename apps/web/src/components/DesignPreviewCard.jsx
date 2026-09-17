@@ -40,7 +40,7 @@ export default function DesignPreviewCard({ formData, previewImage }) {
           {description || 'Descripción del diseño...'}
         </p>
 
-        {/* Seller (mock) */}
+        {/* Seller */}
         <div className="flex items-center gap-2 mb-3">
           <div className="w-6 h-6 rounded-full bg-gray-200" />
           <span className="text-sm text-gray-600">Tu tienda</span>
