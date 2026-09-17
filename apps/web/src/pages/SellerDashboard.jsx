@@ -35,8 +35,8 @@ import { RankBadge, getRankInfo } from '../components/RankBadge.jsx';
 
 export default function SellerDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
-  const { sales, stats } = useSellerSales('s1');
-  const { designs: myDesigns } = useSellerDesigns('s1');
+  const { sales, stats } = useSellerSales();
+  const { designs: myDesigns } = useSellerDesigns();
   const { designs: pending } = usePendingDesigns();
   const { designs: rejected } = useRejectedDesigns();
   const { seller, isLoading } = useCurrentSeller();

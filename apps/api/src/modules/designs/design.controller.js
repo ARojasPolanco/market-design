@@ -41,17 +41,13 @@ export const getDesign = catchAsync(async (req, res, next) => {
   });
 });
 
-export const createDesign = catchAsync(async (req, res, next) => {
+export const createDesign = catchAsync(async (req, res) => {
   const { hasError, errorMessages, data } = validateCreateDesign(req.body);
   if (hasError) {
     return res.status(422).json({ status: 'error', message: errorMessages.join(', ') });
   }
 
-  // Check if seller has MP connected
   const user = req.sessionUser;
-  if (!user.mpConnected) {
-    return next(new AppError('Debés conectar tu cuenta de Mercado Pago para publicar diseños.', 400));
-  }
 
   const design = await designService.create({
     ...data,

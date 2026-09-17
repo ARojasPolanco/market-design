@@ -3,6 +3,7 @@ import {
   register,
   login,
   getProfile,
+  getPublicProfile,
   updateProfile,
   changePassword,
   verifyEmail,
@@ -17,6 +18,7 @@ const router = Router();
 router.post('/register', register);
 router.post('/login', login);
 router.get('/verify-email/:token', verifyEmail);
+router.get('/profile/:id', getPublicProfile);
 
 // Protected routes
 router.get('/profile', protect, getProfile);

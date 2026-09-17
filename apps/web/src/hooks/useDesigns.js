@@ -246,8 +246,9 @@ export function useRejectedDesigns() {
 
   const fetchRejected = async () => {
     try {
-      const res = await api.get('/v1/designs?status=rejected&limit=50');
-      setDesigns(res.data.designs || []);
+      const res = await api.get('/v1/designs/my');
+      const allDesigns = res.data.designs || [];
+      setDesigns(allDesigns.filter((d) => d.status === 'rejected'));
     } catch (err) {
       console.error('Error fetching rejected:', err);
     } finally {

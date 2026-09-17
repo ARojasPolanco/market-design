@@ -108,6 +108,36 @@ export const getProfile = catchAsync(async (req, res) => {
   });
 });
 
+export const getPublicProfile = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+
+  // Validate UUID
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(id)) {
+    return next(new AppError('ID de usuario inválido.', 400));
+  }
+
+  const user = await authService.findOneById(id);
+  if (!user || user.isDeleted) {
+    return next(new AppError('Usuario no encontrado.', 404));
+  }
+
+  // Only return public info
+  res.status(200).json({
+    status: 'success',
+    user: {
+      id: user.id,
+      username: user.username,
+      storeName: user.storeName,
+      description: user.description,
+      avatarUrl: user.avatarUrl,
+      rank: user.rank,
+      isVerified: user.isVerified,
+      isTopSeller: user.isTopSeller,
+    },
+  });
+});
+
 export const updateProfile = catchAsync(async (req, res, next) => {
   const { hasError, errorMessages, data } = validateUpdateProfile(req.body);
   if (hasError) {
