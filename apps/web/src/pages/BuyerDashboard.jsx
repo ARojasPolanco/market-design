@@ -43,7 +43,7 @@ export default function BuyerDashboard() {
 
   const displayName = user?.username || user?.fullname || 'Usuario';
   const avatarLetter = displayName.charAt(0).toUpperCase();
-  const avatarUrl = user?.avatarUrl || `https://placehold.co/200x200/0F2A44/ffffff?text=${avatarLetter}`;
+  const avatarUrl = user?.avatarUrl || null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -53,11 +53,17 @@ export default function BuyerDashboard() {
       <div className="bg-white rounded-2xl shadow-sm p-6 mb-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
           <div className="relative">
-            <img
-              src={avatarUrl}
-              alt={displayName}
-              className="w-20 h-20 rounded-full object-cover"
-            />
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="w-20 h-20 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-dark flex items-center justify-center text-white text-2xl font-bold">
+                {avatarLetter}
+              </div>
+            )}
             <div className="absolute -bottom-1 -right-1 p-1 bg-brand-teal text-white rounded-full">
               <CheckCircle size={14} />
             </div>
@@ -376,7 +382,7 @@ function ProfileSection({ user }) {
   };
 
   const displayName = user?.username || 'U';
-  const avatarUrl = avatarPreview || user?.avatarUrl || `https://placehold.co/200x200/0F2A44/ffffff?text=${displayName.charAt(0).toUpperCase()}`;
+  const avatarUrl = avatarPreview || user?.avatarUrl || null;
 
   return (
     <div className="max-w-2xl">
@@ -386,11 +392,17 @@ function ProfileSection({ user }) {
         {/* Avatar */}
         <div className="flex items-center gap-6 mb-6">
           <div className="relative">
-            <img
-              src={avatarUrl}
-              alt="Avatar"
-              className="w-24 h-24 rounded-full object-cover"
-            />
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt="Avatar"
+                className="w-24 h-24 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-dark flex items-center justify-center text-white text-3xl font-bold">
+                {displayName.charAt(0).toUpperCase()}
+              </div>
+            )}
             <label className="absolute bottom-0 right-0 p-1.5 bg-brand-teal text-white rounded-full cursor-pointer hover:bg-brand-teal-dark transition-colors">
               <Camera size={14} />
               <input
