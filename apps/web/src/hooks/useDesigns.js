@@ -193,12 +193,13 @@ export function useSellerSales() {
 
   const fetchSales = async () => {
     try {
-      // TODO: Create endpoint for seller sales
-      // For now, return empty data
-      setSales([]);
+      const res = await api.get('/v1/purchases/my/sales');
+      const salesData = res.data.sales || [];
+      const statsData = res.data.stats || {};
+      setSales(salesData);
       setStats({
-        totalEarnings: 0,
-        totalSales: 0,
+        totalEarnings: statsData.totalEarnings || 0,
+        totalSales: statsData.totalSales || 0,
         avgRating: 0,
         commissionRate: 20,
         commissionLevel: 'Bronce',

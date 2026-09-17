@@ -23,8 +23,6 @@ import CommissionInfo from '../components/CommissionInfo.jsx';
 import {
   useSellerSales,
   useSellerDesigns,
-  usePendingDesigns,
-  useRejectedDesigns,
 } from '../hooks/useDesigns.js';
 import { useCurrentSeller } from '../hooks/useSeller.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -37,8 +35,8 @@ export default function SellerDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const { sales, stats } = useSellerSales();
   const { designs: myDesigns } = useSellerDesigns();
-  const { designs: pending } = usePendingDesigns();
-  const { designs: rejected } = useRejectedDesigns();
+  const pending = myDesigns.filter((d) => d.status === 'pending');
+  const rejected = myDesigns.filter((d) => d.status === 'rejected');
   const { seller, isLoading } = useCurrentSeller();
 
   if (isLoading) {

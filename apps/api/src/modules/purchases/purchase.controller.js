@@ -164,6 +164,22 @@ export const getMyPurchases = catchAsync(async (req, res) => {
   });
 });
 
+export const getMySales = catchAsync(async (req, res) => {
+  const sales = await purchaseService.findBySeller(req.sessionUser.id);
+
+  const totalEarnings = sales.reduce((sum, s) => sum + Number(s.sellerEarnings || 0), 0);
+  const totalSales = sales.length;
+
+  res.status(200).json({
+    status: 'success',
+    sales,
+    stats: {
+      totalEarnings,
+      totalSales,
+    },
+  });
+});
+
 export const downloadDesign = catchAsync(async (req, res, next) => {
   const { token } = req.params;
 

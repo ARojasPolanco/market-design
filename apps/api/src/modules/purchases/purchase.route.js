@@ -4,6 +4,7 @@ import {
   handleWebhook,
   verifyPayment,
   getMyPurchases,
+  getMySales,
   downloadDesign,
   reDownload,
   createRating,
@@ -21,6 +22,7 @@ router.get('/ratings/:designId', getDesignRatings);
 // Protected routes
 router.post('/', protect, createPurchase);
 router.get('/my', protect, getMyPurchases);
+router.get('/my/sales', protect, getMySales);
 router.get('/:id/verify', protect, verifyPayment);
 router.post('/:id/redownload', protect, reDownload);
 router.post('/ratings', protect, createRating);
