@@ -1,154 +1,131 @@
 # Bugs.md — Marketplace de Diseños
 
-## Estado actual: Revisión completa del código
-
 Última actualización: 2026-09-16
 
 ---
 
-## BUGS CRÍTICOS (bloquean funcionalidad)
+## BUGS CRÍTICOS
 
 ### 1. Upload de diseño no guarda en DB
-- **Pantalla**: `/vendedor/panel/subir`
-- **Error**: `POST /api/v1/designs` devuelve error de conexión
-- **Causa probable**: El backend requiere MP conectado para crear diseños, el usuario vendedor no tiene MP conectado
-- **Fix**: Verificar que el seller tiene `mp_connected: true` antes de permitir upload, o quitar esa restricción para testing
-- **Archivo backend**: `apps/api/src/modules/designs/design.controller.js` línea ~43
-- **Archivo frontend**: `apps/web/src/pages/upload/UploadDesignPage.jsx` línea ~121
+- **Ruta**: `/vendedor/panel/subir`
+- **Error**: `POST /api/v1/designs` devuelve error
+- **Causa**: El backend requiere `mp_connected: true` para crear diseños
+- **Archivo**: `apps/api/src/modules/designs/design.controller.js` línea 43
+- **Fix**: Quitar la restricción MP para testing, o conectar MP al vendedor
 
-### 2. Admin no ve diseños pendientes (403 Forbidden)
-- **Pantalla**: `/admin` → tab Pendientes
+### 2. Admin no ve diseños pendientes (403)
+- **Ruta**: `/admin` → tab Pendientes
 - **Error**: `GET /api/v1/admin/designs/pending` devuelve 403
-- **Causa probable**: El usuario logueado no tiene rol `admin` en la DB
-- **Fix**: Cambiar el rol del usuario a `admin` directamente en la DB
-- **Archivo backend**: `apps/api/src/modules/admin/admin.route.js`
+- **Causa**: El usuario logueado no tiene rol `admin` en la DB
+- **Fix**: Cambiar rol a `admin` en la DB
 
-### 3. Panel de vendedor muestra datos incorrectos
-- **Pantalla**: `/vendedor/panel`
-- **Error**: Ventas siempre en 0, diseños no aparecen
-- **Causa**: `useSellerSales()` devuelve datos vacíos (no hay endpoint `/api/v1/purchases/seller`)
-- **Fix**: Crear endpoint para obtener ventas del vendedor
-- **Archivo**: `apps/web/src/hooks/useDesigns.js` línea ~194
+### 3. Panel vendedor — datos hardcodeados
+- **Ruta**: `/vendedor/panel`
+- **Error**: `useSellerSales('s1')` y `useSellerDesigns('s1')` usan ID inválido
+- **Archivo**: `apps/web/src/pages/SellerDashboard.jsx` línea 38-39
+- **Fix**: Quitar `'s1'` y usar el hook sin parámetros (ya usa endpoint autenticado)
 
----
+### 4. Diseño no aparece en admin después de crearlo
+- **Ruta**: `/admin` → tab Pendientes
+- **Error**: Diseño creado pero no visible en la cola
+- **Causa**: Posiblemente el diseño se crea con status incorrecto o el endpoint filtra mal
+- **Fix**: Verificar que `POST /api/v1/designs` crea con status `pending` y que `GET /api/v1/admin/designs/pending` lo devuelve
 
-## BUGS MEDIOS (afectan UX pero no bloquean)
-
-### 4. Categorías no se cargan en el admin (403)
-- **Pantalla**: `/admin` → tab Categorías
-- **Error**: `GET /api/v1/admin/config` devuelve 403 para no-admins
-- **Causa**: El hook `useCategories()` intenta leer config de admin
-- **Fix**: Ya creamos endpoint público `/api/v1/admin/categories`, pero hay que actualizar el hook
-- **Archivo**: `apps/web/src/hooks/useCategories.js`
-
-### 5. Diseños pendientes no aparecen en admin
-- **Pantalla**: `/admin` → tab Pendientes
-- **Error**: Los diseños se crean pero no aparecen en la cola de moderación
-- **Causa**: Los diseños se crean con status `pending` pero el endpoint de pendientes puede estar filtrando por admin
-- **Fix**: Verificar que `GET /api/v1/admin/designs/pending` funciona para admins
-
-### 6. Favoritos no persisten entre sesiones
-- **Pantalla**: Cualquiera
-- **Error**: Los favoritos se pierden al recargar
-- **Causa**: El `FavoritesContext` intenta leer de localStorage cuando no hay token, pero el hook no guarda en localStorage
-- **Fix**: Asegurar que `useFavorites` guarde en localStorage cuando no hay usuario logueado
-
-### 7. Error al cargar el diseño (500)
-- **Pantalla**: Detalle de diseño
-- **Error**: `GET /api/v1/designs/:id` devuelve 500
-- **Causa**: El endpoint intenta leer `previewUrls` y `previewKeys` que no existen en la DB
-- **Fix**: Verificar que la migración 005 se aplicó correctamente
-- **Archivo**: `apps/api/src/modules/designs/design.service.js`
-
----
-
-## BUGS MENORES (cosméticos o no urgentes)
-
-### 8. Rate limit muy estricto para testing
-- **Error**: Después de varias requests, devuelve 429
-- **Fix**: Aumentar el límite en `.env` o en el código
-
-### 9. Botón "Siguiente" en upload sometimes blocked
-- **Pantalla**: `/vendedor/panel/subir` → Paso 3
-- **Error**: El botón se desactiva aunque los campos están llenos
-- **Causa**: `formData.price` se compara como string, `Number()` no se aplica correctamente
-- **Fix**: Verificar que `Number(formData.price) > 0` funciona
-
-### 10. Puerto 3000 en uso
+### 5. Puerto 3000 en uso (error recurrente)
 - **Error**: `EADDRINUSE: address already in use :::3000`
 - **Causa**: Procesos Node.js anteriores no liberan el puerto
 - **Fix**: `taskkill /F /IM node.exe` antes de `npm run dev`
 
-### 11. Error 500 en consola (sin impacto visible)
-- **Error**: `GET /api/v1/admin/config` devuelve 500
-- **Causa**: El endpoint de config intenta leer de la tabla `config` que puede no tener datos
-- **Fix**: Verificar que la migración 004 sembró los datos por defecto
+---
+
+## BUGS MEDIOS
+
+### 6. Hook useSellerSales no tiene endpoint
+- **Archivo**: `apps/web/src/hooks/useDesigns.js` línea 196
+- **Error**: `GET /api/v1/purchases/seller` devuelve 404
+- **Fix**: Crear endpoint en backend o devolver datos vacíos
+
+### 7. Hook useCategories llama endpoint de admin
+- **Archivo**: `apps/web/src/hooks/useCategories.js`
+- **Error**: `GET /api/v1/admin/config` devuelve 403 para no-admins
+- **Fix**: Ya existe endpoint público `/api/v1/admin/categories`, actualizar el hook
+
+### 8. Datos hardcodeados en hooks
+- **Archivo**: `apps/web/src/hooks/useDesigns.js`
+- **Problema**: `useSellerDesigns('s1')` usa ID mock
+- **Fix**: Usar el endpoint autenticado `/v1/designs/my`
+
+### 9. Category no es obligatoria pero el form la pide
+- **Archivo**: `apps/web/src/pages/upload/UploadDesignPage.jsx`
+- **Problema**: El campo categoría es opcional pero el datalist puede confundir
+- **Fix**: Agregar placeholder más claro
+
+### 10. Botón "Siguiente" sometimes blocked
+- **Ruta**: `/vendedor/panel/subir` → Paso 3
+- **Error**: El botón se desactiva aunque los campos están llenos
+- **Causa**: `formData.price` se compara como string
+- **Fix**: Usar `Number(formData.price) > 0`
 
 ---
 
-## ENDPOINTS FALTANTES (el frontend llama pero no existen)
+## BUGS MENORES
 
-| Endpoint | Método | Usado por | Estado |
-|----------|--------|-----------|--------|
-| `/api/v1/purchases/seller` | GET | `useSellerSales()` | ❌ No existe |
-| `/api/v1/designs?sellerId=:id` | GET | `useSellerDesigns()` | ❌ UUID inválido (era "s1") |
-| `/api/v1/admin/reports` | GET | `useAdminReports()` | ⚠️ Endpoint existe, sin datos |
-| `/api/v1/badges/my-progress` | GET | Seller dashboard | ❌ No existe |
+### 11. placehold.co en RankDemoPage
+- **Archivo**: `apps/web/src/pages/RankDemoPage.jsx` líneas 21-93
+- **Problema**: Avatares usan placehold.co (no es real)
+- **Fix**: Reemplazar con avatares reales o SVGs
+
+### 12. placehold.co en BuyerDashboard
+- **Archivo**: `apps/web/src/pages/BuyerDashboard.jsx` líneas 46, 379
+- **Problema**: Avatar fallback usa placehold.co
+- **Fix**: Usar SVG local o avatar con iniciales
+
+### 13. console.error en hooks (21 ocurrencias)
+- **Archivos**: `useDesigns.js`, `useSeller.js`, `useCategories.js`
+- **Problema**: Muchos `console.error` en producción
+- **Fix**: Usar un logger centralizado o quitar en producción
 
 ---
 
-## ENDPOINTS EXISTENTES QUE NECESITAN FIX
+## ENDPOINTS FALTANTES EN BACKEND
 
-| Endpoint | Problema | Fix |
-|----------|----------|-----|
-| `POST /api/v1/designs` | Requiere `mp_connected` | Quitar restricción para testing |
-| `GET /api/v1/admin/designs/pending` | Requiere rol `admin` | Asegurar que el usuario test es admin |
-| `GET /api/v1/admin/config` | Solo para admins | Crear endpoint público para categorías |
-| `GET /api/v1/designs/:id` | Falta `preview_urls` en DB | Verificar migración 005 |
+| Endpoint | Método | Usado por |
+|----------|--------|-----------|
+| `/api/v1/purchases/seller` | GET | `useSellerSales()` |
+| `/api/v1/badges/my-progress` | GET | Seller dashboard |
+
+---
+
+## DATOS HARDCODEADOS EN FRONTEND
+
+| Archivo | Línea | Dato hardcodeado |
+|---------|-------|------------------|
+| `SellerDashboard.jsx` | 38 | `useSellerSales('s1')` |
+| `SellerDashboard.jsx` | 39 | `useSellerDesigns('s1')` |
+| `RankDemoPage.jsx` | 21-93 | Avatares placehold.co |
+| `BuyerDashboard.jsx` | 46 | Avatar fallback placehold.co |
 
 ---
 
 ## ARCHIVOS QUE NECESITAN REVISIÓN
 
 ### Backend
-- `apps/api/src/modules/designs/design.controller.js` — restricción MP
-- `apps/api/src/modules/designs/design.service.js` — query con columnas faltantes
-- `apps/api/src/modules/admin/admin.route.js` — rutas protegidas
-- `apps/api/src/modules/purchases/purchase.route.js` — endpoints faltantes
+- `design.controller.js` — restricción MP
+- `design.service.js` — query con columnas
+- `admin.route.js` — rutas protegidas
 
 ### Frontend
-- `apps/web/src/hooks/useDesigns.js` — hooks con endpoints incorrectos
-- `apps/web/src/hooks/useCategories.js` — hook llama endpoint de admin
-- `apps/web/src/pages/SellerDashboard.jsx` — datos hardcodeados
-- `apps/web/src/pages/upload/UploadDesignPage.jsx` — validación y submit
+- `useDesigns.js` — hooks con endpoints incorrectos
+- `SellerDashboard.jsx` — datos hardcodeados
+- `BuyerDashboard.jsx` — avatar fallback
 
 ---
 
-## PRÓXIMOS PASOS (orden sugerido)
+## PRÓXIMOS PASOS
 
-1. **Arreglar endpoint de diseños** → quitar restricción MP para testing
-2. **Verificar migraciones** → asegurar que todas las tablas/columnas existen
-3. **Crear endpoint de ventas del vendedor** → `/api/v1/purchases/seller`
-4. **Arreglar hooks del frontend** → usar endpoints correctos
-5. **Testing completo** → recorrer cada pantalla y documentar errores
-6. **Deploy** → cuando todo funcione
-
----
-
-## TOKENS
-
-Sí, podés conectarte con otra cuenta de opencode. El proyecto está en GitHub (`dev` branch), así que la otra cuenta puede clonar el repo y continuar exactamente donde dejamos. Solo necesitás:
-
-1. Clonar el repo en la otra cuenta
-2. Instalar dependencias: `npm install`
-3. Levantar Docker: `docker compose up -d postgres`
-4. El `.env` ya está configurado
-
----
-
-## NOTAS
-
-- Los tests del backend (41 tests) pasan correctamente
-- El frontend no tiene tests automatizados
-- Docker Desktop debe estar abierto para que funcione PostgreSQL
-- Las credenciales de R2, MP y Resend están en `apps/api/.env`
+1. Quitar restricción MP para testing
+2. Verificar migraciones en DB
+3. Crear endpoint de ventas del vendedor
+4. Arreglar hooks del frontend
+5. Testing completo
+6. Deploy
