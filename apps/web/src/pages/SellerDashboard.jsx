@@ -34,11 +34,23 @@ import { RankBadge, getRankInfo } from '../components/RankBadge.jsx';
 export default function SellerDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const { sales, stats } = useSellerSales();
-  const { designs: myDesigns } = useSellerDesigns();
+  const { designs: myDesigns, refetch: refetchDesigns } = useSellerDesigns();
   const approved = myDesigns.filter((d) => d.status === 'approved');
   const pending = myDesigns.filter((d) => d.status === 'pending');
   const rejected = myDesigns.filter((d) => d.status === 'rejected');
   const { seller, isLoading } = useCurrentSeller();
+  const { showToast } = useToast();
+
+  const handleDeleteDesign = async (designId) => {
+    if (!confirm('¿Seguro que querés eliminar este diseño?')) return;
+    try {
+      await api.delete(`/v1/designs/${designId}`);
+      showToast('Diseño eliminado correctamente', { type: 'success' });
+      refetchDesigns();
+    } catch (_err) {
+      showToast('Error al eliminar el diseño', { type: 'error' });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -417,7 +429,10 @@ export default function SellerDashboard() {
                     Editar y reenviar
                   </button>
                   <span className="text-gray-300">|</span>
-                  <button className="text-sm text-red-600 hover:text-red-700 font-medium">
+                  <button
+                    onClick={() => handleDeleteDesign(design.id)}
+                    className="text-sm text-red-600 hover:text-red-700 font-medium"
+                  >
                     Eliminar
                   </button>
                 </div>
