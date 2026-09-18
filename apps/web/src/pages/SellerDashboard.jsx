@@ -17,6 +17,8 @@ import {
   Zap,
   Target,
   Users,
+  X,
+  AlertTriangle,
 } from 'lucide-react';
 import BackButton from '../components/BackButton.jsx';
 import CommissionInfo from '../components/CommissionInfo.jsx';
@@ -33,6 +35,8 @@ import { RankBadge, getRankInfo } from '../components/RankBadge.jsx';
 
 export default function SellerDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
+  const [deleteModal, setDeleteModal] = useState(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const { sales, stats } = useSellerSales();
   const { designs: myDesigns, refetch: refetchDesigns } = useSellerDesigns();
   const approved = myDesigns.filter((d) => d.status === 'approved');
@@ -41,11 +45,13 @@ export default function SellerDashboard() {
   const { seller, isLoading } = useCurrentSeller();
   const { showToast } = useToast();
 
-  const handleDeleteDesign = async (designId) => {
-    if (!confirm('¿Seguro que querés eliminar este diseño?')) return;
+  const handleDeleteDesign = async () => {
+    if (!deleteModal) return;
     try {
-      await api.delete(`/v1/designs/${designId}`);
+      await api.delete(`/v1/designs/${deleteModal}`);
       showToast('Diseño eliminado correctamente', { type: 'success' });
+      setDeleteModal(null);
+      setDeleteConfirmText('');
       refetchDesigns();
     } catch (_err) {
       showToast('Error al eliminar el diseño', { type: 'error' });
@@ -430,7 +436,7 @@ export default function SellerDashboard() {
                   </button>
                   <span className="text-gray-300">|</span>
                   <button
-                    onClick={() => handleDeleteDesign(design.id)}
+                    onClick={() => { setDeleteModal(design.id); setDeleteConfirmText(''); }}
                     className="text-sm text-red-600 hover:text-red-700 font-medium"
                   >
                     Eliminar
@@ -489,6 +495,63 @@ export default function SellerDashboard() {
 
       {/* Profile tab */}
       {activeTab === 'profile' && <ProfileSection seller={seller} />}
+
+      {/* Delete confirmation modal */}
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <AlertTriangle size={20} className="text-red-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">Eliminar diseño</h3>
+              </div>
+              <button
+                onClick={() => { setDeleteModal(null); setDeleteConfirmText(''); }}
+                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X size={20} className="text-gray-500" />
+              </button>
+            </div>
+
+            <div className="mb-6 space-y-3">
+              <p className="text-sm text-gray-600">
+                Si eliminás este diseño, vas a tener que cargarlo nuevamente desde cero (archivos, imágenes, descripción, etc.).
+              </p>
+              <p className="text-sm text-gray-600">
+                Si lo que querés es corregirlo, podés usar <span className="font-medium">"Editar y reenviar"</span> en su lugar.
+              </p>
+              <p className="text-sm text-gray-600">
+                Para confirmar la eliminación, escribí <span className="font-bold text-red-600">Eliminar</span> abajo:
+              </p>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Escribí Eliminar"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setDeleteModal(null); setDeleteConfirmText(''); }}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteDesign}
+                disabled={deleteConfirmText !== 'Eliminar'}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Eliminar diseño
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
