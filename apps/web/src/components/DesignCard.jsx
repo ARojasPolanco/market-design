@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Star, Heart, BadgeCheck, TrendingUp } from 'lucide-react';
 import { useFavorites } from '../context/FavoritesContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { RankBadge } from './RankBadge.jsx';
 
 export default function DesignCard({ design }) {
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
@@ -68,6 +69,7 @@ export default function DesignCard({ design }) {
               </div>
             )}
             <span className="text-sm text-gray-600">{design.seller?.storeName || design.seller?.username}</span>
+            <RankBadge rank={design.seller?.rank} size={14} />
             {design.seller?.isVerified && <BadgeCheck size={14} className="text-blue-500" />}
             {design.seller?.isTopSeller && <TrendingUp size={14} className="text-orange-500" />}
           </div>
