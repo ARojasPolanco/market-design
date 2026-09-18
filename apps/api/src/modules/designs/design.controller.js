@@ -42,8 +42,14 @@ export const getDesign = catchAsync(async (req, res, next) => {
 });
 
 export const createDesign = catchAsync(async (req, res) => {
+  console.log('=== CREATE DESIGN DEBUG ===');
+  console.log('Body:', req.body);
+  console.log('File:', req.file ? { name: req.file.originalname, size: req.file.size, type: req.file.mimetype } : 'No file');
+  console.log('User:', req.sessionUser?.id, req.sessionUser?.role);
+
   const { hasError, errorMessages, data } = validateCreateDesign(req.body);
   if (hasError) {
+    console.log('Validation error:', errorMessages);
     return res.status(422).json({ status: 'error', message: errorMessages.join(', ') });
   }
 
@@ -57,6 +63,7 @@ export const createDesign = catchAsync(async (req, res) => {
     fileFormat: req.file?.mimetype,
   });
 
+  console.log('Design created:', design.id);
   res.status(201).json({
     status: 'success',
     design,

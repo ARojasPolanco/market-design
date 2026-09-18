@@ -139,13 +139,32 @@ export default function UploadDesignPage() {
         submitData.append('previews', file);
       });
 
-      await api.post('/v1/designs', submitData, {
+      // Debug: Log what we're sending
+      console.log('=== UPLOAD DEBUG ===');
+      console.log('Title:', formData.title);
+      console.log('Description:', formData.description);
+      console.log('Price:', formData.price);
+      console.log('Category:', formData.category);
+      console.log('Technique:', formData.technique);
+      console.log('Design file:', designFile?.name, designFile?.size);
+      console.log('Preview files:', previewFiles.length);
+      console.log('FormData entries:');
+      for (const [key, value] of submitData.entries()) {
+        console.log(`  ${key}:`, typeof value === 'object' ? value.name : value);
+      }
+
+      const response = await api.post('/v1/designs', submitData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
+      console.log('Upload success:', response.data);
       showToast('Diseño enviado a revisión. Te notificaremos por email.', { type: 'success' });
       navigate('/vendedor/panel');
     } catch (err) {
+      console.error('=== UPLOAD ERROR ===');
+      console.error('Error:', err);
+      console.error('Response:', err.response?.data);
+      console.error('Status:', err.response?.status);
       const message = err.response?.data?.message || 'Error al enviar el diseño';
       showToast(message, { type: 'error' });
     } finally {
