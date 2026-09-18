@@ -118,7 +118,6 @@ export default function SellerDashboard() {
           <p className="text-2xl font-bold text-gray-900">
             ${stats.totalEarnings.toLocaleString()}
           </p>
-          <p className="text-xs text-green-600 mt-1">+12% vs mes anterior</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-3 mb-2">
