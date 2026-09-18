@@ -134,6 +134,7 @@ export const getPublicProfile = catchAsync(async (req, res, next) => {
       rank: user.rank,
       isVerified: user.isVerified,
       isTopSeller: user.isTopSeller,
+      createdAt: user.createdAt,
     },
   });
 });
