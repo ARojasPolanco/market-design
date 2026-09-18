@@ -137,7 +137,7 @@ export function useSellerDesigns(sellerId) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (sellerId) fetchSellerDesigns();
+    fetchSellerDesigns();
   }, [sellerId]);
 
   const fetchSellerDesigns = async () => {
@@ -151,7 +151,7 @@ export function useSellerDesigns(sellerId) {
     }
   };
 
-  return { designs, isLoading };
+  return { designs, isLoading, refetch: fetchSellerDesigns };
 }
 
 export function usePurchases() {
