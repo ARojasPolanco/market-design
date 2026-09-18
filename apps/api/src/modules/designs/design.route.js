@@ -13,7 +13,7 @@ import {
   getMyDesigns,
 } from './design.controller.js';
 import { protect, restrictTo } from '../auth/auth.middleware.js';
-import { uploadSingle } from '../../middlewares/upload.js';
+import { uploadDesignFiles } from '../../middlewares/upload.js';
 
 const router = Router();
 
@@ -26,7 +26,7 @@ router.get('/admin/pending', protect, restrictTo('admin'), getPendingDesigns);
 router.get('/:id', getDesign);
 
 // Protected routes
-router.post('/', protect, restrictTo('seller', 'admin'), uploadSingle, createDesign);
+router.post('/', protect, restrictTo('seller', 'admin'), uploadDesignFiles, createDesign);
 router.patch('/:id', protect, restrictTo('seller', 'admin'), updateDesign);
 router.delete('/:id', protect, restrictTo('seller', 'admin'), deleteDesign);
 router.patch('/:id/approve', protect, restrictTo('admin'), approveDesign);

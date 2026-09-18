@@ -34,3 +34,8 @@ export const uploadDesign = multer({
 });
 
 export const uploadSingle = uploadDesign.single('file');
+
+export const uploadDesignFiles = uploadDesign.fields([
+  { name: 'file', maxCount: 1 },
+  { name: 'previews', maxCount: 5 },
+]);

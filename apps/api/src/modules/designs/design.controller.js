@@ -44,7 +44,8 @@ export const getDesign = catchAsync(async (req, res, next) => {
 export const createDesign = catchAsync(async (req, res) => {
   console.log('=== CREATE DESIGN DEBUG ===');
   console.log('Body:', req.body);
-  console.log('File:', req.file ? { name: req.file.originalname, size: req.file.size, type: req.file.mimetype } : 'No file');
+  console.log('Files:', req.files);
+  console.log('File (single):', req.file);
   console.log('User:', req.sessionUser?.id, req.sessionUser?.role);
 
   const { hasError, errorMessages, data } = validateCreateDesign(req.body);
@@ -54,13 +55,18 @@ export const createDesign = catchAsync(async (req, res) => {
   }
 
   const user = req.sessionUser;
+  const designFile = req.files?.file?.[0];
+  const previewFiles = req.files?.previews || [];
+
+  console.log('Design file:', designFile ? { name: designFile.originalname, size: designFile.size } : 'No file');
+  console.log('Preview files:', previewFiles.length);
 
   const design = await designService.create({
     ...data,
     sellerId: user.id,
-    originalFileName: req.file?.originalname,
-    originalFileSize: req.file?.size,
-    fileFormat: req.file?.mimetype,
+    originalFileName: designFile?.originalname,
+    originalFileSize: designFile?.size,
+    fileFormat: designFile?.mimetype,
   });
 
   console.log('Design created:', design.id);
