@@ -13,6 +13,7 @@ export default function RegisterPage() {
     storeName: '',
   });
   const [wantToSell, setWantToSell] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -160,10 +161,31 @@ export default function RegisterPage() {
               </div>
             )}
 
+            {/* Accept terms */}
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={acceptTerms}
+                onChange={(e) => setAcceptTerms(e.target.checked)}
+                className="mt-1 text-brand-teal focus:ring-brand-teal rounded"
+              />
+              <span className="text-sm text-gray-600">
+                Acepto los{' '}
+                <Link to="/terminos" target="_blank" className="text-brand-teal hover:underline">
+                  Términos y Condiciones
+                </Link>{' '}
+                y la{' '}
+                <Link to="/privacidad" target="_blank" className="text-brand-teal hover:underline">
+                  Política de Privacidad
+                </Link>{' '}
+                de Market Design.
+              </span>
+            </label>
+
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-dark text-white py-3 rounded-lg font-semibold hover:bg-dark-light transition-colors disabled:opacity-50"
+              disabled={loading || !acceptTerms}
+              className="w-full bg-dark text-white py-3 rounded-lg font-semibold hover:bg-dark-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creando cuenta...' : 'Crear cuenta'}
             </button>

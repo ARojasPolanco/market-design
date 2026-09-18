@@ -15,6 +15,8 @@ import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import UploadDesignPage from './pages/upload/UploadDesignPage.jsx';
 import ActivateSellerPage from './pages/upload/ActivateSellerPage.jsx';
 import RankDemoPage from './pages/RankDemoPage.jsx';
+import TermsPage from './pages/TermsPage.jsx';
+import PrivacyPage from './pages/PrivacyPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 
 function App() {
@@ -64,6 +66,8 @@ function App() {
           />
           <Route path="/admin/*" element={<AdminDashboard />} />
           <Route path="/demo/rangos" element={<RankDemoPage />} />
+          <Route path="/terminos" element={<TermsPage />} />
+          <Route path="/privacidad" element={<PrivacyPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
