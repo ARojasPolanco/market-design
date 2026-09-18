@@ -37,7 +37,7 @@ export function useDesigns(filters = {}) {
       setTotal(res.data.total || 0);
 
       // Extract unique categories from designs
-      const uniqueCategories = [...new Set(res.data.designs?.map(d => d.category) || [])];
+      const uniqueCategories = [...new Set(res.data.designs?.map(d => d.category).filter(Boolean) || [])];
       setCategories(uniqueCategories.map(c => ({ id: c, name: c.charAt(0).toUpperCase() + c.slice(1), count: 0 })));
     } catch (err) {
       logger.error('Error fetching designs:', err);
