@@ -54,14 +54,22 @@ export default function DesignCard({ design }) {
 
           {/* Seller */}
           <div className="flex items-center gap-2 mb-3">
-            <img
-              src={design.seller.avatar}
-              alt={design.seller.name}
-              className="w-6 h-6 rounded-full"
-            />
-            <span className="text-sm text-gray-600">{design.seller.name}</span>
-            {design.seller.isVerified && <BadgeCheck size={14} className="text-blue-500" />}
-            {design.seller.isTopSeller && <TrendingUp size={14} className="text-orange-500" />}
+            {design.seller?.avatarUrl ? (
+              <img
+                src={design.seller.avatarUrl}
+                alt={design.seller.storeName || design.seller.username}
+                className="w-6 h-6 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">
+                <span className="text-xs font-bold text-gray-500">
+                  {(design.seller?.storeName || design.seller?.username || '?').charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
+            <span className="text-sm text-gray-600">{design.seller?.storeName || design.seller?.username}</span>
+            {design.seller?.isVerified && <BadgeCheck size={14} className="text-blue-500" />}
+            {design.seller?.isTopSeller && <TrendingUp size={14} className="text-orange-500" />}
           </div>
 
           {/* Price and rating */}
