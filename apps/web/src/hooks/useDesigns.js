@@ -70,13 +70,20 @@ export function useDesign(id) {
       const res = await api.get(`/v1/designs/${id}`);
       setDesign(res.data.design);
 
-      // Fetch related designs (same category)
-      const relatedRes = await api.get(`/v1/designs?category=${res.data.design.category}&limit=4`);
-      setRelated(relatedRes.data.designs?.filter(d => d.id !== id) || []);
+      // Fetch related designs (same category) only if category exists
+      if (res.data.design.category) {
+        const relatedRes = await api.get(`/v1/designs?category=${res.data.design.category}&limit=4`);
+        setRelated(relatedRes.data.designs?.filter(d => d.id !== id) || []);
+      }
 
       // Fetch reviews
-      const reviewsRes = await api.get(`/v1/purchases/ratings/${id}`);
-      setReviews(reviewsRes.data.ratings || []);
+      try {
+        const reviewsRes = await api.get(`/v1/purchases/ratings/${id}`);
+        setReviews(reviewsRes.data.ratings || []);
+      } catch {
+        // Reviews might not exist yet
+        setReviews([]);
+      }
     } catch (err) {
       logger.error('Error fetching design:', err);
       setError('No pudimos cargar el diseño. Por favor, intentá de nuevo.');
