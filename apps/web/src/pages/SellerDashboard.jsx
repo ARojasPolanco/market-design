@@ -212,7 +212,7 @@ export default function SellerDashboard() {
       <CommissionInfo variant="compact" />
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b mb-6 overflow-x-auto">
+      <div className="flex gap-1 border-b mb-6 overflow-visible">
         {[
           { id: 'overview', label: 'Resumen', tooltip: 'Acá podés ver el resumen de tus ventas y estadísticas' },
           { id: 'designs', label: `Mis diseños (${approved.length})`, tooltip: 'Acá podés ver tus diseños aprobados que están a la venta' },
@@ -221,9 +221,17 @@ export default function SellerDashboard() {
           { id: 'sales', label: 'Ventas', tooltip: 'Acá podés ver tu historial de ventas y ganancias' },
           { id: 'profile', label: 'Mi perfil', tooltip: 'Acá podés editar tu perfil de vendedor' },
         ].map((tab) => (
-          <div key={tab.id} className="relative group">
+          <div key={tab.id} className="relative flex">
             <button
               onClick={() => setActiveTab(tab.id)}
+              onMouseEnter={(e) => {
+                const tooltip = e.currentTarget.nextElementSibling;
+                if (tooltip) tooltip.style.opacity = '1';
+              }}
+              onMouseLeave={(e) => {
+                const tooltip = e.currentTarget.nextElementSibling;
+                if (tooltip) tooltip.style.opacity = '0';
+              }}
               className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'border-brand-teal text-brand-teal'
@@ -232,7 +240,7 @@ export default function SellerDashboard() {
             >
               {tab.label}
             </button>
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 transition-opacity pointer-events-none whitespace-nowrap z-50">
               {tab.tooltip}
               <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
             </div>
