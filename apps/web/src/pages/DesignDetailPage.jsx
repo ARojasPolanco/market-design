@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, Heart, ShoppingCart, Eye, ArrowLeft, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, ShoppingCart, Eye, ArrowLeft, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useDesign } from '../hooks/useDesigns.js';
 import { useFavorites } from '../context/FavoritesContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -209,22 +209,23 @@ export default function DesignDetailPage() {
             className="block bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors"
           >
             <div className="flex items-center gap-4">
-              <img
-                src={design.seller.avatar}
-                alt={design.seller.name}
-                className="w-12 h-12 rounded-full"
-              />
+              {design.seller.avatarUrl ? (
+                <img
+                  src={design.seller.avatarUrl}
+                  alt={design.seller.storeName || design.seller.username}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-lg font-bold text-gray-500">
+                    {(design.seller.storeName || design.seller.username || '?').charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-gray-900">{design.seller.name}</h3>
+                  <h3 className="font-semibold text-gray-900">{design.seller.storeName || design.seller.username}</h3>
                   <SellerBadge seller={design.seller} />
-                </div>
-                <div className="flex items-center gap-3 text-sm text-gray-500">
-                  <span className="flex items-center gap-1">
-                    <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                    {design.seller.rating}
-                  </span>
-                  <span>{design.seller.salesCount} ventas</span>
                 </div>
               </div>
             </div>
