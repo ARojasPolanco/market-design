@@ -69,7 +69,7 @@ export default function SellerDashboard() {
     );
   }
 
-  if (!seller || seller.role !== 'seller') {
+  if (!seller || (seller.role !== 'seller' && seller.role !== 'admin')) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 text-center">
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Acceso no disponible</h2>
