@@ -15,6 +15,7 @@ import OnboardingCards, { shouldShowOnboarding } from '../../components/Onboardi
 import DesignPreviewCard from '../../components/DesignPreviewCard.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useCategories } from '../../hooks/useCategories.js';
+import { useAuth } from '../../context/AuthContext.jsx';
 import api from '../../config/api.js';
 
 const TECHNIQUES = [
@@ -31,6 +32,7 @@ export default function UploadDesignPage() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { categories } = useCategories();
+  const { user } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(shouldShowOnboarding());
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -632,7 +634,7 @@ export default function UploadDesignPage() {
         <div className="hidden lg:block">
           <div className="sticky top-24">
             <p className="text-sm font-medium text-gray-500 mb-3">Vista previa en el catálogo</p>
-            <DesignPreviewCard formData={formData} previewImage={previewUrls[0]} />
+            <DesignPreviewCard formData={formData} previewImage={previewUrls[0]} storeName={user?.storeName} />
           </div>
         </div>
       </div>

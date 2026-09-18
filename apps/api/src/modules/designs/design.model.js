@@ -88,7 +88,7 @@ Design.init(
       field: 'original_file_size',
     },
     fileFormat: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(50),
       allowNull: true,
       field: 'file_format',
     },

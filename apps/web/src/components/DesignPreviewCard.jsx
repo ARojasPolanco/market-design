@@ -1,6 +1,6 @@
 import { Star, Heart, BadgeCheck } from 'lucide-react';
 
-export default function DesignPreviewCard({ formData, previewImage }) {
+export default function DesignPreviewCard({ formData, previewImage, storeName }) {
   const {
     title = 'Título del diseño',
     description = 'Descripción del diseño...',
@@ -43,7 +43,7 @@ export default function DesignPreviewCard({ formData, previewImage }) {
         {/* Seller */}
         <div className="flex items-center gap-2 mb-3">
           <div className="w-6 h-6 rounded-full bg-gray-200" />
-          <span className="text-sm text-gray-600">Tu tienda</span>
+          <span className="text-sm text-gray-600">{storeName || 'Tu tienda'}</span>
           <BadgeCheck size={14} className="text-blue-500" />
         </div>
 
