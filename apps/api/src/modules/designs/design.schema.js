@@ -16,15 +16,10 @@ export const createDesignSchema = z.object({
     .number()
     .positive('El precio debe ser positivo')
     .max(999999.99, 'El precio no puede exceder 999999.99'),
-  category: z
+  categorySuggested: z
     .string()
-    .toLowerCase()
-    .pipe(
-      z.enum(CATEGORIES, {
-        errorMap: () => ({ message: `Categoría inválida. Opciones: ${CATEGORIES.join(', ')}` }),
-      })
-    ),
-  categorySuggested: z.string().max(100).optional(),
+    .min(2, 'La categoría sugerida debe tener al menos 2 caracteres')
+    .max(100, 'La categoría sugerida no puede exceder 100 caracteres'),
   technique: z
     .string()
     .toLowerCase()

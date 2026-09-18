@@ -50,9 +50,9 @@ export const createDesign = catchAsync(async (req, res) => {
   const parsedBody = {
     ...req.body,
     price: Number(req.body.price),
-    category: req.body.category?.toLowerCase(),
-    categorySuggested: req.body.categorySuggested?.toLowerCase(),
+    categorySuggested: req.body.categorySuggested || req.body.category,
   };
+  delete parsedBody.category;
 
   const { hasError, errorMessages, data } = validateCreateDesign(parsedBody);
   if (hasError) {

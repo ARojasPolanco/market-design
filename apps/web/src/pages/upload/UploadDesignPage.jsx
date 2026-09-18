@@ -125,8 +125,7 @@ export default function UploadDesignPage() {
       submitData.append('title', formData.title);
       submitData.append('description', formData.description);
       submitData.append('price', Number(formData.price));
-      submitData.append('category', formData.category.toLowerCase());
-      submitData.append('categorySuggested', formData.category.toLowerCase());
+      submitData.append('categorySuggested', formData.category);
       submitData.append('technique', formData.technique);
 
       // Append design file
@@ -144,7 +143,7 @@ export default function UploadDesignPage() {
       console.log('Title:', formData.title);
       console.log('Description:', formData.description);
       console.log('Price:', formData.price);
-      console.log('Category:', formData.category);
+      console.log('Category suggested:', formData.category);
       console.log('Technique:', formData.technique);
       console.log('Design file:', designFile?.name, designFile?.size);
       console.log('Preview files:', previewFiles.length);
