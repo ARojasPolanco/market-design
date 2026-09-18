@@ -469,7 +469,7 @@ function ProfileSection({ seller }) {
   const [storeName, setStoreName] = useState(seller.storeName);
   const [description, setDescription] = useState(seller.description);
   const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState(seller.avatar);
+  const [avatarPreview, setAvatarPreview] = useState(seller.avatarUrl);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const { refreshUser } = useAuth();
@@ -526,11 +526,19 @@ function ProfileSection({ seller }) {
         {/* Avatar */}
         <div className="flex items-center gap-6 mb-6">
           <div className="relative">
-            <img
-              src={avatarPreview}
-              alt="Avatar"
-              className="w-24 h-24 rounded-full object-cover"
-            />
+            {avatarPreview ? (
+              <img
+                src={avatarPreview}
+                alt="Avatar"
+                className="w-24 h-24 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                <span className="text-3xl font-bold text-gray-500">
+                  {seller.storeName?.charAt(0)?.toUpperCase() || seller.username?.charAt(0)?.toUpperCase() || '?'}
+                </span>
+              </div>
+            )}
             <label className="absolute bottom-0 right-0 p-1.5 bg-dark text-white rounded-full cursor-pointer hover:bg-dark-light transition-colors">
               <Camera size={14} />
               <input

@@ -79,7 +79,7 @@ export function useDesign(id) {
       setReviews(reviewsRes.data.ratings || []);
     } catch (err) {
       logger.error('Error fetching design:', err);
-      setError(err.message);
+      setError('No pudimos cargar el diseño. Por favor, intentá de nuevo.');
     } finally {
       setIsLoading(false);
     }

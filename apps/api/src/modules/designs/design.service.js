@@ -5,7 +5,7 @@ import sequelize from '../../config/database/database.js';
 
 export class DesignService {
   async findAll(filters = {}) {
-    const where = { isDeleted: false };
+    const where = { isDeleted: false, status: 'approved' };
 
     if (filters.status) where.status = filters.status;
     if (filters.category) where.category = filters.category;
