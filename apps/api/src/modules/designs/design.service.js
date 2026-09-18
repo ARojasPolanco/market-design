@@ -73,7 +73,7 @@ export class DesignService {
 
   async findBySeller(sellerId) {
     return await Design.findAll({
-      where: { sellerId, isDeleted: false, status: 'approved' },
+      where: { sellerId, isDeleted: false },
       include: [
         {
           model: User,
