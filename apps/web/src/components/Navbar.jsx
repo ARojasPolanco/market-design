@@ -46,7 +46,7 @@ export default function Navbar() {
             <Link to="/catalogo" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
               Catálogo
             </Link>
-            <Link to={user ? getPanelLink() : '/login'} className="relative text-gray-600 hover:text-gray-900">
+            <Link to="/favoritos" className="relative text-gray-600 hover:text-gray-900">
               <Heart size={20} />
               {favorites.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">

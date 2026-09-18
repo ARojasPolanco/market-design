@@ -17,6 +17,7 @@ import ActivateSellerPage from './pages/upload/ActivateSellerPage.jsx';
 import RankDemoPage from './pages/RankDemoPage.jsx';
 import TermsPage from './pages/TermsPage.jsx';
 import PrivacyPage from './pages/PrivacyPage.jsx';
+import FavoritesPage from './pages/FavoritesPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 
 function App() {
@@ -68,6 +69,7 @@ function App() {
           <Route path="/demo/rangos" element={<RankDemoPage />} />
           <Route path="/terminos" element={<TermsPage />} />
           <Route path="/privacidad" element={<PrivacyPage />} />
+          <Route path="/favoritos" element={<FavoritesPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
