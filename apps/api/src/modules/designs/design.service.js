@@ -144,7 +144,7 @@ export class DesignService {
   async findFeatured(limit = 8) {
     return await Design.findAll({
       where: { status: 'approved', isDeleted: false },
-      order: [['sales_count', 'DESC']],
+      order: [['rating_avg', 'DESC']],
       limit,
       include: [
         {
@@ -159,7 +159,7 @@ export class DesignService {
   async findTrending(limit = 8) {
     return await Design.findAll({
       where: { status: 'approved', isDeleted: false },
-      order: [['view_count', 'DESC']],
+      order: [['sales_count', 'DESC']],
       limit,
       include: [
         {
