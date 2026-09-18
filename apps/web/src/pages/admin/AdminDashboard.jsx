@@ -470,8 +470,8 @@ function UsersSection() {
           className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500 text-sm"
         >
           <option value="all">Todos los roles</option>
-          <option value="vendedor">Vendedores</option>
-          <option value="comprador">Compradores</option>
+          <option value="seller">Vendedores</option>
+          <option value="buyer">Compradores</option>
         </select>
       </div>
 
