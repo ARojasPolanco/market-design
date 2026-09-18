@@ -2,6 +2,7 @@ import { designService } from './design.service.js';
 import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
 import { validateCreateDesign, validateUpdateDesign, validateQueryDesign } from './design.schema.js';
+import { r2Storage } from '../../config/r2/r2.js';
 
 export const getAllDesigns = catchAsync(async (req, res) => {
   const { hasError, errorMessages, data } = validateQueryDesign(req.query);
@@ -42,11 +43,6 @@ export const getDesign = catchAsync(async (req, res, next) => {
 });
 
 export const createDesign = catchAsync(async (req, res) => {
-  console.log('=== CREATE DESIGN DEBUG ===');
-  console.log('Body:', req.body);
-  console.log('Files:', req.files);
-  console.log('User:', req.sessionUser?.id, req.sessionUser?.role);
-
   const parsedBody = {
     ...req.body,
     price: Number(req.body.price),
@@ -56,7 +52,6 @@ export const createDesign = catchAsync(async (req, res) => {
 
   const { hasError, errorMessages, data } = validateCreateDesign(parsedBody);
   if (hasError) {
-    console.log('Validation error:', errorMessages);
     return res.status(422).json({ status: 'error', message: errorMessages.join(', ') });
   }
 
@@ -64,8 +59,14 @@ export const createDesign = catchAsync(async (req, res) => {
   const designFile = req.files?.file?.[0];
   const previewFiles = req.files?.previews || [];
 
-  console.log('Design file:', designFile ? { name: designFile.originalname, size: designFile.size } : 'No file');
-  console.log('Preview files:', previewFiles.length);
+  // Upload preview files to R2
+  const previewUrls = [];
+  const previewKeys = [];
+  for (const preview of previewFiles) {
+    const { key, url } = await r2Storage.uploadPreview(preview.buffer, preview.originalname);
+    previewUrls.push(url);
+    previewKeys.push(key);
+  }
 
   const design = await designService.create({
     ...data,
@@ -73,9 +74,12 @@ export const createDesign = catchAsync(async (req, res) => {
     originalFileName: designFile?.originalname,
     originalFileSize: designFile?.size,
     fileFormat: designFile?.mimetype,
+    previewUrl: previewUrls[0] || null,
+    previewKey: previewKeys[0] || null,
+    previewUrls: previewUrls.length > 0 ? previewUrls : null,
+    previewKeys: previewKeys.length > 0 ? previewKeys : null,
   });
 
-  console.log('Design created:', design.id);
   res.status(201).json({
     status: 'success',
     design,
