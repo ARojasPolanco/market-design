@@ -16,27 +16,53 @@ export const createDesignSchema = z.object({
     .number()
     .positive('El precio debe ser positivo')
     .max(999999.99, 'El precio no puede exceder 999999.99'),
-  category: z.enum(CATEGORIES, {
-    errorMap: () => ({ message: `Categoría inválida. Opciones: ${CATEGORIES.join(', ')}` }),
-  }),
+  category: z
+    .string()
+    .toLowerCase()
+    .pipe(
+      z.enum(CATEGORIES, {
+        errorMap: () => ({ message: `Categoría inválida. Opciones: ${CATEGORIES.join(', ')}` }),
+      })
+    ),
   categorySuggested: z.string().max(100).optional(),
-  technique: z.enum(TECHNIQUES, {
-    errorMap: () => ({ message: `Técnica inválida. Opciones: ${TECHNIQUES.join(', ')}` }),
-  }),
+  technique: z
+    .string()
+    .toLowerCase()
+    .pipe(
+      z.enum(TECHNIQUES, {
+        errorMap: () => ({ message: `Técnica inválida. Opciones: ${TECHNIQUES.join(', ')}` }),
+      })
+    ),
 });
 
 export const updateDesignSchema = z.object({
   title: z.string().min(3).max(200).optional(),
   description: z.string().min(10).max(2000).optional(),
   price: z.number().positive().max(999999.99).optional(),
-  category: z.enum(CATEGORIES).optional(),
+  category: z
+    .string()
+    .toLowerCase()
+    .pipe(z.enum(CATEGORIES))
+    .optional(),
   categorySuggested: z.string().max(100).optional(),
-  technique: z.enum(TECHNIQUES).optional(),
+  technique: z
+    .string()
+    .toLowerCase()
+    .pipe(z.enum(TECHNIQUES))
+    .optional(),
 });
 
 export const queryDesignSchema = z.object({
-  category: z.enum(CATEGORIES).optional(),
-  technique: z.enum(TECHNIQUES).optional(),
+  category: z
+    .string()
+    .toLowerCase()
+    .pipe(z.enum(CATEGORIES))
+    .optional(),
+  technique: z
+    .string()
+    .toLowerCase()
+    .pipe(z.enum(TECHNIQUES))
+    .optional(),
   status: z.enum(['pending', 'approved', 'rejected']).optional(),
   priceMin: z.coerce.number().positive().optional(),
   priceMax: z.coerce.number().positive().optional(),

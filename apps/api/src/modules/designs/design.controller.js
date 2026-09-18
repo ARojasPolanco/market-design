@@ -45,10 +45,16 @@ export const createDesign = catchAsync(async (req, res) => {
   console.log('=== CREATE DESIGN DEBUG ===');
   console.log('Body:', req.body);
   console.log('Files:', req.files);
-  console.log('File (single):', req.file);
   console.log('User:', req.sessionUser?.id, req.sessionUser?.role);
 
-  const { hasError, errorMessages, data } = validateCreateDesign(req.body);
+  const parsedBody = {
+    ...req.body,
+    price: Number(req.body.price),
+    category: req.body.category?.toLowerCase(),
+    categorySuggested: req.body.categorySuggested?.toLowerCase(),
+  };
+
+  const { hasError, errorMessages, data } = validateCreateDesign(parsedBody);
   if (hasError) {
     console.log('Validation error:', errorMessages);
     return res.status(422).json({ status: 'error', message: errorMessages.join(', ') });

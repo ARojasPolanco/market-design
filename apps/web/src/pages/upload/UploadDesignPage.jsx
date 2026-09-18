@@ -124,9 +124,9 @@ export default function UploadDesignPage() {
       const submitData = new FormData();
       submitData.append('title', formData.title);
       submitData.append('description', formData.description);
-      submitData.append('price', formData.price);
-      submitData.append('category', formData.category);
-      submitData.append('categorySuggested', formData.category);
+      submitData.append('price', Number(formData.price));
+      submitData.append('category', formData.category.toLowerCase());
+      submitData.append('categorySuggested', formData.category.toLowerCase());
       submitData.append('technique', formData.technique);
 
       // Append design file
