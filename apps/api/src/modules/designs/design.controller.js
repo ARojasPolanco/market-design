@@ -87,7 +87,14 @@ export const createDesign = catchAsync(async (req, res) => {
 });
 
 export const updateDesign = catchAsync(async (req, res, next) => {
-  const { hasError, errorMessages, data } = validateUpdateDesign(req.body);
+  const parsedBody = {
+    ...req.body,
+    price: req.body.price ? Number(req.body.price) : undefined,
+    categorySuggested: req.body.categorySuggested || req.body.category,
+  };
+  delete parsedBody.category;
+
+  const { hasError, errorMessages, data } = validateUpdateDesign(parsedBody);
   if (hasError) {
     return res.status(422).json({ status: 'error', message: errorMessages.join(', ') });
   }
@@ -102,8 +109,32 @@ export const updateDesign = catchAsync(async (req, res, next) => {
     return next(new AppError('No tenés permiso para editar este diseño.', 403));
   }
 
-  // If rejected, set back to pending
+  const designFile = req.files?.file?.[0];
+  const previewFiles = req.files?.previews || [];
+
+  // Upload new preview files if provided
   const updateData = { ...data };
+  if (previewFiles.length > 0) {
+    const previewUrls = [];
+    const previewKeys = [];
+    for (const preview of previewFiles) {
+      const { key, url } = await r2Storage.uploadPreview(preview.buffer, preview.originalname);
+      previewUrls.push(url);
+      previewKeys.push(key);
+    }
+    updateData.previewUrl = previewUrls[0];
+    updateData.previewKey = previewKeys[0];
+    updateData.previewUrls = previewUrls;
+    updateData.previewKeys = previewKeys;
+  }
+
+  if (designFile) {
+    updateData.originalFileName = designFile.originalname;
+    updateData.originalFileSize = designFile.size;
+    updateData.fileFormat = designFile.mimetype;
+  }
+
+  // If rejected, set back to pending
   if (design.status === 'rejected') {
     updateData.status = 'pending';
     updateData.rejectionReason = null;

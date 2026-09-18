@@ -27,7 +27,7 @@ router.get('/:id', getDesign);
 
 // Protected routes
 router.post('/', protect, restrictTo('seller', 'admin'), uploadDesignFiles, createDesign);
-router.patch('/:id', protect, restrictTo('seller', 'admin'), updateDesign);
+router.patch('/:id', protect, restrictTo('seller', 'admin'), uploadDesignFiles, updateDesign);
 router.delete('/:id', protect, restrictTo('seller', 'admin'), deleteDesign);
 router.patch('/:id/approve', protect, restrictTo('admin'), approveDesign);
 router.patch('/:id/reject', protect, restrictTo('admin'), rejectDesign);
