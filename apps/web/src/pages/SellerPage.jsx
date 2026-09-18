@@ -3,6 +3,7 @@ import { ArrowLeft, Calendar } from 'lucide-react';
 import { useSeller } from '../hooks/useSeller.js';
 import { usePublicSellerDesigns } from '../hooks/useDesigns.js';
 import SellerBadge from '../components/SellerBadge.jsx';
+import { RankBadge } from '../components/RankBadge.jsx';
 import DesignCard from '../components/DesignCard.jsx';
 
 export default function SellerPage() {
@@ -50,6 +51,7 @@ export default function SellerPage() {
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-3xl font-bold text-gray-900">{displayName}</h1>
+              <RankBadge rank={seller.rank} size={24} />
               <SellerBadge seller={seller} size="lg" />
             </div>
             {seller.description && (
