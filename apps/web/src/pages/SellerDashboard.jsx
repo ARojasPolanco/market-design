@@ -311,7 +311,7 @@ export default function SellerDashboard() {
 
       {activeTab === 'designs' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {myDesigns.map((design) => (
+          {myDesigns.filter(d => d.status === 'approved').map((design) => (
             <Link
               key={design.id}
               to={`/diseno/${design.id}`}
