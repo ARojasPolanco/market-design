@@ -35,6 +35,7 @@ export default function SellerDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const { sales, stats } = useSellerSales();
   const { designs: myDesigns } = useSellerDesigns();
+  const approved = myDesigns.filter((d) => d.status === 'approved');
   const pending = myDesigns.filter((d) => d.status === 'pending');
   const rejected = myDesigns.filter((d) => d.status === 'rejected');
   const { seller, isLoading } = useCurrentSeller();
@@ -213,24 +214,29 @@ export default function SellerDashboard() {
       {/* Tabs */}
       <div className="flex gap-1 border-b mb-6 overflow-x-auto">
         {[
-          { id: 'overview', label: 'Resumen' },
-          { id: 'designs', label: `Mis diseños (${myDesigns.length})` },
-          { id: 'pending', label: `Pendientes (${pending.length})` },
-          { id: 'rejected', label: `Rechazados (${rejected.length})` },
-          { id: 'sales', label: 'Ventas' },
-          { id: 'profile', label: 'Mi perfil' },
+          { id: 'overview', label: 'Resumen', tooltip: 'Acá podés ver el resumen de tus ventas y estadísticas' },
+          { id: 'designs', label: `Mis diseños (${approved.length})`, tooltip: 'Acá podés ver tus diseños aprobados que están a la venta' },
+          { id: 'pending', label: `Pendientes (${pending.length})`, tooltip: 'Acá podés ver tus diseños que están pendientes de revisión' },
+          { id: 'rejected', label: `Rechazados (${rejected.length})`, tooltip: 'Acá podés ver los diseños que fueron rechazados' },
+          { id: 'sales', label: 'Ventas', tooltip: 'Acá podés ver tu historial de ventas y ganancias' },
+          { id: 'profile', label: 'Mi perfil', tooltip: 'Acá podés editar tu perfil de vendedor' },
         ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === tab.id
-                ? 'border-brand-teal text-brand-teal'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {tab.label}
-          </button>
+          <div key={tab.id} className="relative group">
+            <button
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'border-brand-teal text-brand-teal'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {tab.label}
+            </button>
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+              {tab.tooltip}
+              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+            </div>
+          </div>
         ))}
       </div>
 
