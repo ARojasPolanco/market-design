@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useCallback, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Upload,
   Image,
@@ -30,11 +30,14 @@ const MIN_FILE_SIZE = 1024; // 1KB
 
 export default function UploadDesignPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
   const { showToast } = useToast();
   const { categories } = useCategories();
   const { user } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(shouldShowOnboarding());
   const [currentStep, setCurrentStep] = useState(1);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -50,6 +53,29 @@ export default function UploadDesignPage() {
   const [previewError, setPreviewError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const MAX_PREVIEWS = 3;
+
+  // Load design data if editing
+  useEffect(() => {
+    if (!editId) return;
+    setIsEditMode(true);
+    api.get(`/v1/designs/${editId}`).then((res) => {
+      const d = res.data.design;
+      setFormData({
+        title: d.title || '',
+        description: d.description || '',
+        category: d.categorySuggested || d.category || '',
+        technique: d.technique || 'sublimado',
+        price: d.price?.toString() || '',
+        declaration: false,
+      });
+      if (d.previewUrl) {
+        setPreviewUrls([d.previewUrl]);
+      }
+    }).catch(() => {
+      showToast('No se pudo cargar el diseño para editar', { type: 'error' });
+      navigate('/vendedor/panel');
+    });
+  }, [editId]);
 
   const updateForm = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -111,8 +137,8 @@ export default function UploadDesignPage() {
     setPreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
 
-  const canProceedStep1 = designFile && !designFileError;
-  const canProceedStep2 = previewFiles.length > 0 && !previewError;
+  const canProceedStep1 = isEditMode || (designFile && !designFileError);
+  const canProceedStep2 = isEditMode || (previewFiles.length > 0 && !previewError);
   const canProceedStep3 =
     formData.title.trim().length >= 3 &&
     formData.description.trim().length >= 10 &&
@@ -140,11 +166,18 @@ export default function UploadDesignPage() {
         submitData.append('previews', file);
       });
 
-      await api.post('/v1/designs', submitData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      if (isEditMode) {
+        await api.patch(`/v1/designs/${editId}`, submitData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        showToast('Diseño actualizado y reenviado a revisión', { type: 'success' });
+      } else {
+        await api.post('/v1/designs', submitData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        showToast('Diseño enviado a revisión. Te notificaremos por email.', { type: 'success' });
+      }
 
-      showToast('Diseño enviado a revisión. Te notificaremos por email.', { type: 'success' });
       navigate('/vendedor/panel');
     } catch (err) {
       const message = err.response?.data?.message || 'Error al enviar el diseño';

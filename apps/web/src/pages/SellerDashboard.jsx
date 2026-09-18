@@ -431,9 +431,12 @@ export default function SellerDashboard() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <button className="text-sm text-brand-teal hover:text-brand-teal-dark font-medium">
+                  <Link
+                    to={`/vendedor/panel/subir?edit=${design.id}`}
+                    className="text-sm text-brand-teal hover:text-brand-teal-dark font-medium"
+                  >
                     Editar y reenviar
-                  </button>
+                  </Link>
                   <span className="text-gray-300">|</span>
                   <button
                     onClick={() => { setDeleteModal(design.id); setDeleteConfirmText(''); }}
