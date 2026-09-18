@@ -252,7 +252,7 @@ function ModerationCard({ design }) {
                   </Link>
                 </div>
                 <p className="text-sm text-gray-500">
-                  {design.seller.name} · {design.category} · ${design.price.toLocaleString()}
+                  {design.seller.name} · {design.categorySuggested || 'Sin categoría'} · ${design.price.toLocaleString()}
                 </p>
               </div>
               <span className="flex items-center gap-1 text-yellow-600 bg-yellow-50 text-xs px-2 py-1 rounded-full">
@@ -263,9 +263,9 @@ function ModerationCard({ design }) {
 
             {/* Category assignment */}
             <div className="flex items-center gap-3 mb-3 p-3 bg-gray-50 rounded-lg">
-              <span className="text-xs text-gray-500 shrink-0">Categoría:</span>
+              <span className="text-xs text-gray-500 shrink-0">Sugerida:</span>
               <span className="text-xs font-medium text-gray-700 bg-white px-2.5 py-1 rounded-full border border-gray-200">
-                {design.category}
+                {design.categorySuggested || 'Sin sugerencia'}
               </span>
               <span className="text-gray-300">→</span>
               <select
@@ -273,7 +273,7 @@ function ModerationCard({ design }) {
                 onChange={(e) => setAssignedCategory(e.target.value)}
                 className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal bg-white"
               >
-                <option value="" disabled>Asignar otra categoría</option>
+                <option value="" disabled>Asignar categoría</option>
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
                     {cat}
