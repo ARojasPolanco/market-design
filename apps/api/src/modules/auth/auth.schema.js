@@ -42,7 +42,17 @@ export const changePasswordSchema = z.object({
 export function validateRegister(data) {
   const result = registerSchema.safeParse(data);
   if (!result.success) {
-    const errors = result.error.errors.map((e) => e.message);
+    const errors = result.error.errors.map((e) => {
+      const field = e.path[0];
+      const fieldNames = {
+        fullname: 'Nombre',
+        username: 'Nombre de usuario',
+        email: 'Email',
+        password: 'Contraseña',
+        storeName: 'Nombre de tienda',
+      };
+      return `${fieldNames[field] || field}: ${e.message}`;
+    });
     return { hasError: true, errorMessages: errors, data: null };
   }
   return { hasError: false, errorMessages: [], data: result.data };
