@@ -8,6 +8,16 @@ const sequelize = new Sequelize(envs.DB_URI, {
     underscored: true,
     timestamps: true,
   },
+  pool: {
+    max: 10,
+    min: 2,
+    acquire: 30000,
+    idle: 10000,
+  },
+  retry: {
+    max: 3,
+    timeout: 30000,
+  },
 });
 
 export default sequelize;
