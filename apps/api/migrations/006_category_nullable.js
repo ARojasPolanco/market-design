@@ -1,15 +1,11 @@
-import { DataTypes } from 'sequelize';
-
-export async function up(queryInterface) {
-  await queryInterface.changeColumn('designs', 'category', {
-    type: DataTypes.ENUM('sublimado', 'estampado', 'papeleria', 'infantil', 'deportivo', 'religioso', 'otro'),
-    allowNull: true,
-  });
+export async function up({ context: queryInterface }) {
+  await queryInterface.sequelize.query(
+    'ALTER TABLE designs ALTER COLUMN category DROP NOT NULL'
+  );
 }
 
-export async function down(queryInterface) {
-  await queryInterface.changeColumn('designs', 'category', {
-    type: DataTypes.ENUM('sublimado', 'estampado', 'papeleria', 'infantil', 'deportivo', 'religioso', 'otro'),
-    allowNull: false,
-  });
+export async function down({ context: queryInterface }) {
+  await queryInterface.sequelize.query(
+    'ALTER TABLE designs ALTER COLUMN category SET NOT NULL'
+  );
 }
