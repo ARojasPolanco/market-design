@@ -220,10 +220,6 @@ export function usePendingDesigns() {
   const [designs, setDesigns] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchPending();
-  }, []);
-
   const fetchPending = async () => {
     try {
       const res = await api.get('/v1/admin/designs/pending');
@@ -235,7 +231,11 @@ export function usePendingDesigns() {
     }
   };
 
-  return { designs, isLoading };
+  useEffect(() => {
+    fetchPending();
+  }, []);
+
+  return { designs, isLoading, refetch: fetchPending };
 }
 
 export function useRejectedDesigns() {

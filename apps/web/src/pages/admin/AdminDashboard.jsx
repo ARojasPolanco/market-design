@@ -27,7 +27,7 @@ import api from '../../config/api.js';
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('pending');
   const { stats } = useAdminStats();
-  const { designs: pending } = usePendingDesigns();
+  const { designs: pending, refetch: refetchPending } = usePendingDesigns();
   const { reports } = useAdminReports();
 
   return (
@@ -108,7 +108,7 @@ export default function AdminDashboard() {
       {activeTab === 'pending' && (
         <div className="space-y-4">
           {pending.length > 0 ? (
-            pending.map((design) => <ModerationCard key={design.id} design={design} />)
+            pending.map((design) => <ModerationCard key={design.id} design={design} onAction={refetchPending} />)
           ) : (
             <div className="text-center py-12">
               <CheckCircle size={48} className="mx-auto text-green-400 mb-4" />
@@ -200,7 +200,7 @@ export default function AdminDashboard() {
   );
 }
 
-function ModerationCard({ design }) {
+function ModerationCard({ design, onAction }) {
   const { categories } = useCategories();
   const [showChecklist, setShowChecklist] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -208,17 +208,33 @@ function ModerationCard({ design }) {
   const [showSuccess, setShowSuccess] = useState(null);
   const [assignedCategory, setAssignedCategory] = useState('');
 
-  const handleApprove = () => {
-    setShowSuccess('approved');
-    setTimeout(() => setShowSuccess(null), 3000);
+  const handleApprove = async () => {
+    try {
+      await api.patch(`/v1/designs/${design.id}/approve`);
+      setShowSuccess('approved');
+      setTimeout(() => {
+        setShowSuccess(null);
+        onAction?.();
+      }, 1500);
+    } catch (err) {
+      logger.error('Error approving design:', err);
+    }
   };
 
-  const handleReject = () => {
+  const handleReject = async () => {
     if (!rejectReason.trim()) return;
-    setShowRejectModal(false);
-    setRejectReason('');
-    setShowSuccess('rejected');
-    setTimeout(() => setShowSuccess(null), 3000);
+    try {
+      await api.patch(`/v1/designs/${design.id}/reject`, { reason: rejectReason });
+      setShowRejectModal(false);
+      setRejectReason('');
+      setShowSuccess('rejected');
+      setTimeout(() => {
+        setShowSuccess(null);
+        onAction?.();
+      }, 1500);
+    } catch (err) {
+      logger.error('Error rejecting design:', err);
+    }
   };
 
   return (
