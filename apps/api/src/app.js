@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { envs } from './config/enviroments.js';
 import { AppError, globalErrorHandler } from './errors/index.js';
+import sequelize from './config/database/database.js';
 
 const app = express();
 
@@ -35,8 +36,13 @@ app.use('/api/v1/auth', authLimiter);
 app.use('/api', apiLimiter);
 
 // Healthcheck
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/health', async (_req, res) => {
+  try {
+    await sequelize.authenticate();
+    res.json({ status: 'ok', database: 'connected', timestamp: new Date().toISOString() });
+  } catch (_error) {
+    res.status(503).json({ status: 'error', database: 'disconnected', timestamp: new Date().toISOString() });
+  }
 });
 
 // Routes
