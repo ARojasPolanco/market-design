@@ -1,14 +1,14 @@
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import { useSeller } from '../hooks/useSeller.js';
-import { useSellerDesigns } from '../hooks/useDesigns.js';
+import { usePublicSellerDesigns } from '../hooks/useDesigns.js';
 import SellerBadge from '../components/SellerBadge.jsx';
 import DesignCard from '../components/DesignCard.jsx';
 
 export default function SellerPage() {
   const { id } = useParams();
   const { seller, error } = useSeller(id);
-  const { designs } = useSellerDesigns(id);
+  const { designs } = usePublicSellerDesigns(id);
 
   if (error || !seller) {
     return (

@@ -161,6 +161,28 @@ export function useSellerDesigns(sellerId) {
   return { designs, isLoading, refetch: fetchSellerDesigns };
 }
 
+export function usePublicSellerDesigns(sellerId) {
+  const [designs, setDesigns] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (sellerId) fetchDesigns();
+  }, [sellerId]);
+
+  const fetchDesigns = async () => {
+    try {
+      const res = await api.get(`/v1/designs?sellerId=${sellerId}&status=approved`);
+      setDesigns(res.data.designs || []);
+    } catch (err) {
+      logger.error('Error fetching public seller designs:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { designs, isLoading };
+}
+
 export function usePurchases() {
   const [purchases, setPurchases] = useState([]);
   const [isLoading, setIsLoading] = useState(true);

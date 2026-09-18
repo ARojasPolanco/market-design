@@ -20,7 +20,7 @@ app.use(cors({ origin: envs.CORS_ORIGIN }));
 // Rate limiting - more lenient for auth routes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 attempts per 15 minutes
+  max: envs.NODE_ENV === 'development' ? 1000 : 100,
   message: 'Demasiados intentos de inicio de sesión. Por favor, esperá 15 minutos e intentá de nuevo.',
   standardHeaders: true,
   legacyHeaders: false,
@@ -28,7 +28,7 @@ const authLimiter = rateLimit({
 
 const apiLimiter = rateLimit({
   windowMs: envs.RATE_LIMIT_WINDOW_MS,
-  max: envs.RATE_LIMIT_MAX,
+  max: envs.NODE_ENV === 'development' ? 1000 : envs.RATE_LIMIT_MAX,
   message: 'Demasiadas solicitudes. Por favor, intentá de nuevo más tarde.',
 });
 
