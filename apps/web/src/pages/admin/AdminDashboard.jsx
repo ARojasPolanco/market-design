@@ -662,9 +662,27 @@ function UsersSection() {
 
 function ReportsSection() {
   const [filter, setFilter] = useState('all');
-  const { reports } = useAdminReports(filter === 'all' ? null : filter);
+  const { reports, refetch } = useAdminReports(filter === 'all' ? null : filter);
 
   const filtered = reports;
+
+  const handleReviewReport = async (reportId, status) => {
+    try {
+      await api.patch(`/v1/admin/reports/${reportId}`, { status });
+      refetch();
+    } catch (err) {
+      logger.error('Error reviewing report:', err);
+    }
+  };
+
+  const handleWithdrawDesign = async (designId, reportId) => {
+    try {
+      await api.patch(`/v1/designs/${designId}/reject`, { reason: 'Retirado por denuncia verificada' });
+      await handleReviewReport(reportId, 'reviewed');
+    } catch (err) {
+      logger.error('Error withdrawing design:', err);
+    }
+  };
 
   return (
     <div>
@@ -737,11 +755,17 @@ function ReportsSection() {
                 <p className="text-sm text-gray-600 mb-3">{report.reason}</p>
                 {report.status === 'pending' && (
                   <div className="flex gap-2">
-                    <button className="text-sm text-red-600 hover:text-red-700 font-medium">
+                    <button
+                      onClick={() => handleWithdrawDesign(report.designId, report.id)}
+                      className="text-sm text-red-600 hover:text-red-700 font-medium"
+                    >
                       Retirar diseño
                     </button>
                     <span className="text-gray-300">|</span>
-                    <button className="text-sm text-gray-600 hover:text-gray-700 font-medium">
+                    <button
+                      onClick={() => handleReviewReport(report.id, 'reviewed')}
+                      className="text-sm text-gray-600 hover:text-gray-700 font-medium"
+                    >
                       Descartar denuncia
                     </button>
                   </div>
