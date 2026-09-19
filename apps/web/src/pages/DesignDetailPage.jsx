@@ -1,23 +1,29 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Heart, ShoppingCart, Eye, ArrowLeft, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, ShoppingCart, Eye, ArrowLeft, X, ChevronLeft, ChevronRight, Flag } from 'lucide-react';
 import { useDesign } from '../hooks/useDesigns.js';
 import { useFavorites } from '../context/FavoritesContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useToast } from '../context/ToastContext.jsx';
 import RatingStars from '../components/RatingStars.jsx';
 import SellerBadge from '../components/SellerBadge.jsx';
 import DesignCard from '../components/DesignCard.jsx';
 import { DetailSkeleton } from '../components/Skeletons.jsx';
 import { ErrorState } from '../components/EmptyStates.jsx';
+import api from '../config/api.js';
 
 export default function DesignDetailPage() {
   const { id } = useParams();
   const { design, related, reviews, error } = useDesign(id);
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [showZoom, setShowZoom] = useState(false);
   const [currentPreview, setCurrentPreview] = useState(0);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState('');
+  const [reportSubmitting, setReportSubmitting] = useState(false);
 
   // Get all preview URLs (support both single and multiple)
   const previewUrls = design?.previewUrls?.length > 0
@@ -32,6 +38,21 @@ export default function DesignDetailPage() {
     window.scrollTo(0, 0);
     return () => clearTimeout(timer);
   }, [id]);
+
+  const handleReport = async () => {
+    if (!reportReason.trim() || reportReason.trim().length < 10) return;
+    setReportSubmitting(true);
+    try {
+      await api.post('/v1/admin/reports', { designId: id, reason: reportReason.trim() });
+      showToast('Denuncia enviada. El equipo de moderación la revisará.', { type: 'success' });
+      setShowReportModal(false);
+      setReportReason('');
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al enviar la denuncia', { type: 'error' });
+    } finally {
+      setReportSubmitting(false);
+    }
+  };
 
   if (isLoading) return <DetailSkeleton />;
 
@@ -230,6 +251,17 @@ export default function DesignDetailPage() {
               </div>
             </div>
           </Link>
+
+          {/* Report button */}
+          {user && (
+            <button
+              onClick={() => setShowReportModal(true)}
+              className="mt-4 flex items-center gap-2 text-sm text-gray-500 hover:text-red-600 transition-colors"
+            >
+              <Flag size={14} />
+              Reportar diseño
+            </button>
+          )}
         </div>
       </div>
 
@@ -350,6 +382,60 @@ export default function DesignDetailPage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Report modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <Flag size={20} className="text-red-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">Reportar diseño</h3>
+              </div>
+              <button
+                onClick={() => { setShowReportModal(false); setReportReason(''); }}
+                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X size={20} className="text-gray-500" />
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-sm text-gray-600 mb-4">
+                Si este diseño infringe derechos de autor, contiene contenido inapropiado o viola nuestras reglas, contanos abajo.
+              </p>
+              <textarea
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+                placeholder="Describí el motivo de la denuncia (mínimo 10 caracteres)..."
+                rows={4}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                {reportReason.length}/10 caracteres mínimos
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setShowReportModal(false); setReportReason(''); }}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleReport}
+                disabled={reportReason.trim().length < 10 || reportSubmitting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {reportSubmitting ? 'Enviando...' : 'Enviar denuncia'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
