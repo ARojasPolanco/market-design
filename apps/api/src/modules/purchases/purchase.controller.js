@@ -43,6 +43,9 @@ export const createPurchase = catchAsync(async (req, res, next) => {
   const commission = Math.round(design.price * commissionRate * 100) / 100;
   const sellerEarnings = Math.round((design.price - commission) * 100) / 100;
 
+  // Check if this is a simulation (mpPaymentId starts with 'sim_')
+  const isSimulation = data.mpPaymentId?.startsWith('sim_');
+
   // Create purchase record
   const purchase = await purchaseService.create({
     buyerId: req.sessionUser.id,
@@ -50,8 +53,17 @@ export const createPurchase = catchAsync(async (req, res, next) => {
     price: design.price,
     commission,
     sellerEarnings,
-    status: 'pending',
+    status: isSimulation ? 'completed' : 'pending',
+    mpPaymentId: data.mpPaymentId || null,
+    mpPreferenceId: data.mpPreferenceId || null,
   });
+
+  // If simulation, update design stats
+  if (isSimulation) {
+    await designService.update(design.id, {
+      salesCount: (design.salesCount || 0) + 1,
+    });
+  }
 
   // Create MP preference
   let preferenceData = null;
