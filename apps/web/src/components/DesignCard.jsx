@@ -81,8 +81,8 @@ export default function DesignCard({ design }) {
             </span>
             <div className="flex items-center gap-1">
               <Star size={14} className="fill-yellow-400 text-yellow-400" />
-              <span className="text-sm text-gray-600">{design.rating}</span>
-              <span className="text-xs text-gray-400">({design.salesCount})</span>
+              <span className="text-sm text-gray-600">{Number(design.ratingAvg || 0).toFixed(1)}</span>
+              <span className="text-xs text-gray-400">({design.salesCount || 0})</span>
             </div>
           </div>
         </div>

@@ -218,8 +218,8 @@ export default function DesignDetailPage() {
 
           {/* Rating & stats */}
           <div className="flex items-center gap-4 mb-6">
-            <RatingStars rating={design.rating} />
-            <span className="text-sm text-gray-500">({design.ratingCount} reviews)</span>
+            <RatingStars rating={Number(design.ratingAvg || 0)} />
+            <span className="text-sm text-gray-500">({design.ratingCount || 0} reviews)</span>
             <span className="text-sm text-gray-500 flex items-center gap-1">
               <ShoppingCart size={14} /> {design.salesCount} ventas
             </span>
