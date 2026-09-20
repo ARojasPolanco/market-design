@@ -287,7 +287,7 @@ export default function SellerDashboard() {
                     <p className="text-xs text-gray-500">{sale.buyerName}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium text-green-600">+${sale.earnings.toLocaleString()}</p>
+                    <p className="text-sm font-medium text-green-600">+${Number(sale.sellerEarnings || 0).toLocaleString()}</p>
                     <p className="text-xs text-gray-400">
                       {new Date(sale.createdAt).toLocaleDateString('es-AR')}
                     </p>
