@@ -59,6 +59,13 @@ export const createDesign = catchAsync(async (req, res) => {
   const designFile = req.files?.file?.[0];
   const previewFiles = req.files?.previews || [];
 
+  // Upload original design file to R2
+  let originalFileKey = null;
+  if (designFile) {
+    const { key } = await r2Storage.uploadFile(designFile.buffer, designFile.originalname, designFile.mimetype);
+    originalFileKey = key;
+  }
+
   // Upload preview files to R2
   const previewUrls = [];
   const previewKeys = [];
@@ -71,6 +78,7 @@ export const createDesign = catchAsync(async (req, res) => {
   const design = await designService.create({
     ...data,
     sellerId: user.id,
+    originalFileKey,
     originalFileName: designFile?.originalname,
     originalFileSize: designFile?.size,
     fileFormat: designFile?.mimetype,

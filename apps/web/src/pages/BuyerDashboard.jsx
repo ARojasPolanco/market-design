@@ -21,6 +21,7 @@ import { useFavorites } from '../context/FavoritesContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import api from '../config/api.js';
+import logger from '../utils/logger.js';
 import DesignCard from '../components/DesignCard.jsx';
 import { EmptyPurchases, EmptyFavorites } from '../components/EmptyStates.jsx';
 
@@ -35,15 +36,39 @@ const INTEREST_OPTIONS = [
 
 export default function BuyerDashboard() {
   const [activeTab, setActiveTab] = useState('purchases');
+  const [downloading, setDownloading] = useState(null);
   const { purchases } = usePurchases();
   const { favorites } = useFavorites();
   const { designs: allDesigns } = useDesigns();
   const { user } = useAuth();
+  const { showToast } = useToast();
   const favoriteDesigns = allDesigns.filter((d) => favorites.includes(d.id));
 
   const displayName = user?.username || user?.fullname || 'Usuario';
   const avatarLetter = displayName.charAt(0).toUpperCase();
   const avatarUrl = user?.avatarUrl || null;
+
+  const handleDownload = async (purchaseId) => {
+    setDownloading(purchaseId);
+    try {
+      const res = await api.post(`/v1/purchases/${purchaseId}/redownload`);
+      const { downloadUrl, fileName } = res.data;
+      // Create a temporary link and click it
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = fileName || 'diseno.zip';
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Descarga iniciada', { type: 'success' });
+    } catch (err) {
+      logger.error('Download error:', err);
+      showToast(err.response?.data?.message || 'Error al descargar', { type: 'error' });
+    } finally {
+      setDownloading(null);
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -221,9 +246,13 @@ export default function BuyerDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3 mt-4">
-                        <button className="flex items-center gap-2 bg-brand-teal text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-teal-dark transition-colors">
+                        <button
+                          onClick={() => handleDownload(purchase.id)}
+                          disabled={downloading === purchase.id}
+                          className="flex items-center gap-2 bg-brand-teal text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-teal-dark transition-colors disabled:opacity-50"
+                        >
                           <Download size={16} />
-                          Descargar
+                          {downloading === purchase.id ? 'Descargando...' : 'Descargar'}
                         </button>
                         <Link
                           to={`/diseno/${purchase.designId}`}
