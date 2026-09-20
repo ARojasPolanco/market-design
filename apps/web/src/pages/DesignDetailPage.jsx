@@ -329,20 +329,28 @@ export default function DesignDetailPage() {
             {reviews.map((review) => (
               <div key={review.id} className="bg-white rounded-xl shadow-sm p-6">
                 <div className="flex items-center gap-3 mb-3">
-                  <img
-                    src={review.buyerAvatar}
-                    alt={review.buyerName}
-                    className="w-10 h-10 rounded-full"
-                  />
+                  {review.buyer?.avatarUrl ? (
+                    <img
+                      src={review.buyer.avatarUrl}
+                      alt={review.buyer?.username || 'Usuario'}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-sm font-bold text-gray-500">
+                        {(review.buyer?.username || review.buyer?.fullname || '?').charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
                   <div>
-                    <h4 className="font-medium text-gray-900">{review.buyerName}</h4>
+                    <h4 className="font-medium text-gray-900">{review.buyer?.username || review.buyer?.fullname || 'Usuario'}</h4>
                     <RatingStars rating={review.score} size={14} showValue={false} />
                   </div>
                   <span className="text-xs text-gray-400 ml-auto">
                     {new Date(review.createdAt).toLocaleDateString('es-AR')}
                   </span>
                 </div>
-                <p className="text-gray-600">{review.comment}</p>
+                {review.comment && <p className="text-gray-600">{review.comment}</p>}
               </div>
             ))}
           </div>
