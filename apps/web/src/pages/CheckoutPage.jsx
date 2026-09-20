@@ -2,11 +2,42 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Shield, CreditCard, CheckCircle, Mail, Star, ArrowRight } from 'lucide-react';
 import { useDesign } from '../hooks/useDesigns.js';
+import { useAuth } from '../context/AuthContext.jsx';
+import { useToast } from '../context/ToastContext.jsx';
+import api from '../config/api.js';
+import logger from '../utils/logger.js';
 
 export default function CheckoutPage() {
   const { id } = useParams();
   const { design } = useDesign(id);
+  const { user } = useAuth();
+  const { showToast } = useToast();
   const [isPaid, setIsPaid] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handlePay = async () => {
+    if (!user) {
+      showToast('Iniciá sesión para comprar', { type: 'error' });
+      return;
+    }
+    setIsProcessing(true);
+    try {
+      // Simulate payment - create purchase directly
+      await api.post('/v1/purchases', {
+        designId: id,
+        // In production, this would come from MP webhook
+        mpPaymentId: `sim_${Date.now()}`,
+        mpPreferenceId: `pref_${Date.now()}`,
+      });
+      setIsPaid(true);
+      showToast('¡Compra exitosa!', { type: 'success' });
+    } catch (err) {
+      logger.error('Purchase error:', err);
+      showToast(err.response?.data?.message || 'Error al procesar la compra', { type: 'error' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   if (!design) {
     return (
@@ -144,10 +175,11 @@ export default function CheckoutPage() {
             <span>Pago seguro con encriptación SSL</span>
           </div>
           <button
-            onClick={() => setIsPaid(true)}
-            className="w-full bg-dark text-white py-3 rounded-lg font-semibold hover:bg-dark-light transition-colors"
+            onClick={handlePay}
+            disabled={isProcessing}
+            className="w-full bg-dark text-white py-3 rounded-lg font-semibold hover:bg-dark-light transition-colors disabled:opacity-50"
           >
-            Pagar con Mercado Pago
+            {isProcessing ? 'Procesando...' : 'Pagar con Mercado Pago'}
           </button>
           <p className="text-xs text-gray-400 text-center mt-3">
             Recibirás el archivo por email inmediatamente después del pago.
