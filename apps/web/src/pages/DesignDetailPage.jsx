@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Heart, ShoppingCart, Eye, ArrowLeft, X, ChevronLeft, ChevronRight, Flag } from 'lucide-react';
+import { Heart, ShoppingCart, Eye, ArrowLeft, X, ChevronLeft, ChevronRight, Flag, Star, Send } from 'lucide-react';
 import { useDesign } from '../hooks/useDesigns.js';
 import { useFavorites } from '../context/FavoritesContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -11,6 +11,7 @@ import DesignCard from '../components/DesignCard.jsx';
 import { DetailSkeleton } from '../components/Skeletons.jsx';
 import { ErrorState } from '../components/EmptyStates.jsx';
 import api from '../config/api.js';
+import logger from '../utils/logger.js';
 
 export default function DesignDetailPage() {
   const { id } = useParams();
@@ -24,6 +25,13 @@ export default function DesignDetailPage() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportSubmitting, setReportSubmitting] = useState(false);
+  const [showRatingForm, setShowRatingForm] = useState(false);
+  const [ratingScore, setRatingScore] = useState(0);
+  const [ratingComment, setRatingComment] = useState('');
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
+  const [hasPurchased, setHasPurchased] = useState(false);
+  const [purchaseId, setPurchaseId] = useState(null);
+  const [hasRated, setHasRated] = useState(false);
 
   // Get all preview URLs (support both single and multiple)
   const previewUrls = design?.previewUrls?.length > 0
@@ -39,6 +47,30 @@ export default function DesignDetailPage() {
     return () => clearTimeout(timer);
   }, [id]);
 
+  // Check if user has purchased this design
+  useEffect(() => {
+    if (!user || !id) return;
+    const checkPurchase = async () => {
+      try {
+        const res = await api.get('/v1/purchases/my');
+        const purchases = res.data.purchases || [];
+        const purchase = purchases.find(p => p.designId === id && p.status === 'completed');
+        if (purchase) {
+          setHasPurchased(true);
+          setPurchaseId(purchase.id);
+          // Check if already rated
+          const ratingsRes = await api.get(`/v1/purchases/ratings/${id}`);
+          const ratings = ratingsRes.data.ratings || [];
+          const alreadyRated = ratings.some(r => r.buyerId === user.id);
+          setHasRated(alreadyRated);
+        }
+      } catch (err) {
+        logger.error('Error checking purchase:', err);
+      }
+    };
+    checkPurchase();
+  }, [user, id]);
+
   const handleReport = async () => {
     if (!reportReason.trim() || reportReason.trim().length < 10) return;
     setReportSubmitting(true);
@@ -51,6 +83,30 @@ export default function DesignDetailPage() {
       showToast(err.response?.data?.message || 'Error al enviar la denuncia', { type: 'error' });
     } finally {
       setReportSubmitting(false);
+    }
+  };
+
+  const handleRating = async () => {
+    if (ratingScore === 0 || !purchaseId) return;
+    setRatingSubmitting(true);
+    try {
+      await api.post('/v1/purchases/ratings', {
+        designId: id,
+        purchaseId,
+        score: ratingScore,
+        comment: ratingComment.trim() || null,
+      });
+      showToast('¡Gracias por tu valoración!', { type: 'success' });
+      setShowRatingForm(false);
+      setRatingScore(0);
+      setRatingComment('');
+      setHasRated(true);
+      // Refresh design data to update rating
+      window.location.reload();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al enviar la valoración', { type: 'error' });
+    } finally {
+      setRatingSubmitting(false);
     }
   };
 
@@ -297,9 +353,74 @@ export default function DesignDetailPage() {
       <section className="mt-8 bg-gray-50 rounded-xl p-6 text-center">
         <h3 className="font-semibold text-gray-900 mb-2">¿Compraste este diseño?</h3>
         {user ? (
-          <p className="text-sm text-gray-500">
-            Dejá tu review para ayudar a otros compradores.
-          </p>
+          hasPurchased ? (
+            hasRated ? (
+              <p className="text-sm text-gray-500">
+                Ya valoraste este diseño. ¡Gracias por tu opinión!
+              </p>
+            ) : showRatingForm ? (
+              <div className="max-w-md mx-auto">
+                <div className="flex justify-center gap-2 mb-4">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setRatingScore(star)}
+                      className="p-1 transition-transform hover:scale-110"
+                    >
+                      <Star
+                        size={32}
+                        className={`${
+                          star <= ratingScore
+                            ? 'fill-yellow-400 text-yellow-400'
+                            : 'text-gray-300'
+                        } transition-colors`}
+                      />
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  value={ratingComment}
+                  onChange={(e) => setRatingComment(e.target.value)}
+                  placeholder="Contanos tu experiencia con este diseño (opcional)..."
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal resize-none mb-3"
+                />
+                <div className="flex gap-3 justify-center">
+                  <button
+                    onClick={() => { setShowRatingForm(false); setRatingScore(0); setRatingComment(''); }}
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleRating}
+                    disabled={ratingScore === 0 || ratingSubmitting}
+                    className="px-6 py-2 bg-brand-teal text-white rounded-lg font-medium hover:bg-brand-teal-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    <Send size={16} />
+                    {ratingSubmitting ? 'Enviando...' : 'Enviar valoración'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <p className="text-sm text-gray-500 mb-4">
+                  Dejá tu valoración para ayudar a otros compradores.
+                </p>
+                <button
+                  onClick={() => setShowRatingForm(true)}
+                  className="inline-flex items-center gap-2 bg-brand-teal text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-teal-dark transition-colors"
+                >
+                  <Star size={18} />
+                  Valorar diseño
+                </button>
+              </div>
+            )
+          ) : (
+            <p className="text-sm text-gray-500">
+              Comprá este diseño para poder valorarlo.
+            </p>
+          )
         ) : (
           <p className="text-sm text-gray-500">
             <Link to="/login" className="text-brand-teal hover:underline">Iniciá sesión</Link> para dejar tu review y ayudar a otros compradores.
