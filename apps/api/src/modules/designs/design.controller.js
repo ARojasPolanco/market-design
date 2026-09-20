@@ -3,6 +3,7 @@ import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
 import { validateCreateDesign, validateUpdateDesign, validateQueryDesign } from './design.schema.js';
 import { r2Storage } from '../../config/r2/r2.js';
+import { cloudinaryStorage } from '../../config/cloudinary/cloudinary.js';
 
 export const getAllDesigns = catchAsync(async (req, res) => {
   const { hasError, errorMessages, data } = validateQueryDesign(req.query);
@@ -66,13 +67,13 @@ export const createDesign = catchAsync(async (req, res) => {
     originalFileKey = key;
   }
 
-  // Upload preview files to R2
+  // Upload preview files to Cloudinary
   const previewUrls = [];
-  const previewKeys = [];
+  const previewPublicIds = [];
   for (const preview of previewFiles) {
-    const { key, url } = await r2Storage.uploadPreview(preview.buffer, preview.originalname);
+    const { publicId, url } = await cloudinaryStorage.uploadPreview(preview.buffer, preview.originalname);
     previewUrls.push(url);
-    previewKeys.push(key);
+    previewPublicIds.push(publicId);
   }
 
   const design = await designService.create({
@@ -83,9 +84,9 @@ export const createDesign = catchAsync(async (req, res) => {
     originalFileSize: designFile?.size,
     fileFormat: designFile?.mimetype,
     previewUrl: previewUrls[0] || null,
-    previewKey: previewKeys[0] || null,
+    previewKey: previewPublicIds[0] || null,
     previewUrls: previewUrls.length > 0 ? previewUrls : null,
-    previewKeys: previewKeys.length > 0 ? previewKeys : null,
+    previewKeys: previewPublicIds.length > 0 ? previewPublicIds : null,
   });
 
   res.status(201).json({
@@ -120,20 +121,20 @@ export const updateDesign = catchAsync(async (req, res, next) => {
   const designFile = req.files?.file?.[0];
   const previewFiles = req.files?.previews || [];
 
-  // Upload new preview files if provided
+  // Upload new preview files to Cloudinary if provided
   const updateData = { ...data };
   if (previewFiles.length > 0) {
     const previewUrls = [];
-    const previewKeys = [];
+    const previewPublicIds = [];
     for (const preview of previewFiles) {
-      const { key, url } = await r2Storage.uploadPreview(preview.buffer, preview.originalname);
+      const { publicId, url } = await cloudinaryStorage.uploadPreview(preview.buffer, preview.originalname);
       previewUrls.push(url);
-      previewKeys.push(key);
+      previewPublicIds.push(publicId);
     }
     updateData.previewUrl = previewUrls[0];
-    updateData.previewKey = previewKeys[0];
+    updateData.previewKey = previewPublicIds[0];
     updateData.previewUrls = previewUrls;
-    updateData.previewKeys = previewKeys;
+    updateData.previewKeys = previewPublicIds;
   }
 
   if (designFile) {
