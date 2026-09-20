@@ -6,6 +6,8 @@ const storage = multer.memoryStorage();
 const ALLOWED_MIMES = [
   'application/pdf',
   'image/png',
+  'image/jpeg',
+  'image/jpg',
   'application/zip',
   'application/x-zip-compressed',
   'image/vnd.adobe.photoshop',
@@ -13,7 +15,7 @@ const ALLOWED_MIMES = [
   'application/illustrator',
 ];
 
-const ALLOWED_EXTENSIONS = ['.pdf', '.png', '.zip', '.ai', '.psd', '.eps'];
+const ALLOWED_EXTENSIONS = ['.pdf', '.png', '.jpg', '.jpeg', '.zip', '.ai', '.psd', '.eps'];
 
 const fileFilter = (_req, file, cb) => {
   const ext = '.' + file.originalname.split('.').pop().toLowerCase();
@@ -21,7 +23,7 @@ const fileFilter = (_req, file, cb) => {
   if (ALLOWED_MIMES.includes(file.mimetype) || ALLOWED_EXTENSIONS.includes(ext)) {
     cb(null, true);
   } else {
-    cb(new AppError('Formato de archivo no aceptado. Formatos permitidos: PDF, PNG, ZIP, AI, PSD, EPS', 400), false);
+    cb(new AppError('Formato de archivo no aceptado. Formatos permitidos: PDF, PNG, JPG, ZIP, AI, PSD, EPS', 400), false);
   }
 };
 
