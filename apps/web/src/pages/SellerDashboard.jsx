@@ -25,6 +25,7 @@ import CommissionInfo from '../components/CommissionInfo.jsx';
 import {
   useSellerSales,
   useSellerDesigns,
+  useSellerRatings,
 } from '../hooks/useDesigns.js';
 import { useCurrentSeller } from '../hooks/useSeller.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -39,6 +40,7 @@ export default function SellerDashboard() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const { sales, stats } = useSellerSales();
   const { designs: myDesigns, refetch: refetchDesigns } = useSellerDesigns();
+  const { ratings } = useSellerRatings();
   const approved = myDesigns.filter((d) => d.status === 'approved');
   const pending = myDesigns.filter((d) => d.status === 'pending');
   const rejected = myDesigns.filter((d) => d.status === 'rejected');
@@ -283,8 +285,8 @@ export default function SellerDashboard() {
               {sales.slice(0, 5).map((sale) => (
                 <div key={sale.id} className="flex items-center justify-between py-2 border-b last:border-0">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{sale.designTitle}</p>
-                    <p className="text-xs text-gray-500">{sale.buyerName}</p>
+                    <p className="text-sm font-medium text-gray-900">{sale.design?.title || 'Diseño'}</p>
+                    <p className="text-xs text-gray-500">{sale.buyer?.fullname || sale.buyer?.username || 'Comprador'}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium text-green-600">+${Number(sale.sellerEarnings || 0).toLocaleString()}</p>
@@ -336,6 +338,29 @@ export default function SellerDashboard() {
                 </p>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Reviews section in overview */}
+      {activeTab === 'overview' && ratings.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Últimas reseñas</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {ratings.slice(0, 4).map((rating) => (
+              <div key={rating.id} className="bg-white rounded-xl shadow-sm p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <RatingStars rating={rating.score} size={14} showValue={false} />
+                  <span className="text-xs text-gray-500">· {rating.designTitle}</span>
+                </div>
+                {rating.comment && (
+                  <p className="text-sm text-gray-600 line-clamp-2">{rating.comment}</p>
+                )}
+                <p className="text-xs text-gray-400 mt-2">
+                  {rating.buyer?.username || rating.buyer?.fullname || 'Usuario'} · {new Date(rating.createdAt).toLocaleDateString('es-AR')}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       )}

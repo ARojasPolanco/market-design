@@ -161,6 +161,43 @@ export function useSellerDesigns(sellerId) {
   return { designs, isLoading, refetch: fetchSellerDesigns };
 }
 
+export function useSellerRatings() {
+  const [ratings, setRatings] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchRatings();
+  }, []);
+
+  const fetchRatings = async () => {
+    try {
+      // Get seller's designs first
+      const designsRes = await api.get('/v1/designs/my');
+      const designs = designsRes.data.designs || [];
+
+      // Fetch ratings for each design
+      const allRatings = [];
+      for (const design of designs) {
+        try {
+          const ratingsRes = await api.get(`/v1/purchases/ratings/${design.id}`);
+          const designRatings = ratingsRes.data.ratings || [];
+          allRatings.push(...designRatings.map(r => ({ ...r, designTitle: design.title })));
+        } catch {
+          // No ratings for this design
+        }
+      }
+
+      setRatings(allRatings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+    } catch (err) {
+      logger.error('Error fetching seller ratings:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { ratings, isLoading, refetch: fetchRatings };
+}
+
 export function usePublicSellerDesigns(sellerId) {
   const [designs, setDesigns] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
