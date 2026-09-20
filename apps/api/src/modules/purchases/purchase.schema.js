@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 export const createPurchaseSchema = z.object({
   designId: z.string().uuid('ID de diseño inválido'),
+  mpPaymentId: z.string().optional(),
+  mpPreferenceId: z.string().optional(),
 });
 
 export const createRatingSchema = z.object({
