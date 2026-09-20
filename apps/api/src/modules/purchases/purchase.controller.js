@@ -4,6 +4,7 @@ import { ratingService } from '../ratings/rating.service.js';
 import { mpService } from '../../config/mercadopago/mercadopago.js';
 import { r2Storage } from '../../config/r2/r2.js';
 import { mailService } from '../../config/resend/resend.js';
+import { envs } from '../../config/enviroments.js';
 import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
 import { validateCreatePurchase, validateCreateRating } from './purchase.schema.js';
@@ -58,11 +59,21 @@ export const createPurchase = catchAsync(async (req, res, next) => {
     mpPreferenceId: data.mpPreferenceId || null,
   });
 
-  // If simulation, update design stats
+  // If simulation, update design stats and send email
   if (isSimulation) {
     await designService.update(design.id, {
       salesCount: (design.salesCount || 0) + 1,
     });
+
+    // Send purchase confirmation email
+    try {
+      const buyer = req.sessionUser;
+      const downloadUrl = `${envs.CORS_ORIGIN}/comprador/panel`;
+      await mailService.sendPurchaseConfirmation(buyer.email, design.title, downloadUrl);
+    } catch (emailError) {
+      console.error('Email error:', emailError.message);
+      // Don't fail the purchase if email fails
+    }
   }
 
   // Create MP preference
