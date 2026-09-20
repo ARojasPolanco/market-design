@@ -2,8 +2,20 @@ import Design from './design.model.js';
 import User from '../auth/auth.model.js';
 import { Op } from 'sequelize';
 import sequelize from '../../config/database/database.js';
+import { cloudinaryStorage } from '../../config/cloudinary/cloudinary.js';
 
 export class DesignService {
+  _addWatermarkToDesign(design) {
+    const data = design.toJSON ? design.toJSON() : { ...design };
+    if (data.previewUrl) {
+      data.previewUrl = cloudinaryStorage.addWatermarkToUrl(data.previewUrl);
+    }
+    if (data.previewUrls && Array.isArray(data.previewUrls)) {
+      data.previewUrls = data.previewUrls.map(url => cloudinaryStorage.addWatermarkToUrl(url));
+    }
+    return data;
+  }
+
   async findAll(filters = {}) {
     const where = { isDeleted: false, status: 'approved' };
 
@@ -51,7 +63,7 @@ export class DesignService {
     });
 
     return {
-      designs: rows,
+      designs: rows.map(d => this._addWatermarkToDesign(d)),
       total: count,
       page: Number(page),
       totalPages: Math.ceil(count / limit),
@@ -59,6 +71,20 @@ export class DesignService {
   }
 
   async findById(id) {
+    const design = await Design.findOne({
+      where: { id, isDeleted: false },
+      include: [
+        {
+          model: User,
+          as: 'seller',
+          attributes: ['id', 'fullname', 'username', 'storeName', 'avatarUrl', 'rank', 'isVerified', 'isTopSeller'],
+        },
+      ],
+    });
+    return design ? this._addWatermarkToDesign(design) : null;
+  }
+
+  async findByIdClean(id) {
     return await Design.findOne({
       where: { id, isDeleted: false },
       include: [
@@ -142,7 +168,7 @@ export class DesignService {
   }
 
   async findFeatured(limit = 8) {
-    return await Design.findAll({
+    const designs = await Design.findAll({
       where: { status: 'approved', isDeleted: false, ratingAvg: { [Op.gte]: 4.0 } },
       order: [['rating_avg', 'DESC']],
       limit,
@@ -154,10 +180,11 @@ export class DesignService {
         },
       ],
     });
+    return designs.map(d => this._addWatermarkToDesign(d));
   }
 
   async findTrending(limit = 8) {
-    return await Design.findAll({
+    const designs = await Design.findAll({
       where: { status: 'approved', isDeleted: false },
       order: [['sales_count', 'DESC']],
       limit,
@@ -169,6 +196,7 @@ export class DesignService {
         },
       ],
     });
+    return designs.map(d => this._addWatermarkToDesign(d));
   }
 
   _buildOrder(sort) {

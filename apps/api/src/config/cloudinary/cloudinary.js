@@ -37,21 +37,25 @@ export class CloudinaryStorage {
   getPreviewUrl(publicId, options = {}) {
     const transformations = [];
 
-    // Add watermark for public display
-    if (options.watermark) {
-      transformations.push({
-        overlay: 'market-design-watermark',
-        opacity: 30,
-        gravity: 'center',
-      });
-    }
-
     // Resize
-    if (options.width || options.height) {
+    transformations.push({
+      width: options.width || 800,
+      height: options.height || 800,
+      crop: 'limit',
+    });
+
+    // Add watermark for public display (not for downloads)
+    if (options.watermark !== false) {
       transformations.push({
-        width: options.width || 800,
-        height: options.height || 800,
-        crop: 'limit',
+        overlay: {
+          font_family: 'Arial',
+          font_size: 40,
+          font_weight: 'bold',
+          text: 'MARKET%20DESIGN',
+        },
+        color: '#FFFFFF80',
+        gravity: 'center',
+        opacity: 40,
       });
     }
 
@@ -63,6 +67,22 @@ export class CloudinaryStorage {
       transformation: transformations,
       secure: true,
     });
+  }
+
+  getCleanPreviewUrl(publicId, options = {}) {
+    return this.getPreviewUrl(publicId, { ...options, watermark: false });
+  }
+
+  addWatermarkToUrl(url) {
+    if (!url || !url.includes('cloudinary.com')) return url;
+    // Insert watermark transformation into Cloudinary URL
+    return url.replace('/upload/', '/upload/l_text:Arial_40_bold:MARKET%20DESIGN,co_white,op_40,g_center/');
+  }
+
+  removeWatermarkFromUrl(url) {
+    if (!url || !url.includes('cloudinary.com')) return url;
+    // Remove watermark transformation from Cloudinary URL
+    return url.replace('/l_text:Arial_40_bold:MARKET%20DESIGN,co_white,op_40,g_center/', '/upload/');
   }
 
   async deletePreview(publicId) {
