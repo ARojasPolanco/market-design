@@ -143,7 +143,7 @@ export class DesignService {
 
   async findFeatured(limit = 8) {
     return await Design.findAll({
-      where: { status: 'approved', isDeleted: false },
+      where: { status: 'approved', isDeleted: false, ratingAvg: { [Op.gte]: 4.0 } },
       order: [['rating_avg', 'DESC']],
       limit,
       include: [
