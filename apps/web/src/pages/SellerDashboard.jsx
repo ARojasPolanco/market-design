@@ -499,16 +499,16 @@ export default function SellerDashboard() {
               <tbody>
                 {sales.map((sale) => (
                   <tr key={sale.id} className="border-b last:border-0 hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{sale.designTitle}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{sale.buyerName}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{sale.design?.title || 'Diseño'}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{sale.buyer?.fullname || sale.buyer?.username || 'Comprador'}</td>
                     <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                      ${sale.price.toLocaleString()}
+                      ${Number(sale.price || 0).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 text-sm text-red-600 text-right">
-                      -${sale.commission.toLocaleString()}
+                      -${Number(sale.commission || 0).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-green-600 text-right">
-                      +${sale.earnings.toLocaleString()}
+                      +${Number(sale.sellerEarnings || 0).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 text-right">
                       {new Date(sale.createdAt).toLocaleDateString('es-AR')}
