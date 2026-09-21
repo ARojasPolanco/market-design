@@ -243,13 +243,13 @@ function ModerationCard({ design, onAction }) {
         <div className="flex items-start gap-4">
           {/* Image with link to detail */}
           <Link to={`/diseno/${design.id}`} className="shrink-0 group">
-            <div className="relative">
+            <div className="relative overflow-hidden rounded-lg">
               <img
                 src={design.previewUrl}
                 alt={design.title}
-                className="w-24 h-24 rounded-lg object-cover group-hover:opacity-80 transition-opacity"
+                className="w-24 h-24 object-cover group-hover:opacity-80 transition-opacity"
               />
-              <WatermarkOverlay />
+              <WatermarkOverlay small />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <Eye size={20} className="text-white drop-shadow-lg" />
               </div>
