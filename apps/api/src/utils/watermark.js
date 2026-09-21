@@ -2,50 +2,68 @@ import sharp from 'sharp';
 
 /**
  * Generate a watermarked preview from a design file
- * The watermark is baked into the image pixels using sharp composite
- * @param {Buffer} fileBuffer - Original file buffer
+ * @param {Buffer} fileBuffer - Original file buffer  
  * @returns {Buffer} - Preview image with watermark baked in
  */
 export async function generateWatermarkedPreview(fileBuffer) {
-  // 1. Get image metadata
   const image = sharp(fileBuffer);
   const metadata = await image.metadata();
 
-  // 2. Resize to preview width (1000px), maintain aspect ratio
+  // Resize to 1000px width
   const targetWidth = 1000;
   const targetHeight = Math.round(((metadata.height || 1000) / (metadata.width || 1000)) * targetWidth);
 
-  const resizedBuffer = await image
+  const resized = await image
     .resize(targetWidth, targetHeight, { fit: 'inside' })
-    .jpeg({ quality: 90 })
+    .jpeg({ quality: 85 })
     .toBuffer();
 
-  // 3. Generate watermark SVG with same dimensions as the resized image
-  const watermarkSvg = createWatermarkSvg(targetWidth, targetHeight);
-  const watermarkBuffer = Buffer.from(watermarkSvg);
-
-  // 4. Composite watermark over image
-  const watermarkedBuffer = await sharp(resizedBuffer)
-    .composite([{ input: watermarkBuffer, top: 0, left: 0, blend: 'over' }])
-    .jpeg({ quality: 92 })
-    .toBuffer();
-
-  return watermarkedBuffer;
-}
-
-function createWatermarkSvg(width, height) {
-  return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <pattern id="watermarkPattern" patternUnits="userSpaceOnUse"
-               width="220" height="140" patternTransform="rotate(-30)">
-        <text x="10" y="80" font-family="Arial, sans-serif" font-size="22"
-              font-weight="bold" fill="white" fill-opacity="0.25">
-          Market Design
-        </text>
-      </pattern>
-    </defs>
-    <rect width="100%" height="100%" fill="url(#watermarkPattern)" />
+  // Create watermark tile with text using sharp's SVG rendering
+  // Using a very simple SVG that should work on Windows
+  const tileWidth = 280;
+  const tileHeight = 80;
+  
+  const watermarkSvg = `<svg width="${tileWidth}" height="${tileHeight}" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100%" height="100%" fill="none"/>
+    <text x="50%" y="50%" 
+          font-family="sans-serif" 
+          font-size="24" 
+          font-weight="bold" 
+          fill="rgba(255,255,255,0.3)" 
+          text-anchor="middle" 
+          dominant-baseline="middle"
+          transform="rotate(-30, ${tileWidth/2}, ${tileHeight/2})">
+      Market Design
+    </text>
   </svg>`;
+
+  const watermarkTile = await sharp(Buffer.from(watermarkSvg))
+    .resize(tileWidth, tileHeight)
+    .png()
+    .toBuffer();
+
+  // Tile the watermark across the image
+  const composites = [];
+  const stepX = tileWidth - 40; // Overlap slightly
+  const stepY = tileHeight + 20;
+  
+  for (let y = -tileHeight; y < targetHeight + tileHeight; y += stepY) {
+    for (let x = -tileWidth; x < targetWidth + tileWidth; x += stepX) {
+      composites.push({
+        input: watermarkTile,
+        left: x,
+        top: y,
+        blend: 'over',
+      });
+    }
+  }
+
+  const watermarked = await sharp(resized)
+    .composite(composites)
+    .jpeg({ quality: 88 })
+    .toBuffer();
+
+  return watermarked;
 }
 
 export default generateWatermarkedPreview;
