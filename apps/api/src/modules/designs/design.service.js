@@ -119,11 +119,10 @@ export class DesignService {
       }
     } catch (err) {
       logger.error('Error deleting design files:', err);
-      // Continue with soft delete even if file deletion fails
     }
 
-    // Soft delete
-    return await design.update({ isDeleted: true });
+    // Hard delete from database
+    return await design.destroy();
   }
 
   async incrementViewCount(id) {
