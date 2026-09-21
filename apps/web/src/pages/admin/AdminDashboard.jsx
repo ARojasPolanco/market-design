@@ -737,7 +737,7 @@ function ReportsSection() {
                       </Link>
                     </div>
                     <p className="text-sm text-gray-500">
-                      Reportado por: {report.reporter} ·{' '}
+                      Reportado por: {report.reporter?.fullname || report.reporter?.username || 'Usuario'} ·{' '}
                       {new Date(report.createdAt).toLocaleDateString('es-AR')}
                     </p>
                   </div>
