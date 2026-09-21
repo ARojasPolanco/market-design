@@ -2,59 +2,51 @@ import sharp from 'sharp';
 
 /**
  * Generate a watermarked preview from a design file
- * @param {Buffer} fileBuffer - Original file buffer  
- * @returns {Buffer} - Preview image with watermark baked in
+ * Based on user's calibrated values - do NOT modify without seeing the result first
  */
 export async function generateWatermarkedPreview(fileBuffer) {
   const image = sharp(fileBuffer);
   const metadata = await image.metadata();
 
-  // Resize to 1000px width
   const targetWidth = 1000;
-  const targetHeight = Math.round(((metadata.height || 1000) / (metadata.width || 1000)) * targetWidth);
+  const targetHeight = Math.round((metadata.height / metadata.width) * targetWidth);
 
-  const resized = await image
-    .resize(targetWidth, targetHeight, { fit: 'inside' })
-    .jpeg({ quality: 85 })
+  const resizedBuffer = await image
+    .resize(targetWidth, targetHeight)
     .toBuffer();
 
-  // Create watermark SVG with EXACT dimensions of the resized image
-  const watermarkSvg = createWatermarkSvg(targetWidth, targetHeight);
+  // VALORES FIJOS - no cambiar sin ver el resultado primero
+  const patternWidth = 300;
+  const patternHeight = 220;
+  const fontSize = 26;
+  const fontWeight = 400;
+  const opacity = 0.15;
+  const rotation = -30;
+  const textColor = '#4a4a4a';
+
+  const watermarkSvg = `
+    <svg width="${targetWidth}" height="${targetHeight}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="watermarkPattern" patternUnits="userSpaceOnUse"
+                 width="${patternWidth}" height="${patternHeight}" patternTransform="rotate(${rotation})">
+          <text x="15" y="${patternHeight / 2}" font-family="Arial, sans-serif" font-size="${fontSize}"
+                font-weight="${fontWeight}" fill="${textColor}" fill-opacity="${opacity}">
+            Market Design
+          </text>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#watermarkPattern)" />
+    </svg>
+  `;
+
   const watermarkBuffer = Buffer.from(watermarkSvg);
 
-  // Composite watermark over image
-  const watermarked = await sharp(resized)
-    .composite([{ input: watermarkBuffer, top: 0, left: 0, blend: 'over' }])
+  const result = await sharp(resizedBuffer)
+    .composite([{ input: watermarkBuffer, top: 0, left: 0 }])
     .jpeg({ quality: 88 })
     .toBuffer();
 
-  return watermarked;
-}
-
-function createWatermarkSvg(width, height) {
-  // Pattern tile size (2.5x current for more spacing)
-  const tileW = 810;
-  const tileH = 260;
-
-  return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <pattern id="wm" patternUnits="userSpaceOnUse" 
-             width="${tileW}" height="${tileH}" 
-             patternTransform="rotate(-30 ${width/2} ${height/2})">
-      <text x="${tileW/2}" y="${tileH/2}" 
-            font-family="Arial, Helvetica, sans-serif" 
-            font-size="31" 
-            font-weight="300" 
-            fill="black" 
-            fill-opacity="0.13"
-            text-anchor="middle" 
-            dominant-baseline="middle">
-        Market Design
-      </text>
-    </pattern>
-  </defs>
-  <rect width="${width}" height="${height}" fill="url(#wm)"/>
-</svg>`;
+  return result;
 }
 
 export default generateWatermarkedPreview;
