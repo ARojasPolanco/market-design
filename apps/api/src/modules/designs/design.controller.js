@@ -67,13 +67,18 @@ export const createDesign = catchAsync(async (req, res) => {
     originalFileKey = key;
   }
 
-  // Upload preview files to Cloudinary
-  const previewUrls = [];
-  const previewPublicIds = [];
+  // Upload preview files to Cloudinary (watermarked + clean)
+  const previewUrls = [];        // Watermarked URLs (public display)
+  const previewPublicIds = [];   // Watermarked public IDs
+  const previewCleanUrls = [];   // Clean URLs (for buyers)
+  const previewCleanIds = [];    // Clean public IDs
+  
   for (const preview of previewFiles) {
-    const { publicId, url } = await cloudinaryStorage.uploadPreview(preview.buffer, preview.originalname);
+    const { publicId, cleanPublicId, url, cleanUrl } = await cloudinaryStorage.uploadPreview(preview.buffer, preview.originalname);
     previewUrls.push(url);
     previewPublicIds.push(publicId);
+    previewCleanUrls.push(cleanUrl);
+    previewCleanIds.push(cleanPublicId);
   }
 
   const design = await designService.create({
@@ -83,10 +88,13 @@ export const createDesign = catchAsync(async (req, res) => {
     originalFileName: designFile?.originalname,
     originalFileSize: designFile?.size,
     fileFormat: designFile?.mimetype,
-    previewUrl: previewUrls[0] || null,
-    previewKey: previewPublicIds[0] || null,
+    previewUrl: previewUrls[0] || null,           // Watermarked
+    previewKey: previewPublicIds[0] || null,       // Watermarked public ID
     previewUrls: previewUrls.length > 0 ? previewUrls : null,
     previewKeys: previewPublicIds.length > 0 ? previewPublicIds : null,
+    // Store clean versions for buyers
+    originalPreviewUrl: previewCleanUrls[0] || null,
+    originalPreviewKey: previewCleanIds[0] || null,
   });
 
   res.status(201).json({

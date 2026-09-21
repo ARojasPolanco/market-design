@@ -181,9 +181,22 @@ export const verifyPayment = catchAsync(async (req, res, next) => {
 export const getMyPurchases = catchAsync(async (req, res) => {
   const purchases = await purchaseService.findByBuyer(req.sessionUser.id);
 
+  // Replace watermarked URLs with clean URLs for buyers
+  const purchasesWithCleanUrls = purchases.map(purchase => {
+    const data = purchase.toJSON();
+    if (data.design) {
+      // Use clean preview URL if available
+      data.design.previewUrl = data.design.originalPreviewUrl || data.design.previewUrl;
+      if (data.design.originalPreviewUrl) {
+        data.design.previewUrl = data.design.originalPreviewUrl;
+      }
+    }
+    return data;
+  });
+
   res.status(200).json({
     status: 'success',
-    purchases,
+    purchases: purchasesWithCleanUrls,
   });
 });
 
