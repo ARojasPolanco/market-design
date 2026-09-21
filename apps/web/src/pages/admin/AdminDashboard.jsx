@@ -415,7 +415,7 @@ function ModerationCard({ design, onAction }) {
 
 function UsersSection() {
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('vendedor');
+  const [roleFilter, setRoleFilter] = useState('seller');
   const [page, setPage] = useState(1);
   const [showRankModal, setShowRankModal] = useState(null);
   const { users, total } = useAdminUsers({
