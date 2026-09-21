@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Eye,
   Tag,
+  X,
 } from 'lucide-react';
 import { useAdminStats, usePendingDesigns, useAdminReports, useAdminUsers } from '../../hooks/useDesigns.js';
 import { useCategories } from '../../hooks/useCategories.js';
