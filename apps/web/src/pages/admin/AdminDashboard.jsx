@@ -16,6 +16,8 @@ import {
   Eye,
   Tag,
   X,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 import { useAdminStats, usePendingDesigns, useAdminReports, useAdminUsers } from '../../hooks/useDesigns.js';
 import { useCategories } from '../../hooks/useCategories.js';
