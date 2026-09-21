@@ -485,11 +485,11 @@ export default function DesignDetailPage() {
             </>
           )}
 
-          <div className="relative max-w-full max-h-full" onClick={(e) => e.stopPropagation()}>
+          <div className="relative max-w-[90vw] max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
             <img
               src={previewUrls[currentPreview] || design.previewUrl}
               alt={design.title}
-              className="max-w-full max-h-full object-contain"
+              className="max-w-[90vw] max-h-[90vh] object-contain"
             />
           </div>
 
