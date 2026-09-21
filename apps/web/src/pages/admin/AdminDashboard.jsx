@@ -711,11 +711,11 @@ function ReportsSection() {
             <div className="flex items-start gap-4">
               {/* Design preview */}
               <Link to={`/diseno/${report.designId}`} className="shrink-0 group">
-                <div className="relative">
+                <div className="relative overflow-hidden rounded-lg">
                   <img
-                    src={report.designImage}
+                    src={report.design?.previewUrl}
                     alt={report.designTitle}
-                    className="w-20 h-20 rounded-lg object-cover group-hover:opacity-80 transition-opacity"
+                    className="w-20 h-20 object-cover group-hover:opacity-80 transition-opacity"
                   />
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Eye size={18} className="text-white drop-shadow-lg" />
@@ -727,7 +727,7 @@ function ReportsSection() {
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-medium text-gray-900">{report.designTitle}</h3>
+                      <h3 className="font-medium text-gray-900">{report.design?.title || 'Diseño'}</h3>
                       <Link
                         to={`/diseno/${report.designId}`}
                         className="text-coral-400 hover:text-coral-500"
