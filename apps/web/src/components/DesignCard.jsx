@@ -3,6 +3,7 @@ import { Star, Heart, BadgeCheck, TrendingUp } from 'lucide-react';
 import { useFavorites } from '../context/FavoritesContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { RankBadge } from './RankBadge.jsx';
+import WatermarkOverlay from './WatermarkOverlay.jsx';
 
 export default function DesignCard({ design }) {
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
@@ -34,6 +35,7 @@ export default function DesignCard({ design }) {
             alt={design.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
+          <WatermarkOverlay />
           {/* Favorite button */}
           <button
             onClick={handleFavoriteClick}

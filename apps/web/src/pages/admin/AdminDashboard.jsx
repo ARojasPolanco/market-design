@@ -14,15 +14,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
-  X,
   Tag,
-  Pencil,
-  Trash2,
 } from 'lucide-react';
 import { useAdminStats, usePendingDesigns, useAdminReports, useAdminUsers } from '../../hooks/useDesigns.js';
 import { useCategories } from '../../hooks/useCategories.js';
-import { RankBadge, MANUAL_RANKS } from '../../components/RankBadge.jsx';
 import api from '../../config/api.js';
+import WatermarkOverlay from '../../components/WatermarkOverlay.jsx';
+
+const MANUAL_RANKS = ['platino', 'diamante'];
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('pending');
@@ -249,6 +248,7 @@ function ModerationCard({ design, onAction }) {
                 alt={design.title}
                 className="w-24 h-24 rounded-lg object-cover group-hover:opacity-80 transition-opacity"
               />
+              <WatermarkOverlay />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <Eye size={20} className="text-white drop-shadow-lg" />
               </div>
