@@ -11,18 +11,22 @@ const WATERMARK_SVG = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http
 </svg>`)}`;
 
 export default function WatermarkOverlay({ small = false }) {
-  const size = small ? '80px 56px' : '200px 140px';
+  const bgSize = small ? '100px 70px' : '180px 126px';
 
   return (
     <div
-      className="absolute inset-0 pointer-events-none overflow-hidden"
+      className="absolute pointer-events-none overflow-hidden"
       aria-hidden="true"
       style={{
+        top: '-50%',
+        left: '-50%',
+        width: '200%',
+        height: '200%',
         backgroundImage: `url("${WATERMARK_SVG}")`,
         backgroundRepeat: 'repeat',
-        backgroundSize: size,
+        backgroundSize: bgSize,
         opacity: 0.22,
-        transform: 'rotate(-25deg) scale(2)',
+        transform: 'rotate(-25deg)',
         transformOrigin: 'center center',
         zIndex: 5,
       }}
