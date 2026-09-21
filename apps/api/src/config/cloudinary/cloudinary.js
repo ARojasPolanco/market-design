@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { envs } from '../enviroments.js';
-import { addWatermark } from '../../utils/watermark.js';
+import { generateWatermarkedPreview } from '../../utils/watermark.js';
 
 cloudinary.config({
   cloud_name: envs.CLOUDINARY_CLOUD_NAME,
@@ -10,16 +10,16 @@ cloudinary.config({
 
 export class CloudinaryStorage {
   /**
-   * Upload preview with watermark
+   * Upload preview with watermark baked in
    * Returns: { publicId, url }
    */
   async uploadPreview(fileBuffer, fileName) {
     const baseName = `preview-${Date.now()}-${fileName.split('.')[0]}`;
     
-    // Generate watermarked version
-    const watermarkedBuffer = await addWatermark(fileBuffer);
+    // Generate watermarked preview (resized + watermark baked in)
+    const watermarkedBuffer = await generateWatermarkedPreview(fileBuffer);
     
-    // Upload watermarked version
+    // Upload to Cloudinary
     const result = await this._uploadToCloudinary(watermarkedBuffer, baseName, 'market-design/previews');
 
     return {
@@ -35,7 +35,6 @@ export class CloudinaryStorage {
           folder,
           public_id: publicId,
           transformation: [
-            { width: 800, height: 800, crop: 'limit' },
             { quality: 'auto' },
             { fetch_format: 'auto' },
           ],

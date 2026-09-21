@@ -8,7 +8,6 @@ import { useToast } from '../context/ToastContext.jsx';
 import RatingStars from '../components/RatingStars.jsx';
 import SellerBadge from '../components/SellerBadge.jsx';
 import DesignCard from '../components/DesignCard.jsx';
-import WatermarkOverlay from '../components/WatermarkOverlay.jsx';
 import { DetailSkeleton } from '../components/Skeletons.jsx';
 import { ErrorState } from '../components/EmptyStates.jsx';
 import api from '../config/api.js';
@@ -155,7 +154,6 @@ export default function DesignDetailPage() {
               alt={design.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
-            <WatermarkOverlay />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
               <span className="opacity-0 group-hover:opacity-100 bg-white/90 text-gray-900 text-sm px-4 py-2 rounded-full transition-opacity">
                 Click para ampliar
@@ -493,7 +491,6 @@ export default function DesignDetailPage() {
               alt={design.title}
               className="max-w-full max-h-full object-contain"
             />
-            <WatermarkOverlay />
           </div>
 
           {/* Thumbnail strip */}
