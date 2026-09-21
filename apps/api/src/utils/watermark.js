@@ -33,8 +33,8 @@ export async function generateWatermarkedPreview(fileBuffer) {
 
 function createWatermarkSvg(width, height) {
   // Pattern tile size
-  const tileW = 250;
-  const tileH = 80;
+  const tileW = 325;
+  const tileH = 104;
 
   return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -43,10 +43,10 @@ function createWatermarkSvg(width, height) {
              patternTransform="rotate(-30 ${width/2} ${height/2})">
       <text x="${tileW/2}" y="${tileH/2}" 
             font-family="Arial, Helvetica, sans-serif" 
-            font-size="24" 
+            font-size="31" 
             font-weight="bold" 
             fill="black" 
-            fill-opacity="0.25"
+            fill-opacity="0.13"
             text-anchor="middle" 
             dominant-baseline="middle">
         Market Design
