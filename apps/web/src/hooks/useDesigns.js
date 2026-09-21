@@ -347,7 +347,14 @@ export function useAdminStats() {
     try {
       const res = await api.get('/v1/admin/stats');
       const data = res.data.stats || {};
-      setStats({ ...defaultStats, ...data });
+      setStats({
+        ...defaultStats,
+        pendingCount: data.pendingDesigns || 0,
+        totalUsers: data.totalUsers || 0,
+        totalDesigns: data.totalDesigns || 0,
+        totalSales: data.totalPurchases || 0,
+        totalCommissions: data.totalRevenue || 0,
+      });
     } catch (err) {
       logger.error('Error fetching stats:', err);
     } finally {
