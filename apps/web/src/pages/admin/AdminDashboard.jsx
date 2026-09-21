@@ -249,7 +249,7 @@ function ModerationCard({ design, onAction }) {
                 alt={design.title}
                 className="w-24 h-24 object-cover group-hover:opacity-80 transition-opacity"
               />
-              <WatermarkOverlay small />
+              <WatermarkOverlay />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <Eye size={20} className="text-white drop-shadow-lg" />
               </div>

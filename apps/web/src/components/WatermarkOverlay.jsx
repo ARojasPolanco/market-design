@@ -10,26 +10,27 @@ const WATERMARK_SVG = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http
   <text x="85" y="55" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="white" dominant-baseline="middle">Market Design</text>
 </svg>`)}`;
 
-export default function WatermarkOverlay({ small = false }) {
-  const bgSize = small ? '100px 70px' : '180px 126px';
-
+export default function WatermarkOverlay() {
   return (
     <div
-      className="absolute pointer-events-none overflow-hidden"
+      className="absolute inset-0 pointer-events-none overflow-hidden"
       aria-hidden="true"
-      style={{
-        top: '-50%',
-        left: '-50%',
-        width: '200%',
-        height: '200%',
-        backgroundImage: `url("${WATERMARK_SVG}")`,
-        backgroundRepeat: 'repeat',
-        backgroundSize: bgSize,
-        opacity: 0.22,
-        transform: 'rotate(-25deg)',
-        transformOrigin: 'center center',
-        zIndex: 5,
-      }}
-    />
+      style={{ zIndex: 5 }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          width: '150%',
+          height: '150%',
+          transform: 'translate(-50%, -50%) rotate(-25deg)',
+          backgroundImage: `url("${WATERMARK_SVG}")`,
+          backgroundRepeat: 'repeat',
+          backgroundSize: '180px 126px',
+          opacity: 0.22,
+        }}
+      />
+    </div>
   );
 }
