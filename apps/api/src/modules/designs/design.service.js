@@ -2,6 +2,9 @@ import Design from './design.model.js';
 import User from '../auth/auth.model.js';
 import { Op } from 'sequelize';
 import sequelize from '../../config/database/database.js';
+import { r2Storage } from '../../config/r2/r2.js';
+import { cloudinaryStorage } from '../../config/cloudinary/cloudinary.js';
+import logger from '../../utils/logger.js';
 
 export class DesignService {
   async findAll(filters = {}) {
@@ -98,6 +101,28 @@ export class DesignService {
   async delete(id) {
     const design = await Design.findByPk(id);
     if (!design) return null;
+
+    // Delete files from storage
+    try {
+      // Delete original file from R2
+      if (design.originalFileKey) {
+        await r2Storage.deleteFile(design.originalFileKey);
+      }
+
+      // Delete previews from Cloudinary
+      if (design.previewKeys && Array.isArray(design.previewKeys)) {
+        for (const key of design.previewKeys) {
+          await cloudinaryStorage.deletePreview(key);
+        }
+      } else if (design.previewKey) {
+        await cloudinaryStorage.deletePreview(design.previewKey);
+      }
+    } catch (err) {
+      logger.error('Error deleting design files:', err);
+      // Continue with soft delete even if file deletion fails
+    }
+
+    // Soft delete
     return await design.update({ isDeleted: true });
   }
 
