@@ -2,7 +2,6 @@ import sharp from 'sharp';
 
 /**
  * Generate a tiled diagonal watermark on an image
- * Each tile contains the Market Design logo (simplified M + bag handle) + text
  * @param {Buffer} imageBuffer - Original image buffer
  * @returns {Buffer} - Image with watermark
  */
@@ -11,82 +10,84 @@ export async function addWatermark(imageBuffer) {
   const metadata = await image.metadata();
   const { width, height } = metadata;
 
-  // Create SVG watermark pattern
-  const watermarkSvg = createWatermarkSvg(width, height);
+  // Create watermark overlay as PNG
+  const overlay = await createWatermarkOverlay(width, height);
 
   // Composite watermark over image
   const watermarked = await image
     .composite([{
-      input: Buffer.from(watermarkSvg),
+      input: overlay,
       top: 0,
       left: 0,
     }])
-    .jpeg({ quality: 90 })
+    .jpeg({ quality: 92 })
     .toBuffer();
 
   return watermarked;
 }
 
-function createWatermarkSvg(width, height) {
-  const angle = 27; // degrees
-  const fontSize = Math.max(20, Math.min(32, width / 25));
-  const iconSize = fontSize * 1.2;
-  const spacingX = (iconSize + fontSize * 7);
-  const spacingY = fontSize * 6;
+async function createWatermarkOverlay(width, height) {
+  // Create a single watermark tile
+  const tileWidth = 350;
+  const tileHeight = 60;
+  const angle = 27;
 
-  // Simplified "M" logo with bag handle as SVG path
-  const logoPath = `
-    <g transform="scale(${iconSize / 60})">
-      <!-- Bag handle -->
-      <path d="M18 8 Q18 0, 26 0 Q34 0, 34 8" 
-            fill="none" stroke="white" stroke-width="3.5" stroke-opacity="0.25" 
-            stroke-linecap="round"/>
-      <!-- M left vertical -->
-      <rect x="4" y="10" width="12" height="24" rx="2" 
-            fill="white" fill-opacity="0.22"/>
-      <!-- M left diagonal -->
-      <polygon points="4,10 16,10 10,28" 
-               fill="white" fill-opacity="0.22"/>
-      <!-- M right diagonal -->
-      <polygon points="38,10 50,10 44,28" 
-               fill="white" fill-opacity="0.22"/>
-      <!-- M right vertical -->
-      <rect x="38" y="10" width="12" height="24" rx="2" 
-            fill="white" fill-opacity="0.22"/>
-      <!-- Cursor -->
-      <path d="M42 32 L42 44 L46 40 L50 46 L52 44 L48 38 L52 36 Z" 
-            fill="white" fill-opacity="0.20"/>
-    </g>
-  `;
+  // Create single tile SVG
+  const tileSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${tileWidth}" height="${tileHeight}">
+    <text x="${tileWidth / 2}" y="${tileHeight / 2}" 
+      font-family="Arial, sans-serif" 
+      font-size="28" 
+      font-weight="bold" 
+      fill="white" 
+      fill-opacity="0.28"
+      text-anchor="middle"
+      dominant-baseline="middle">Market Design</text>
+  </svg>`;
 
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-  <defs>
-    <pattern id="watermark" 
-             x="0" y="0" 
-             width="${spacingX}" height="${spacingY}" 
-             patternUnits="userSpaceOnUse" 
-             patternTransform="rotate(${angle} ${width / 2} ${height / 2})">
-      
-      <!-- Logo icon -->
-      ${logoPath}
-      
-      <!-- Text "Market Design" -->
-      <text 
-        x="${iconSize + 6}" 
-        y="${iconSize * 0.7}" 
-        font-family="Arial, sans-serif" 
-        font-size="${fontSize}" 
-        font-weight="bold" 
-        fill="white" 
-        fill-opacity="0.25" 
-        dominant-baseline="middle"
-      >Market Design</text>
-      
-    </pattern>
-  </defs>
-  <rect width="100%" height="100%" fill="url(#watermark)" />
-</svg>`;
+  const tileBuffer = Buffer.from(tileSvg);
+
+  // Create the full overlay
+  const diagonal = Math.ceil(Math.sqrt(width * width + height * height));
+  const cols = Math.ceil(diagonal / tileWidth) + 2;
+  const rows = Math.ceil(diagonal / tileHeight) + 2;
+
+  // Create large canvas with tiles
+  const overlayWidth = cols * tileWidth;
+  const overlayHeight = rows * tileHeight;
+
+  // Build composite operations for all tiles
+  const composites = [];
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      composites.push({
+        input: tileBuffer,
+        left: col * tileWidth,
+        top: row * tileHeight,
+      });
+    }
+  }
+
+  // Create the tiled overlay
+  const tiledOverlay = await sharp({
+    create: {
+      width: overlayWidth,
+      height: overlayHeight,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    },
+  })
+    .composite(composites)
+    .png()
+    .toBuffer();
+
+  // Rotate the overlay
+  const rotatedOverlay = await sharp(tiledOverlay)
+    .rotate(angle, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize(width, height, { fit: 'cover' })
+    .png()
+    .toBuffer();
+
+  return rotatedOverlay;
 }
 
 export default addWatermark;
