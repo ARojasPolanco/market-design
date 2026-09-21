@@ -72,16 +72,6 @@ Design.init(
       allowNull: true,
       field: 'preview_keys',
     },
-    originalPreviewUrl: {
-      type: DataTypes.STRING(500),
-      allowNull: true,
-      field: 'original_preview_url',
-    },
-    originalPreviewKey: {
-      type: DataTypes.STRING(500),
-      allowNull: true,
-      field: 'original_preview_key',
-    },
     originalFileKey: {
       type: DataTypes.STRING(500),
       allowNull: true,

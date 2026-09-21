@@ -11,25 +11,20 @@ cloudinary.config({
 export class CloudinaryStorage {
   /**
    * Upload preview with watermark
-   * Returns: { publicId, url (watermarked), cleanUrl }
+   * Returns: { publicId, url }
    */
   async uploadPreview(fileBuffer, fileName) {
     const baseName = `preview-${Date.now()}-${fileName.split('.')[0]}`;
-    
-    // Upload clean version first
-    const cleanResult = await this._uploadToCloudinary(fileBuffer, `${baseName}-clean`, 'market-design/previews/clean');
     
     // Generate watermarked version
     const watermarkedBuffer = await addWatermark(fileBuffer);
     
     // Upload watermarked version
-    const watermarkedResult = await this._uploadToCloudinary(watermarkedBuffer, `${baseName}-wm`, 'market-design/previews/wm');
+    const result = await this._uploadToCloudinary(watermarkedBuffer, baseName, 'market-design/previews');
 
     return {
-      publicId: watermarkedResult.public_id,      // For public display (with watermark)
-      cleanPublicId: cleanResult.public_id,        // For buyers (without watermark)
-      url: watermarkedResult.secure_url,           // Watermarked URL
-      cleanUrl: cleanResult.secure_url,            // Clean URL
+      publicId: result.public_id,
+      url: result.secure_url,
     };
   }
 
@@ -51,21 +46,6 @@ export class CloudinaryStorage {
         }
       );
       stream.end(buffer);
-    });
-  }
-
-  /**
-   * Get clean preview URL for buyers
-   */
-  getCleanUrl(cleanPublicId) {
-    if (!cleanPublicId) return null;
-    return cloudinary.url(cleanPublicId, {
-      transformation: [
-        { width: 800, height: 800, crop: 'limit' },
-        { quality: 'auto' },
-        { fetch_format: 'auto' },
-      ],
-      secure: true,
     });
   }
 
