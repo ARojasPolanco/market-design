@@ -51,7 +51,7 @@ export class CloudinaryStorage {
           font_family: 'Arial',
           font_size: 40,
           font_weight: 'bold',
-          text: 'MARKET%20DESIGN',
+          text: 'MARKET DESIGN',
         },
         color: '#FFFFFF80',
         gravity: 'center',
@@ -75,14 +75,52 @@ export class CloudinaryStorage {
 
   addWatermarkToUrl(url) {
     if (!url || !url.includes('cloudinary.com')) return url;
-    // Insert watermark transformation into Cloudinary URL
-    return url.replace('/upload/', '/upload/l_text:Arial_40_bold:MARKET%20DESIGN,co_white,op_40,g_center/');
+    
+    // Parse the Cloudinary URL to extract the public_id
+    // Format: https://res.cloudinary.com/{cloud}/image/upload/v{version}/{folder}/{public_id}.{ext}
+    const match = url.match(/\/upload\/(?:v\d+\/)?(.+)$/);
+    if (!match) return url;
+    
+    const publicId = match[1];
+    // Generate new URL with watermark transformation
+    return cloudinary.url(publicId, {
+      transformation: [
+        { width: 800, height: 800, crop: 'limit' },
+        {
+          overlay: {
+            font_family: 'Arial',
+            font_size: 40,
+            font_weight: 'bold',
+            text: 'MARKET DESIGN',
+          },
+          color: '#FFFFFF80',
+          gravity: 'center',
+          opacity: 40,
+        },
+        { quality: 'auto' },
+        { fetch_format: 'auto' },
+      ],
+      secure: true,
+    });
   }
 
   removeWatermarkFromUrl(url) {
     if (!url || !url.includes('cloudinary.com')) return url;
-    // Remove watermark transformation from Cloudinary URL
-    return url.replace('/l_text:Arial_40_bold:MARKET%20DESIGN,co_white,op_40,g_center/', '/upload/');
+    
+    // Parse the Cloudinary URL to extract the public_id
+    const match = url.match(/\/upload\/(?:[^/]+\/)*v\d+\/(.+)$/) || url.match(/\/upload\/(.+)$/);
+    if (!match) return url;
+    
+    const publicId = match[1];
+    // Generate new URL without watermark
+    return cloudinary.url(publicId, {
+      transformation: [
+        { width: 800, height: 800, crop: 'limit' },
+        { quality: 'auto' },
+        { fetch_format: 'auto' },
+      ],
+      secure: true,
+    });
   }
 
   async deletePreview(publicId) {
