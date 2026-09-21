@@ -32,9 +32,9 @@ export async function generateWatermarkedPreview(fileBuffer) {
 }
 
 function createWatermarkSvg(width, height) {
-  // Pattern tile size
-  const tileW = 325;
-  const tileH = 104;
+  // Pattern tile size (2.5x current for more spacing)
+  const tileW = 810;
+  const tileH = 260;
 
   return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -44,7 +44,7 @@ function createWatermarkSvg(width, height) {
       <text x="${tileW/2}" y="${tileH/2}" 
             font-family="Arial, Helvetica, sans-serif" 
             font-size="31" 
-            font-weight="bold" 
+            font-weight="300" 
             fill="black" 
             fill-opacity="0.13"
             text-anchor="middle" 
