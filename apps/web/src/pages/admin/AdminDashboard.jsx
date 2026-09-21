@@ -20,6 +20,7 @@ import {
 import { useAdminStats, usePendingDesigns, useAdminReports, useAdminUsers } from '../../hooks/useDesigns.js';
 import { useCategories } from '../../hooks/useCategories.js';
 import api from '../../config/api.js';
+import { RankBadge } from '../../components/RankBadge.jsx';
 
 const MANUAL_RANKS = ['platino', 'diamante'];
 
