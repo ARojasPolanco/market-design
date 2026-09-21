@@ -27,42 +27,12 @@ export async function addWatermark(imageBuffer) {
 }
 
 function createWatermarkSvg(width, height) {
-  // Calculate diagonal length to ensure full coverage
-  const diagonal = Math.sqrt(width * width + height * height);
-  
-  // Create repeating "Market Design" text at 25-30 degree angle
   const angle = 27; // degrees
-  const fontSize = Math.max(24, Math.min(40, width / 20));
-  const spacing = fontSize * 8; // Space between watermarks
+  const fontSize = Math.max(28, Math.min(48, width / 15));
+  const spacing = fontSize * 6; // Space between watermarks (smaller = more dense)
   
-  // Generate multiple watermark positions
-  const watermarks = [];
-  const rows = Math.ceil(diagonal / spacing) + 2;
-  const cols = Math.ceil(diagonal / spacing) + 2;
-  
-  for (let row = -1; row < rows; row++) {
-    for (let col = -1; col < cols; col++) {
-      const x = col * spacing;
-      const y = row * spacing;
-      watermarks.push(`
-        <text 
-          x="${x}" 
-          y="${y}" 
-          font-family="Arial, sans-serif" 
-          font-size="${fontSize}" 
-          font-weight="bold" 
-          fill="white" 
-          fill-opacity="0.18" 
-          transform="rotate(${angle}, ${x}, ${y})"
-          text-anchor="middle"
-          dominant-baseline="middle"
-        >Market Design</text>
-      `);
-    }
-  }
-
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
   <defs>
     <pattern id="watermark" x="0" y="0" width="${spacing}" height="${spacing}" patternUnits="userSpaceOnUse" patternTransform="rotate(${angle})">
       <text 
@@ -72,9 +42,11 @@ function createWatermarkSvg(width, height) {
         font-size="${fontSize}" 
         font-weight="bold" 
         fill="white" 
-        fill-opacity="0.18" 
+        fill-opacity="0.30" 
         text-anchor="middle"
         dominant-baseline="middle"
+        stroke="rgba(0,0,0,0.15)"
+        stroke-width="1"
       >Market Design</text>
     </pattern>
   </defs>
