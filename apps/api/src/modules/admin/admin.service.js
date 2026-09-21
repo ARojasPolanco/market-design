@@ -163,7 +163,29 @@ export class AdminService {
       offset,
     });
 
-    return { users: rows, total: count, page: Number(page), totalPages: Math.ceil(count / limit) };
+    // Add sales count for each seller
+    const usersWithSales = await Promise.all(
+      rows.map(async (user) => {
+        const userData = user.toJSON();
+        if (user.role === 'seller') {
+          const salesCount = await Purchase.count({
+            where: { status: 'completed' },
+            include: [{
+              model: Design,
+              as: 'design',
+              where: { sellerId: user.id },
+              attributes: [],
+            }],
+          });
+          userData.sales = salesCount;
+        } else {
+          userData.sales = 0;
+        }
+        return userData;
+      })
+    );
+
+    return { users: usersWithSales, total: count, page: Number(page), totalPages: Math.ceil(count / limit) };
   }
 
   async suspendUser(userId) {
