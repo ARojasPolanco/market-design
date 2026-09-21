@@ -500,40 +500,40 @@ function UsersSection() {
               {filtered.map((user) => (
                 <tr key={user.id} className="border-b last:border-0 hover:bg-gray-50">
                   <td className="px-6 py-4">
-                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                    <p className="text-sm font-medium text-gray-900">{user.fullname || user.username}</p>
                     <p className="text-xs text-gray-500">{user.email}</p>
                   </td>
                   <td className="px-6 py-4">
                     <span
                       className={`text-xs px-2 py-1 rounded-full ${
-                        user.role === 'Vendedor'
+                        user.role === 'seller'
                           ? 'bg-coral-50 text-coral-500'
                           : 'bg-gray-100 text-gray-700'
                       }`}
                     >
-                      {user.role}
+                      {user.role === 'seller' ? 'Vendedor' : user.role === 'admin' ? 'Admin' : 'Comprador'}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <RankBadge rank={user.rank} size={20} />
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600 hidden sm:table-cell">
-                    {user.sales}
+                    {user.sales || 0}
                   </td>
                   <td className="px-6 py-4">
                     <span
                       className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
-                        user.status === 'active'
-                          ? 'bg-green-50 text-green-700'
-                          : 'bg-red-50 text-red-700'
+                        user.isDeleted
+                          ? 'bg-red-50 text-red-700'
+                          : 'bg-green-50 text-green-700'
                       }`}
                     >
-                      {user.status === 'active' ? 'Activo' : 'Suspendido'}
+                      {user.isDeleted ? 'Suspendido' : 'Activo'}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      {user.role === 'Vendedor' && (
+                      {user.role === 'seller' && (
                         <button
                           onClick={() => setShowRankModal(user)}
                           className="text-xs px-2 py-1 rounded-full font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
@@ -541,9 +541,12 @@ function UsersSection() {
                           Cambiar rango
                         </button>
                       )}
-                      <button className="text-sm text-brand-teal hover:text-brand-teal-dark">
+                      <Link
+                        to={`/vendedor/${user.id}`}
+                        className="text-sm text-brand-teal hover:text-brand-teal-dark"
+                      >
                         Ver detalle
-                      </button>
+                      </Link>
                     </div>
                   </td>
                 </tr>
@@ -597,7 +600,7 @@ function UsersSection() {
           <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Cambiar rango</h3>
             <p className="text-sm text-gray-600 mb-4">
-              Vendedor: <span className="font-medium">{showRankModal.name}</span>
+              Vendedor: <span className="font-medium">{showRankModal.fullname || showRankModal.username}</span>
             </p>
             <p className="text-xs text-gray-500 mb-4">
               Rango actual: <RankBadge rank={showRankModal.rank} size={18} />
