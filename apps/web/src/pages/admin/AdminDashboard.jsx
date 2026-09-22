@@ -491,6 +491,7 @@ function UsersSection() {
   const [roleFilter, setRoleFilter] = useState('seller');
   const [page, setPage] = useState(1);
   const [showRankModal, setShowRankModal] = useState(null);
+  const [showRankConfirm, setShowRankConfirm] = useState(null);
   const { users, total } = useAdminUsers({
     role: roleFilter,
     search,
@@ -506,11 +507,13 @@ function UsersSection() {
   const filtered = localUsers;
   const totalPages = Math.ceil(total / perPage);
 
-  const handleRankChange = async (userId, newRank) => {
+  const handleRankChange = async () => {
+    if (!showRankConfirm) return;
     try {
-      await api.patch(`/v1/admin/users/${userId}/rank`, { rank: newRank });
-      setLocalUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, rank: newRank } : u)));
+      await api.patch(`/v1/admin/users/${showRankConfirm.userId}/rank`, { rank: showRankConfirm.newRank });
+      setLocalUsers((prev) => prev.map((u) => (u.id === showRankConfirm.userId ? { ...u, rank: showRankConfirm.newRank } : u)));
       setShowRankModal(null);
+      setShowRankConfirm(null);
     } catch (err) {
       logger.error('Error updating rank:', err);
     }
@@ -685,7 +688,7 @@ function UsersSection() {
               {MANUAL_RANKS.map((rank) => (
                 <button
                   key={rank}
-                  onClick={() => handleRankChange(showRankModal.id, rank)}
+                  onClick={() => setShowRankConfirm({ userId: showRankModal.id, newRank: rank, userName: showRankModal.fullname || showRankModal.username, currentRank: showRankModal.rank })}
                   className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
                     showRankModal.rank === rank
                       ? 'border-brand-teal bg-brand-teal/5'
@@ -706,7 +709,7 @@ function UsersSection() {
                 {['oro', 'plata', 'bronce'].map((rank) => (
                   <button
                     key={rank}
-                    onClick={() => handleRankChange(showRankModal.id, rank)}
+                    onClick={() => setShowRankConfirm({ userId: showRankModal.id, newRank: rank, userName: showRankModal.fullname || showRankModal.username, currentRank: showRankModal.rank })}
                     className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
                       showRankModal.rank === rank
                         ? 'border-brand-teal bg-brand-teal/5'
@@ -728,6 +731,52 @@ function UsersSection() {
             >
               Cerrar
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Rank change confirmation */}
+      {showRankConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <AlertTriangle size={20} className="text-yellow-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Confirmar cambio de rango</h3>
+            </div>
+
+            <div className="mb-6 space-y-3">
+              <p className="text-sm text-gray-600">
+                ¿Confirmás cambiar el rango de <span className="font-medium">{showRankConfirm.userName}</span>?
+              </p>
+              <div className="flex items-center justify-center gap-4 p-3 bg-gray-50 rounded-lg">
+                <div className="text-center">
+                  <RankBadge rank={showRankConfirm.currentRank} size={28} />
+                  <p className="text-xs text-gray-500 mt-1">Actual</p>
+                </div>
+                <span className="text-gray-400">→</span>
+                <div className="text-center">
+                  <RankBadge rank={showRankConfirm.newRank} size={28} />
+                  <p className="text-xs text-gray-500 mt-1">Nuevo</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowRankConfirm(null)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleRankChange}
+                className="flex-1 px-4 py-2 bg-brand-teal text-white rounded-lg text-sm font-medium hover:bg-brand-teal-dark transition-colors"
+              >
+                Confirmar
+              </button>
+            </div>
           </div>
         </div>
       )}
