@@ -111,6 +111,31 @@ export class MailService {
       `,
     });
   }
+
+  async sendSaleNotification(to, designTitle, buyerName, price, commission, earnings) {
+    await resend.emails.send({
+      from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
+      to,
+      subject: '¡Nueva venta! - Market Design',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #0F2A44;">¡Tenés una nueva venta!</h1>
+          <p>Tu diseño <strong>"${designTitle}"</strong> fue comprado por <strong>${buyerName}</strong>.</p>
+          <div style="background: #f0fdf4; border-left: 4px solid #22c55e; padding: 16px; margin: 16px 0;">
+            <p style="margin: 0 0 8px 0; color: #166534; font-weight: bold;">Resumen de la venta</p>
+            <p style="margin: 0; color: #166534;">Precio: $${Number(price).toLocaleString()}</p>
+            <p style="margin: 0; color: #166534;">Comisión: -$${Number(commission).toLocaleString()}</p>
+            <p style="margin: 8px 0 0 0; color: #166534; font-weight: bold; font-size: 18px;">Tu ganancia: $${Number(earnings).toLocaleString()}</p>
+          </div>
+          <a href="${envs.CORS_ORIGIN}/vendedor/panel" style="display: inline-block; background: #00C2B8; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 16px 0;">
+            Ver mis ventas
+          </a>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+          <p style="color: #999; font-size: 12px;">Market Design - Diseños digitales que hacen crecer tus ideas.</p>
+        </div>
+      `,
+    });
+  }
 }
 
 export const mailService = new MailService();

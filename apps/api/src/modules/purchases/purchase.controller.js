@@ -61,20 +61,36 @@ export const createPurchase = catchAsync(async (req, res, next) => {
     mpPreferenceId: data.mpPreferenceId || null,
   });
 
-  // If simulation, update design stats and send email
+  // If simulation, update design stats and send emails
   if (isSimulation) {
     await designService.update(design.id, {
       salesCount: (design.salesCount || 0) + 1,
     });
 
-    // Send purchase confirmation email
+    // Send purchase confirmation email to buyer
     try {
       const buyer = req.sessionUser;
       const downloadUrl = `${envs.CORS_ORIGIN}/comprador/panel`;
       await mailService.sendPurchaseConfirmation(buyer.email, design.title, downloadUrl);
     } catch (emailError) {
-      console.error('Email error:', emailError.message);
-      // Don't fail the purchase if email fails
+      console.error('Buyer email error:', emailError.message);
+    }
+
+    // Send sale notification email to seller
+    try {
+      const seller = design.seller;
+      if (seller?.email) {
+        await mailService.sendSaleNotification(
+          seller.email,
+          design.title,
+          req.sessionUser.username || req.sessionUser.fullname,
+          design.price,
+          commission,
+          sellerEarnings
+        );
+      }
+    } catch (emailError) {
+      console.error('Seller email error:', emailError.message);
     }
   }
 
