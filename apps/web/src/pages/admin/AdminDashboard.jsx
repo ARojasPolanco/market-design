@@ -155,8 +155,8 @@ function ConfigSection() {
   const fetchConfig = async () => {
     try {
       const res = await api.get('/v1/admin/config');
-      if (res.data.config) {
-        setConfig((prev) => ({ ...prev, ...res.data.config }));
+      if (res.data.config && res.data.config.commission) {
+        setConfig((prev) => ({ ...prev, ...res.data.config.commission }));
       }
     } catch (err) {
       logger.error('Error fetching config:', err);
