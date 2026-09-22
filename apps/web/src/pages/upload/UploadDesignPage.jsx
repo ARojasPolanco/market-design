@@ -17,6 +17,7 @@ import { useToast } from '../../context/ToastContext.jsx';
 import { useCategories } from '../../hooks/useCategories.js';
 import { useTechniques } from '../../hooks/useTechniques.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { getRankInfo } from '../../components/RankBadge.jsx';
 import api from '../../config/api.js';
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -515,8 +516,8 @@ export default function UploadDesignPage() {
                   </div>
                   {formData.price > 0 && (
                     <p className="text-xs text-green-600 mt-1">
-                      Tu ganancia por venta: ${Math.round(formData.price * 0.8).toLocaleString()}{' '}
-                      (comisión 20%)
+                      Tu ganancia por venta: ${Math.round(formData.price * (1 - getRankInfo(user?.rank).commission / 100)).toLocaleString()}{' '}
+                      (comisión {getRankInfo(user?.rank).commission}%)
                     </p>
                   )}
                 </div>
