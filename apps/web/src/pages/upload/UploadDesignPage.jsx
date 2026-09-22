@@ -15,15 +15,9 @@ import OnboardingCards, { shouldShowOnboarding } from '../../components/Onboardi
 import DesignPreviewCard from '../../components/DesignPreviewCard.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useCategories } from '../../hooks/useCategories.js';
+import { useTechniques } from '../../hooks/useTechniques.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import api from '../../config/api.js';
-
-const TECHNIQUES = [
-  { id: 'sublimado', name: 'Sublimado' },
-  { id: 'estampado', name: 'Estampado' },
-  { id: 'vinilo', name: 'Vinilo textil' },
-  { id: 'dtf', name: 'DTF' },
-];
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const MIN_FILE_SIZE = 1024; // 1KB
@@ -34,6 +28,7 @@ export default function UploadDesignPage() {
   const editId = searchParams.get('edit');
   const { showToast } = useToast();
   const { categories } = useCategories();
+  const { techniques } = useTechniques();
   const { user } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(shouldShowOnboarding());
   const [currentStep, setCurrentStep] = useState(1);
@@ -491,9 +486,9 @@ export default function UploadDesignPage() {
                       onChange={(e) => updateForm('technique', e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
                     >
-                      {TECHNIQUES.map((tech) => (
-                        <option key={tech.id} value={tech.id}>
-                          {tech.name}
+                      {techniques.map((tech) => (
+                        <option key={tech} value={tech.toLowerCase()}>
+                          {tech}
                         </option>
                       ))}
                     </select>

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useAdminStats, usePendingDesigns, useAdminReports, useAdminUsers } from '../../hooks/useDesigns.js';
 import { useCategories } from '../../hooks/useCategories.js';
+import { useTechniques } from '../../hooks/useTechniques.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import api from '../../config/api.js';
 import { RankBadge } from '../../components/RankBadge.jsx';
@@ -91,6 +92,7 @@ export default function AdminDashboard() {
           },
           { id: 'config', label: 'Configuración', icon: Settings },
           { id: 'categories', label: 'Categorías', icon: Tag },
+          { id: 'techniques', label: 'Técnicas', icon: Tag },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -133,6 +135,9 @@ export default function AdminDashboard() {
 
       {/* Categories */}
       {activeTab === 'categories' && <CategoriesSection />}
+
+      {/* Techniques */}
+      {activeTab === 'techniques' && <TechniquesSection />}
     </div>
   );
 }
@@ -1000,6 +1005,163 @@ function CategoriesSection() {
       {/* Count */}
       <p className="text-xs text-gray-400 mt-4">
         {categories.length} {categories.length === 1 ? 'categoría' : 'categorías'} en total
+      </p>
+    </div>
+  );
+}
+
+function TechniquesSection() {
+  const { techniques, addTechnique, updateTechnique, deleteTechnique } = useTechniques();
+  const [newTechniqueName, setNewTechniqueName] = useState('');
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingValue, setEditingValue] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+
+  const handleAdd = () => {
+    if (addTechnique(newTechniqueName)) {
+      setNewTechniqueName('');
+    }
+  };
+
+  const handleStartEdit = (index, name) => {
+    setEditingIndex(index);
+    setEditingValue(name);
+  };
+
+  const handleSaveEdit = (oldName) => {
+    if (updateTechnique(oldName, editingValue)) {
+      setEditingIndex(null);
+      setEditingValue('');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIndex(null);
+    setEditingValue('');
+  };
+
+  const handleDelete = (name) => {
+    deleteTechnique(name);
+    setShowDeleteConfirm(null);
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm p-6">
+      <h2 className="font-semibold text-gray-900 mb-2">Gestión de técnicas</h2>
+      <p className="text-sm text-gray-500 mb-6">
+        Las técnicas que crees acá van a estar disponibles para los vendedores al cargar diseños.
+      </p>
+
+      {/* Add new */}
+      <div className="flex gap-2 mb-6">
+        <input
+          type="text"
+          value={newTechniqueName}
+          onChange={(e) => setNewTechniqueName(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+          placeholder="Nueva técnica..."
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
+        />
+        <button
+          onClick={handleAdd}
+          disabled={!newTechniqueName.trim()}
+          className="bg-dark text-white px-4 py-2 rounded-lg font-medium hover:bg-dark-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Agregar
+        </button>
+      </div>
+
+      {/* List */}
+      <div className="space-y-2">
+        {techniques.map((tech, i) => (
+          <div
+            key={tech}
+            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg group hover:bg-gray-100 transition-colors"
+          >
+            {editingIndex === i ? (
+              <div className="flex items-center gap-2 flex-1">
+                <input
+                  type="text"
+                  value={editingValue}
+                  onChange={(e) => setEditingValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSaveEdit(tech);
+                    if (e.key === 'Escape') handleCancelEdit();
+                  }}
+                  className="flex-1 px-3 py-1 border border-coral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500 text-sm"
+                  autoFocus
+                />
+                <button
+                  onClick={() => handleSaveEdit(tech)}
+                  className="text-green-600 hover:text-green-700 text-sm font-medium"
+                >
+                  Guardar
+                </button>
+                <button
+                  onClick={handleCancelEdit}
+                  className="text-gray-500 hover:text-gray-700 text-sm"
+                >
+                  Cancelar
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-3">
+                  <Tag size={16} className="text-brand-teal" />
+                  <span className="text-sm font-medium text-gray-900">{tech}</span>
+                </div>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => handleStartEdit(i, tech)}
+                    className="p-1.5 text-gray-500 hover:text-coral-400 hover:bg-coral-50 rounded-lg transition-colors"
+                    title="Editar"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteConfirm(tech)}
+                    className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Eliminar"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Delete confirmation */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Eliminar técnica</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              ¿Seguro que querés eliminar <span className="font-medium">"{showDeleteConfirm}"</span>?
+              Los diseños que la usen no se verán afectados.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(null)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => handleDelete(showDeleteConfirm)}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Count */}
+      <p className="text-xs text-gray-400 mt-4">
+        {techniques.length} {techniques.length === 1 ? 'técnica' : 'técnicas'} en total
       </p>
     </div>
   );
