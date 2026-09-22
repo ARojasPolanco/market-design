@@ -1,6 +1,7 @@
 import { adminService } from './admin.service.js';
 import { designService } from '../designs/design.service.js';
 import { mailService } from '../../config/resend/resend.js';
+import { r2Storage } from '../../config/r2/r2.js';
 import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
 
@@ -60,6 +61,80 @@ export const rejectDesign = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     design: rejected,
+  });
+});
+
+export const pauseDesign = catchAsync(async (req, res, next) => {
+  const { reason } = req.body;
+
+  if (!reason || reason.trim().length < 10) {
+    return next(new AppError('El motivo de la pausa debe tener al menos 10 caracteres.', 422));
+  }
+
+  const design = await designService.findById(req.params.id);
+  if (!design) return next(new AppError('Diseño no encontrado.', 404));
+
+  if (design.status !== 'approved') {
+    return next(new AppError('Solo se pueden pausar diseños aprobados.', 400));
+  }
+
+  // Generate ticket ID
+  const ticketId = `MD-${String(Date.now()).slice(-6)}`;
+
+  const paused = await designService.pause(req.params.id, req.sessionUser.id, reason, ticketId);
+
+  // Send email to seller
+  try {
+    const seller = design.seller;
+    if (seller?.email) {
+      await mailService.sendDesignPaused(seller.email, design.title, reason, ticketId);
+    }
+  } catch (mailError) {
+    console.error('Error sending pause email:', mailError);
+  }
+
+  res.status(200).json({
+    status: 'success',
+    design: paused,
+    ticketId,
+  });
+});
+
+export const unpauseDesign = catchAsync(async (req, res, next) => {
+  const design = await designService.findById(req.params.id);
+  if (!design) return next(new AppError('Diseño no encontrado.', 404));
+
+  if (design.status !== 'paused') {
+    return next(new AppError('Este diseño no está pausado.', 400));
+  }
+
+  const unpaused = await designService.unpause(req.params.id);
+
+  res.status(200).json({
+    status: 'success',
+    design: unpaused,
+  });
+});
+
+export const getPausedDesigns = catchAsync(async (req, res) => {
+  const designs = await designService.findByStatus('paused');
+  res.status(200).json({ status: 'success', designs });
+});
+
+export const downloadDesignFile = catchAsync(async (req, res, next) => {
+  const design = await designService.findById(req.params.id);
+  if (!design) return next(new AppError('Diseño no encontrado.', 404));
+
+  if (!design.originalFileKey) {
+    return next(new AppError('Este diseño no tiene archivo original.', 404));
+  }
+
+  const signedUrl = await r2Storage.getSignedDownloadUrl(design.originalFileKey, 3600);
+
+  res.status(200).json({
+    status: 'success',
+    downloadUrl: signedUrl,
+    fileName: design.originalFileName || `${design.title}.zip`,
   });
 });
 

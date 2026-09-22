@@ -43,7 +43,7 @@ Design.init(
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM('pending', 'approved', 'rejected'),
+      type: DataTypes.ENUM('pending', 'approved', 'rejected', 'paused'),
       defaultValue: 'pending',
       allowNull: false,
     },
@@ -51,6 +51,26 @@ Design.init(
       type: DataTypes.TEXT,
       allowNull: true,
       field: 'rejection_reason',
+    },
+    pauseReason: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'pause_reason',
+    },
+    pausedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'paused_at',
+    },
+    pausedBy: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: 'paused_by',
+    },
+    ticketId: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      field: 'ticket_id',
     },
     previewUrl: {
       type: DataTypes.STRING(500),

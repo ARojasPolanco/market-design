@@ -2,7 +2,11 @@ import { Router } from 'express';
 import {
   approveDesign,
   rejectDesign,
+  pauseDesign,
+  unpauseDesign,
+  getPausedDesigns,
   getPendingDesigns,
+  downloadDesignFile,
   getAllConfig,
   updateConfig,
   getReports,
@@ -35,8 +39,12 @@ router.use(restrictTo('admin'));
 
 // Moderation
 router.get('/designs/pending', getPendingDesigns);
+router.get('/designs/paused', getPausedDesigns);
 router.patch('/designs/:id/approve', approveDesign);
 router.patch('/designs/:id/reject', rejectDesign);
+router.patch('/designs/:id/pause', pauseDesign);
+router.patch('/designs/:id/unpause', unpauseDesign);
+router.get('/designs/:id/download', downloadDesignFile);
 
 // Config
 router.get('/config', getAllConfig);

@@ -88,6 +88,20 @@ export class DesignService {
     });
   }
 
+  async findByStatus(status) {
+    return await Design.findAll({
+      where: { status, isDeleted: false },
+      include: [
+        {
+          model: User,
+          as: 'seller',
+          attributes: ['id', 'fullname', 'username', 'storeName', 'avatarUrl', 'email'],
+        },
+      ],
+      order: [['created_at', 'DESC']],
+    });
+  }
+
   async create(data) {
     return await Design.create(data);
   }
@@ -148,6 +162,30 @@ export class DesignService {
     return await design.update({
       status: 'rejected',
       rejectionReason: reason,
+    });
+  }
+
+  async pause(id, adminId, reason, ticketId) {
+    const design = await Design.findByPk(id);
+    if (!design) return null;
+    return await design.update({
+      status: 'paused',
+      pauseReason: reason,
+      pausedAt: new Date(),
+      pausedBy: adminId,
+      ticketId,
+    });
+  }
+
+  async unpause(id) {
+    const design = await Design.findByPk(id);
+    if (!design) return null;
+    return await design.update({
+      status: 'approved',
+      pauseReason: null,
+      pausedAt: null,
+      pausedBy: null,
+      ticketId: null,
     });
   }
 

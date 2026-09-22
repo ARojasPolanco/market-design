@@ -32,7 +32,12 @@ export const createPurchase = catchAsync(async (req, res, next) => {
   }
 
   // Calculate commission based on seller rank and admin config
-  const config = await adminService.getConfig('commission') || {};
+  let config = {};
+  try {
+    config = await adminService.getConfig('commission') || {};
+  } catch (_e) {
+    config = {};
+  }
   const COMMISSION_RATES = {
     bronce: (config.commission_base || 20) / 100,
     plata: 0.18,
