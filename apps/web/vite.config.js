@@ -12,5 +12,7 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    // SPA fallback - serve index.html for all routes
+    historyApiFallback: true,
   },
 });
