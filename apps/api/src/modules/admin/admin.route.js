@@ -13,6 +13,7 @@ import {
   updateUserRank,
   calculateRanks,
   getPublicCategories,
+  getPublicTechniques,
 } from './admin.controller.js';
 import { createReport } from './admin.controller.js';
 import { protect, restrictTo } from '../auth/auth.middleware.js';
@@ -21,6 +22,7 @@ const router = Router();
 
 // Public routes (no auth required)
 router.get('/categories', getPublicCategories);
+router.get('/techniques', getPublicTechniques);
 
 // All other admin routes require auth
 router.use(protect);

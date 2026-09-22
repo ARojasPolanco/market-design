@@ -170,3 +170,17 @@ export const getPublicCategories = catchAsync(async (req, res) => {
   ];
   res.status(200).json({ status: 'success', categories });
 });
+
+export const getPublicTechniques = catchAsync(async (req, res) => {
+  const config = await adminService.getConfig('techniques');
+  const techniques = config || [
+    'Sublimado',
+    'Estampado',
+    'Vinilo textil',
+    'DTF',
+    'Impresión 3D',
+    'Serigrafía',
+    'Bordado',
+  ];
+  res.status(200).json({ status: 'success', techniques });
+});
