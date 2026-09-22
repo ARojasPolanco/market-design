@@ -18,6 +18,7 @@ import {
   X,
   Pencil,
   Trash2,
+  Wrench,
 } from 'lucide-react';
 import { useAdminStats, usePendingDesigns, useAdminReports, useAdminUsers } from '../../hooks/useDesigns.js';
 import { useCategories } from '../../hooks/useCategories.js';
@@ -92,7 +93,7 @@ export default function AdminDashboard() {
           },
           { id: 'config', label: 'Configuración', icon: Settings },
           { id: 'categories', label: 'Categorías', icon: Tag },
-          { id: 'techniques', label: 'Técnicas', icon: Tag },
+          { id: 'techniques', label: 'Técnicas', icon: Wrench },
         ].map((tab) => (
           <button
             key={tab.id}
