@@ -100,6 +100,7 @@ export const getProfile = catchAsync(async (req, res) => {
       description: user.description,
       avatarUrl: user.avatarUrl,
       rank: user.rank,
+      isDiamante: user.rank === 'diamante',
       emailVerified: user.emailVerified,
       isVerified: user.isVerified,
       isTopSeller: user.isTopSeller,
