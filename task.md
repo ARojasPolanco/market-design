@@ -96,12 +96,17 @@
 
 ---
 
-## Fase 7: Backend — Admin + moderación ⬜
+## Fase 7: Backend — Admin + moderación ✅
 
-- [ ] Migración 004: moderation_logs, favorites, config, reports
-- [ ] Módulo Admin: moderación, config, reportes, denuncias
-- [ ] Módulo Favorites: CRUD
-- [ ] Sistema de rangos: lógica automática + manual
+- [x] Migración 004: moderation_logs, favorites, config, reports
+- [x] Módulo Admin: moderación, config, reportes, denuncias
+- [x] Módulo Favorites: CRUD
+- [x] Sistema de rangos: lógica automática + manual
+- [x] Migración 009: campos de pausa (pause_reason, paused_at, paused_by, ticket_id)
+- [x] Pausa manual de diseños por admin
+- [x] Email de pausa con ticket ID al vendedor
+- [x] Descarga de archivo original por admin
+- [x] Sistema de denuncias (reportes)
 - [ ] Tests: moderación, favoritos, config
 
 ---
