@@ -5,6 +5,7 @@ import { mpService } from '../../config/mercadopago/mercadopago.js';
 import { r2Storage } from '../../config/r2/r2.js';
 import { mailService } from '../../config/resend/resend.js';
 import { envs } from '../../config/enviroments.js';
+import { adminService } from '../admin/admin.service.js';
 import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
 import { validateCreatePurchase, validateCreateRating } from './purchase.schema.js';
@@ -30,12 +31,13 @@ export const createPurchase = catchAsync(async (req, res, next) => {
     return next(new AppError('Ya compraste este diseño.', 400));
   }
 
-  // Calculate commission based on seller rank
+  // Calculate commission based on seller rank and admin config
+  const config = await adminService.getConfig('commission') || {};
   const COMMISSION_RATES = {
-    bronce: 0.20,
+    bronce: (config.commission_base || 20) / 100,
     plata: 0.18,
     oro: 0.15,
-    platino: 0.12,
+    platino: (config.commission_min || 12) / 100,
     diamante: 0.10,
   };
 
