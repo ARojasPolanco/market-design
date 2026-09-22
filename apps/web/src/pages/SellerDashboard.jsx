@@ -16,9 +16,6 @@ import {
   Award,
   Zap,
   Target,
-  Users,
-  X,
-  AlertTriangle,
 } from 'lucide-react';
 import BackButton from '../components/BackButton.jsx';
 import CommissionInfo from '../components/CommissionInfo.jsx';
@@ -175,27 +172,20 @@ export default function SellerDashboard() {
 
       {/* Extra stats for Diamante */}
       {isDiamante && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
           <div className="bg-gradient-to-br from-brand-teal/5 to-brand-violet/5 border border-brand-teal/20 rounded-xl p-5">
             <div className="flex items-center gap-2 mb-2">
               <Eye size={16} className="text-brand-teal" />
               <span className="text-sm text-gray-600">Vistas totales</span>
             </div>
-            <p className="text-xl font-bold text-gray-900">12.450</p>
+            <p className="text-xl font-bold text-gray-900">{stats.totalViews.toLocaleString()}</p>
           </div>
           <div className="bg-gradient-to-br from-brand-teal/5 to-brand-violet/5 border border-brand-teal/20 rounded-xl p-5">
             <div className="flex items-center gap-2 mb-2">
               <Target size={16} className="text-brand-violet" />
               <span className="text-sm text-gray-600">Tasa de conversión</span>
             </div>
-            <p className="text-xl font-bold text-gray-900">4.2%</p>
-          </div>
-          <div className="bg-gradient-to-br from-brand-teal/5 to-brand-violet/5 border border-brand-teal/20 rounded-xl p-5">
-            <div className="flex items-center gap-2 mb-2">
-              <Users size={16} className="text-brand-rose" />
-              <span className="text-sm text-gray-600">Compradores recurrentes</span>
-            </div>
-            <p className="text-xl font-bold text-gray-900">89</p>
+            <p className="text-xl font-bold text-gray-900">{stats.conversionRate}%</p>
           </div>
         </div>
       )}

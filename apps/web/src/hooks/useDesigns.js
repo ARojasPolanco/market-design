@@ -261,6 +261,8 @@ export function useSellerSales() {
   const [stats, setStats] = useState({
     totalEarnings: 0,
     totalSales: 0,
+    totalViews: 0,
+    conversionRate: 0,
     avgRating: 0,
     commissionRate: 20,
     commissionLevel: 'Bronce',
@@ -281,6 +283,8 @@ export function useSellerSales() {
       setStats({
         totalEarnings: statsData.totalEarnings || 0,
         totalSales: statsData.totalSales || 0,
+        totalViews: statsData.totalViews || 0,
+        conversionRate: statsData.conversionRate || 0,
         avgRating: 0,
         commissionRate: 20,
         commissionLevel: 'Bronce',

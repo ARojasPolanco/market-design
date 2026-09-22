@@ -195,12 +195,19 @@ export const getMySales = catchAsync(async (req, res) => {
   const totalEarnings = sales.reduce((sum, s) => sum + Number(s.sellerEarnings || 0), 0);
   const totalSales = sales.length;
 
+  // Get seller's designs to calculate views
+  const designs = await designService.findBySeller(req.sessionUser.id);
+  const totalViews = designs.reduce((sum, d) => sum + (d.viewCount || 0), 0);
+  const conversionRate = totalViews > 0 ? Math.round((totalSales / totalViews) * 100 * 10) / 10 : 0;
+
   res.status(200).json({
     status: 'success',
     sales,
     stats: {
       totalEarnings,
       totalSales,
+      totalViews,
+      conversionRate,
     },
   });
 });
