@@ -5,19 +5,33 @@ import logger from '../utils/logger.js';
 export function useDesigns(filters = {}) {
   const [designs, setDesigns] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [techniques] = useState([
-    { id: 'sublimado', name: 'Sublimado' },
-    { id: 'estampado', name: 'Estampado' },
-    { id: 'vinilo', name: 'Vinilo textil' },
-    { id: 'dtf', name: 'DTF' },
-  ]);
+  const [techniques, setTechniques] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
     fetchDesigns();
+    fetchTechniques();
   }, [filters.category, filters.technique, filters.sort, filters.search, filters.priceMin, filters.priceMax]);
+
+  const fetchTechniques = async () => {
+    try {
+      const res = await api.get('/v1/admin/techniques');
+      if (res.data.techniques && res.data.techniques.length > 0) {
+        setTechniques(res.data.techniques.map(t => ({ id: t.toLowerCase(), name: t })));
+      }
+    } catch (err) {
+      logger.error('Error fetching techniques:', err);
+      // Fallback
+      setTechniques([
+        { id: 'sublimado', name: 'Sublimado' },
+        { id: 'estampado', name: 'Estampado' },
+        { id: 'vinilo', name: 'Vinilo textil' },
+        { id: 'dtf', name: 'DTF' },
+      ]);
+    }
+  };
 
   const fetchDesigns = async () => {
     setIsLoading(true);
