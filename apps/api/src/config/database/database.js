@@ -3,7 +3,7 @@ import { envs } from '../enviroments.js';
 
 const sequelize = new Sequelize(envs.DB_URI, {
   dialect: 'postgres',
-  logging: envs.NODE_ENV === 'development' ? console.log : false,
+  logging: false,
   define: {
     underscored: true,
     timestamps: true,

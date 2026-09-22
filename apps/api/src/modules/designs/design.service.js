@@ -68,7 +68,7 @@ export class DesignService {
         {
           model: User,
           as: 'seller',
-          attributes: ['id', 'fullname', 'username', 'storeName', 'avatarUrl', 'rank', 'isVerified', 'isTopSeller'],
+          attributes: ['id', 'fullname', 'username', 'email', 'storeName', 'avatarUrl', 'rank', 'isVerified', 'isTopSeller'],
         },
       ],
     });

@@ -71,9 +71,16 @@ export const createPurchase = catchAsync(async (req, res, next) => {
     try {
       const buyer = req.sessionUser;
       const downloadUrl = `${envs.CORS_ORIGIN}/comprador/panel`;
-      await mailService.sendPurchaseConfirmation(buyer.email, design.title, downloadUrl);
-    } catch (emailError) {
-      console.error('Buyer email error:', emailError.message);
+      await mailService.sendPurchaseConfirmation(buyer.email, {
+        designTitle: design.title,
+        downloadUrl,
+        orderNumber: purchase.id.substring(0, 8).toUpperCase(),
+        purchaseDate: new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        previewUrl: design.previewUrl,
+        sellerName: design.seller?.storeName || design.seller?.username || 'Vendedor',
+      });
+    } catch (_emailError) {
+      // Don't fail the purchase if email fails
     }
 
     // Send sale notification email to seller
@@ -89,8 +96,8 @@ export const createPurchase = catchAsync(async (req, res, next) => {
           sellerEarnings
         );
       }
-    } catch (emailError) {
-      console.error('Seller email error:', emailError.message);
+    } catch (_emailError) {
+      // Don't fail the purchase if email fails
     }
   }
 
@@ -158,11 +165,14 @@ export const handleWebhook = catchAsync(async (req, res) => {
               // Generate signed download URL
               const downloadUrl = `${process.env.CORS_ORIGIN || 'http://localhost:5173'}/compra/${completed.downloadToken}`;
 
-              await mailService.sendPurchaseConfirmation(
-                buyer.email,
-                design.title,
-                downloadUrl
-              );
+              await mailService.sendPurchaseConfirmation(buyer.email, {
+                designTitle: design.title,
+                downloadUrl,
+                orderNumber: purchase.id.substring(0, 8).toUpperCase(),
+                purchaseDate: new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                previewUrl: design.previewUrl,
+                sellerName: design.seller?.storeName || design.seller?.username || 'Vendedor',
+              });
             } catch (mailError) {
               console.error('Error sending purchase email:', mailError);
             }

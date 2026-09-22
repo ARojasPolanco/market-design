@@ -69,27 +69,94 @@ export class MailService {
     });
   }
 
-  async sendPurchaseConfirmation(to, designTitle, downloadUrl) {
-    await resend.emails.send({
+  async sendPurchaseConfirmation(to, data) {
+    const { designTitle, downloadUrl, orderNumber, purchaseDate, previewUrl, sellerName } = data;
+    
+    const result = await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
       to,
-      subject: '¡Compra exitosa! - Market Design',
+      subject: `¡Compra exitosa! #${orderNumber} - Market Design`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #0F2A44;">¡Gracias por tu compra!</h1>
-          <p>Tu diseño <strong>"${designTitle}"</strong> está listo para descargar.</p>
-          <a href="${downloadUrl}" style="display: inline-block; background: #00C2B8; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 16px 0;">
-            Descargar diseño
-          </a>
-          <p style="color: #666; font-size: 14px;">El link de descarga expira en 24 horas. Si necesitás descargarlo de nuevo, hacelo desde tu panel de comprador.</p>
-          <a href="${envs.CORS_ORIGIN}/comprador/panel" style="display: inline-block; background: #0F2A44; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 16px 0;">
-            Ir a mis compras
-          </a>
-          <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-          <p style="color: #999; font-size: 12px;">Market Design - Diseños digitales que hacen crecer tus ideas.</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
+          {/* Header */}
+          <div style="text-align: center; padding: 30px 0; background: linear-gradient(135deg, #0F2A44 0%, #1a3d5c 100%); border-radius: 12px 12px 0 0;">
+            <h1 style="color: #00C2B8; font-size: 28px; margin: 0;">Market Design</h1>
+            <p style="color: #ffffff; margin: 8px 0 0 0; font-size: 14px;">Diseños digitales que hacen crecer tus ideas</p>
+          </div>
+
+          {/* Main content */}
+          <div style="background: white; padding: 30px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h2 style="color: #0F2A44; font-size: 22px; margin: 0 0 8px 0;">¡Gracias por tu compra!</h2>
+            <p style="color: #6b7280; margin: 0 0 24px 0;">Tu diseño está listo para descargar.</p>
+
+            {/* Order info */}
+            <div style="background: #f3f4f6; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: #6b7280; font-size: 14px;">Orden:</span>
+                <span style="color: #0F2A44; font-weight: bold; font-size: 14px;">#${orderNumber}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: #6b7280; font-size: 14px;">Fecha:</span>
+                <span style="color: #0F2A44; font-size: 14px;">${purchaseDate}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #6b7280; font-size: 14px;">Vendedor:</span>
+                <span style="color: #0F2A44; font-size: 14px;">${sellerName}</span>
+              </div>
+            </div>
+
+            {/* Design preview */}
+            ${previewUrl ? `
+            <div style="text-align: center; margin-bottom: 24px;">
+              <img src="${previewUrl}" alt="${designTitle}" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" />
+            </div>
+            ` : ''}
+
+            {/* Design title */}
+            <h3 style="color: #0F2A44; font-size: 18px; text-align: center; margin: 0 0 24px 0;">${designTitle}</h3>
+
+            {/* Download button */}
+            <div style="text-align: center; margin-bottom: 24px;">
+              <a href="${downloadUrl}" style="display: inline-block; background: #00C2B8; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                Descargar diseño
+              </a>
+              <p style="color: #9ca3af; font-size: 12px; margin: 8px 0 0 0;">El link expira en 24 horas</p>
+            </div>
+
+            {/* Review invitation */}
+            <div style="background: #f0fdf4; border-left: 4px solid #22c55e; padding: 16px; margin-bottom: 24px; border-radius: 0 8px 8px 0;">
+              <p style="color: #166534; margin: 0; font-size: 14px;">
+                <strong>¿Te gustó el diseño?</strong> Dejá tu review para ayudar a otros compradores y al vendedor.
+              </p>
+            </div>
+
+            {/* Divider */}
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
+
+            {/* Footer links */}
+            <div style="text-align: center;">
+              <p style="color: #6b7280; font-size: 14px; margin: 0 0 12px 0;">
+                <a href="${envs.CORS_ORIGIN}/comprador/panel" style="color: #00C2B8; text-decoration: none;">Mis compras</a>
+                &nbsp;&nbsp;|&nbsp;&nbsp;
+                <a href="${envs.CORS_ORIGIN}/catalogo" style="color: #00C2B8; text-decoration: none;">Explorar más diseños</a>
+              </p>
+              <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+                ¿Necesitás ayuda? Escribinos a soporte@market-design.com
+              </p>
+            </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div style="text-align: center; padding: 16px 0;">
+            <p style="color: #9ca3af; font-size: 11px; margin: 0;">
+              © ${new Date().getFullYear()} Market Design. Todos los derechos reservados.
+            </p>
+          </div>
         </div>
       `,
     });
+    
+    return result;
   }
 
   async sendRankUpgrade(to, newRank, newCommission) {
@@ -113,7 +180,7 @@ export class MailService {
   }
 
   async sendSaleNotification(to, designTitle, buyerName, price, commission, earnings) {
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
       to,
       subject: '¡Nueva venta! - Market Design',
@@ -135,6 +202,8 @@ export class MailService {
         </div>
       `,
     });
+    
+    return result;
   }
 }
 
