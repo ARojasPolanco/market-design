@@ -299,28 +299,56 @@ export default function SellerDashboard() {
                 <p className="text-sm text-gray-500">{rankInfo.commission}% de comisión</p>
               </div>
             </div>
-            {!isDiamante && (
+
+            {/* Auto ranks (Bronce, Plata, Oro) - show progress */}
+            {rankInfo.type === 'auto' && seller.rank !== 'oro' && (
               <>
                 <div className="mb-4">
                   <div className="flex items-center justify-between text-sm mb-2">
                     <span className="text-gray-500">Progreso al siguiente nivel</span>
-                    <span className="text-gray-700">{stats.totalSales}/{stats.nextLevel.salesNeeded} ventas</span>
+                    <span className="text-gray-700">{stats.totalSales}/{rankInfo.nextLevel?.salesNeeded || 50} ventas</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-brand-teal h-2 rounded-full transition-all"
-                      style={{ width: `${Math.min((stats.totalSales / stats.nextLevel.salesNeeded) * 100, 100)}%` }}
+                      style={{ width: `${Math.min((stats.totalSales / (rankInfo.nextLevel?.salesNeeded || 50)) * 100, 100)}%` }}
                     />
                   </div>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-4">
                   <p className="text-sm text-gray-600">
-                    Te faltan <span className="font-medium text-brand-teal">{stats.nextLevel.salesNeeded - stats.totalSales} ventas</span> para
-                    bajar tu comisión a <span className="font-medium">{stats.nextLevel.rate}%</span>
+                    Te faltan <span className="font-medium text-brand-teal">{Math.max(0, (rankInfo.nextLevel?.salesNeeded || 50) - stats.totalSales)} ventas</span> para
+                    bajar tu comisión a <span className="font-medium">{rankInfo.nextLevel?.rate || 18}%</span>
                   </p>
                 </div>
               </>
             )}
+
+            {/* Oro rank - max auto rank */}
+            {seller.rank === 'oro' && (
+              <div className="bg-yellow-50 rounded-lg p-4">
+                <p className="text-sm text-gray-700 font-medium">
+                  ¡Felicitaciones! Llegaste al rango Oro, el máximo nivel automático. Tu comisión es del 15%.
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Los rangos Platino y Diamante son otorgados por la administración por rendimiento destacado.
+                </p>
+              </div>
+            )}
+
+            {/* Manual ranks (Platino, Diamante) - admin assigned */}
+            {rankInfo.type === 'manual' && !isDiamante && (
+              <div className="bg-gradient-to-r from-brand-teal/5 to-brand-violet/5 rounded-lg p-4">
+                <p className="text-sm text-gray-700 font-medium">
+                  Rango otorgado por la administración por tu excelente rendimiento.
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Tu comisión del {rankInfo.commission}% es de las más bajas de la plataforma.
+                </p>
+              </div>
+            )}
+
+            {/* Diamante special banner */}
             {isDiamante && (
               <div className="bg-gradient-to-r from-brand-teal/10 to-brand-violet/10 rounded-lg p-4">
                 <p className="text-sm text-gray-700 font-medium">

@@ -175,11 +175,11 @@ export function RankBadge({ rank = 'bronce', size = 24, showLabel = true }) {
 
 export function getRankInfo(rank) {
   const ranks = {
-    bronce: { name: 'Bronce', commission: 20, color: '#CD7F32', type: 'auto', salesNeeded: 0 },
-    plata: { name: 'Plata', commission: 18, color: '#808080', type: 'auto', salesNeeded: 50 },
-    oro: { name: 'Oro', commission: 15, color: '#DAA520', type: 'auto', salesNeeded: 200 },
-    platino: { name: 'Platino', commission: 12, color: '#5AABAB', type: 'manual', salesNeeded: 0 },
-    diamante: { name: 'Diamante', commission: 10, color: '#00C2B8', type: 'manual', salesNeeded: 0 },
+    bronce: { name: 'Bronce', commission: 20, color: '#CD7F32', type: 'auto', salesNeeded: 0, nextLevel: { name: 'Plata', rate: 18, salesNeeded: 50 } },
+    plata: { name: 'Plata', commission: 18, color: '#808080', type: 'auto', salesNeeded: 50, nextLevel: { name: 'Oro', rate: 15, salesNeeded: 200 } },
+    oro: { name: 'Oro', commission: 15, color: '#DAA520', type: 'auto', salesNeeded: 200, nextLevel: null },
+    platino: { name: 'Platino', commission: 12, color: '#5AABAB', type: 'manual', salesNeeded: 0, nextLevel: null },
+    diamante: { name: 'Diamante', commission: 10, color: '#00C2B8', type: 'manual', salesNeeded: 0, nextLevel: null },
   };
   return ranks[rank] || ranks.bronce;
 }
