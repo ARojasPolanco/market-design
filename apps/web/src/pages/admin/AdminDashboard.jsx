@@ -1312,8 +1312,8 @@ function DesignsSection() {
       setPauseModal(null);
       setPauseReason('');
       fetchDesigns();
-    } catch (_err) {
-      showToast('Error al pausar el diseño', { type: 'error' });
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al pausar el diseño', { type: 'error' });
     }
   };
 
@@ -1322,8 +1322,8 @@ function DesignsSection() {
       await api.patch(`/v1/admin/designs/${designId}/unpause`);
       showToast('Diseño reactivado', { type: 'success' });
       fetchDesigns();
-    } catch (_err) {
-      showToast('Error al reactivar el diseño', { type: 'error' });
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al reactivar el diseño', { type: 'error' });
     }
   };
 
