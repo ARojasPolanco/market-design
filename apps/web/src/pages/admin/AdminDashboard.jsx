@@ -85,6 +85,7 @@ export default function AdminDashboard() {
       <div className="flex gap-1 border-b mb-6 overflow-x-auto">
         {[
           { id: 'pending', label: `Pendientes (${pending.length})`, icon: Clock },
+          { id: 'designs', label: 'Diseños', icon: Eye },
           { id: 'users', label: 'Usuarios', icon: Users },
           {
             id: 'reports',
@@ -124,6 +125,9 @@ export default function AdminDashboard() {
           )}
         </div>
       )}
+
+      {/* Designs management */}
+      {activeTab === 'designs' && <DesignsSection />}
 
       {/* Users */}
       {activeTab === 'users' && <UsersSection />}
@@ -1270,6 +1274,193 @@ function TechniquesSection() {
       <p className="text-xs text-gray-400 mt-4">
         {techniques.length} {techniques.length === 1 ? 'técnica' : 'técnicas'} en total
       </p>
+    </div>
+  );
+}
+
+function DesignsSection() {
+  const [designs, setDesigns] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [filter, setFilter] = useState('approved');
+  const [pauseModal, setPauseModal] = useState(null);
+  const [pauseReason, setPauseReason] = useState('');
+  const { showToast } = useToast();
+
+  useEffect(() => {
+    fetchDesigns();
+  }, [filter]);
+
+  const fetchDesigns = async () => {
+    setIsLoading(true);
+    try {
+      let url = '/v1/designs?limit=50';
+      if (filter !== 'all') url += `&status=${filter}`;
+      const res = await api.get(url);
+      setDesigns(res.data.designs || []);
+    } catch (err) {
+      logger.error('Error fetching designs:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePause = async () => {
+    if (!pauseReason.trim() || pauseReason.trim().length < 10) return;
+    try {
+      await api.patch(`/v1/admin/designs/${pauseModal.id}/pause`, { reason: pauseReason });
+      showToast('Diseño pausado correctamente', { type: 'success' });
+      setPauseModal(null);
+      setPauseReason('');
+      fetchDesigns();
+    } catch (_err) {
+      showToast('Error al pausar el diseño', { type: 'error' });
+    }
+  };
+
+  const handleUnpause = async (designId) => {
+    try {
+      await api.patch(`/v1/admin/designs/${designId}/unpause`);
+      showToast('Diseño reactivado', { type: 'success' });
+      fetchDesigns();
+    } catch (_err) {
+      showToast('Error al reactivar el diseño', { type: 'error' });
+    }
+  };
+
+  return (
+    <div>
+      {/* Filter */}
+      <div className="flex gap-2 mb-4">
+        {[
+          { id: 'approved', label: 'Aprobados' },
+          { id: 'paused', label: 'Pausados' },
+          { id: 'all', label: 'Todos' },
+        ].map((f) => (
+          <button
+            key={f.id}
+            onClick={() => setFilter(f.id)}
+            className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+              filter === f.id
+                ? 'bg-dark text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {isLoading ? (
+        <div className="text-center py-8">
+          <div className="animate-spin w-8 h-8 border-4 border-brand-teal border-t-transparent rounded-full mx-auto" />
+        </div>
+      ) : designs.length > 0 ? (
+        <div className="space-y-3">
+          {designs.map((design) => (
+            <div key={design.id} className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-4">
+              <Link to={`/diseno/${design.id}`} className="shrink-0">
+                <img
+                  src={design.previewUrl}
+                  alt={design.title}
+                  className="w-16 h-16 rounded-lg object-cover"
+                />
+              </Link>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-gray-900 truncate">{design.title}</h3>
+                <p className="text-sm text-gray-500">
+                  {design.seller?.storeName || design.seller?.username} · ${Number(design.price).toLocaleString()}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {design.categorySuggested || 'Sin categoría'} · {design.technique}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  design.status === 'approved'
+                    ? 'bg-green-50 text-green-700'
+                    : design.status === 'paused'
+                    ? 'bg-yellow-50 text-yellow-700'
+                    : 'bg-gray-50 text-gray-700'
+                }`}>
+                  {design.status === 'approved' ? 'Aprobado' : design.status === 'paused' ? 'Pausado' : design.status}
+                </span>
+                {design.status === 'approved' && (
+                  <button
+                    onClick={() => setPauseModal(design)}
+                    className="text-xs px-3 py-1.5 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors"
+                  >
+                    Pausar
+                  </button>
+                )}
+                {design.status === 'paused' && (
+                  <button
+                    onClick={() => handleUnpause(design.id)}
+                    className="text-xs px-3 py-1.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+                  >
+                    Reactivar
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <Eye size={48} className="mx-auto text-gray-300 mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Sin diseños</h3>
+          <p className="text-gray-500">No hay diseños en esta categoría.</p>
+        </div>
+      )}
+
+      {/* Pause modal */}
+      {pauseModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <AlertTriangle size={20} className="text-yellow-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Pausar diseño</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">
+              Diseño: <span className="font-medium">{pauseModal.title}</span>
+            </p>
+            <p className="text-sm text-gray-500 mb-4">
+              El diseño dejará de ser visible para los compradores hasta que lo reactives.
+            </p>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Motivo de la pausa <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                value={pauseReason}
+                onChange={(e) => setPauseReason(e.target.value)}
+                placeholder="Explicá por qué se pausa este diseño. El vendedor recibirá este motivo por email."
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500 resize-none"
+                rows={3}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Mínimo 10 caracteres. El vendedor recibirá un email con el motivo y un número de ticket.
+              </p>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => { setPauseModal(null); setPauseReason(''); }}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handlePause}
+                disabled={pauseReason.trim().length < 10}
+                className="px-4 py-2 bg-yellow-600 text-white rounded-lg text-sm font-medium hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Pausar diseño
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
