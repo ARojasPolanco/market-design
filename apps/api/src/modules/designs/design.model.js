@@ -39,7 +39,7 @@ Design.init(
       field: 'category_suggested',
     },
     technique: {
-      type: DataTypes.ENUM('sublimado', 'estampado', 'vinilo', 'dtf', 'otro'),
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
     status: {
