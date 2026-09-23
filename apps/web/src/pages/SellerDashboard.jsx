@@ -16,6 +16,8 @@ import {
   Award,
   Zap,
   Target,
+  Download,
+  Package,
 } from 'lucide-react';
 import BackButton from '../components/BackButton.jsx';
 import CommissionInfo from '../components/CommissionInfo.jsx';
@@ -23,11 +25,13 @@ import {
   useSellerSales,
   useSellerDesigns,
   useSellerRatings,
+  usePurchases,
 } from '../hooks/useDesigns.js';
 import { useCurrentSeller } from '../hooks/useSeller.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import api from '../config/api.js';
+import logger from '../utils/logger.js';
 import RatingStars from '../components/RatingStars.jsx';
 import { RankBadge, getRankInfo } from '../components/RankBadge.jsx';
 
@@ -35,9 +39,11 @@ export default function SellerDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [deleteModal, setDeleteModal] = useState(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [downloading, setDownloading] = useState(null);
   const { sales, stats } = useSellerSales();
   const { designs: myDesigns, refetch: refetchDesigns } = useSellerDesigns();
   const { ratings } = useSellerRatings();
+  const { purchases } = usePurchases();
   const approved = myDesigns.filter((d) => d.status === 'approved');
   const pending = myDesigns.filter((d) => d.status === 'pending');
   const rejected = myDesigns.filter((d) => d.status === 'rejected');
@@ -54,6 +60,27 @@ export default function SellerDashboard() {
       refetchDesigns();
     } catch (_err) {
       showToast('Error al eliminar el diseño', { type: 'error' });
+    }
+  };
+
+  const handleDownload = async (purchaseId) => {
+    setDownloading(purchaseId);
+    try {
+      const res = await api.post(`/v1/purchases/${purchaseId}/redownload`);
+      const { downloadUrl, fileName } = res.data;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = fileName || 'diseno.zip';
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Descarga iniciada', { type: 'success' });
+    } catch (err) {
+      logger.error('Download error:', err);
+      showToast(err.response?.data?.message || 'Error al descargar', { type: 'error' });
+    } finally {
+      setDownloading(null);
     }
   };
 
@@ -228,6 +255,7 @@ export default function SellerDashboard() {
           { id: 'pending', label: `Pendientes (${pending.length})`, tooltip: 'Acá podés ver tus diseños que están pendientes de revisión' },
           { id: 'rejected', label: `Rechazados (${rejected.length})`, tooltip: 'Acá podés ver los diseños que fueron rechazados' },
           { id: 'sales', label: 'Ventas', tooltip: 'Acá podés ver tu historial de ventas y ganancias' },
+          { id: 'purchases', label: `Mis compras (${purchases.length})`, tooltip: 'Acá podés ver los diseños que compraste' },
           { id: 'profile', label: 'Mi perfil', tooltip: 'Acá podés editar tu perfil de vendedor' },
         ].map((tab) => (
           <div key={tab.id} className="relative flex">
@@ -536,6 +564,83 @@ export default function SellerDashboard() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* My Purchases tab */}
+      {activeTab === 'purchases' && (
+        <div className="space-y-4">
+          {purchases.length > 0 ? (
+            purchases.map((purchase) => (
+              <div key={purchase.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div className="flex flex-col sm:flex-row">
+                  <div className="sm:w-32 sm:h-32 h-48 shrink-0">
+                    <img
+                      src={purchase.design?.previewUrl || '/designs/lobo-geometrico.png'}
+                      alt={purchase.design?.title || 'Diseño'}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 p-4 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <Link
+                            to={`/diseno/${purchase.designId}`}
+                            className="font-semibold text-gray-900 hover:text-brand-teal"
+                          >
+                            {purchase.design?.title || 'Diseño'}
+                          </Link>
+                          <p className="text-sm text-gray-500">
+                            {purchase.design?.seller?.storeName || 'Vendedor'}
+                          </p>
+                        </div>
+                        <span className="text-lg font-bold text-gray-900">
+                          ${Number(purchase.price).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <span>
+                          Comprado el{' '}
+                          {new Date(purchase.createdAt).toLocaleDateString('es-AR')}
+                        </span>
+                        <span>·</span>
+                        <span>{purchase.downloadCount || 0} descargas</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 mt-4">
+                      <button
+                        onClick={() => handleDownload(purchase.id)}
+                        disabled={downloading === purchase.id}
+                        className="flex items-center gap-2 bg-brand-teal text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-teal-dark transition-colors disabled:opacity-50"
+                      >
+                        <Download size={16} />
+                        {downloading === purchase.id ? 'Descargando...' : 'Descargar'}
+                      </button>
+                      <Link
+                        to={`/diseno/${purchase.designId}`}
+                        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 text-sm"
+                      >
+                        Ver diseño <ChevronRight size={14} />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-12">
+              <Package size={48} className="mx-auto text-gray-300 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No tenés compras</h3>
+              <p className="text-gray-500 mb-4">Explorá el catálogo y encontrá diseños increíbles.</p>
+              <Link
+                to="/catalogo"
+                className="inline-flex items-center gap-2 bg-dark text-white px-6 py-3 rounded-lg font-medium hover:bg-dark-light transition-colors"
+              >
+                Explorar catálogo
+              </Link>
+            </div>
+          )}
         </div>
       )}
 
