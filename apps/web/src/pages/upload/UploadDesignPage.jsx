@@ -334,20 +334,20 @@ export default function UploadDesignPage() {
                     }`}
                   >
                     {previewUrls[index] ? (
-                      <div className="relative w-full h-full">
+                      <div className="relative w-full h-full flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
                         <img
                           src={previewUrls[index]}
                           alt={`Preview ${index + 1}`}
-                          className="w-full h-full object-cover rounded-lg"
+                          className="max-w-full max-h-full object-contain"
                         />
                         <button
                           onClick={() => removePreview(index)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 z-10"
                         >
                           <X size={12} />
                         </button>
                         {index === 0 && (
-                          <span className="absolute bottom-2 left-2 bg-dark text-white text-xs px-2 py-1 rounded-full">
+                          <span className="absolute bottom-2 left-2 bg-dark text-white text-xs px-2 py-1 rounded-full z-10">
                             Principal
                           </span>
                         )}
