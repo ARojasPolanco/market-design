@@ -76,23 +76,19 @@ export class MailService {
       subject: `🚨 Diseño pausado - ACCIÓN REQUERIDA - Ticket ${ticketId}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          {/* Alert header */}
           <div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
             <div style="font-size: 48px; margin-bottom: 8px;">🚨</div>
             <h1 style="color: white; font-size: 24px; margin: 0;">DISEÑO PAUSADO</h1>
             <p style="color: #fecaca; margin: 8px 0 0 0; font-size: 14px;">Acción requerida de tu parte</p>
           </div>
 
-          {/* Main content */}
           <div style="background: white; padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
-            {/* Design info */}
             <div style="background: #fef2f2; border-left: 4px solid #dc2626; padding: 16px; margin-bottom: 20px; border-radius: 0 8px 8px 0;">
               <p style="margin: 0; color: #991b1b; font-weight: bold; font-size: 16px;">
                 Tu diseño "${designTitle}" fue pausado
               </p>
             </div>
 
-            {/* Impact warning */}
             <div style="background: #fffbeb; border: 2px solid #f59e0b; padding: 16px; margin-bottom: 20px; border-radius: 8px; text-align: center;">
               <p style="margin: 0; color: #92400e; font-weight: bold; font-size: 15px;">
                 ⚠️ Tu diseño NO está visible para los compradores
@@ -102,7 +98,6 @@ export class MailService {
               </p>
             </div>
 
-            {/* Reason */}
             <div style="margin-bottom: 20px;">
               <p style="color: #374151; font-weight: bold; margin: 0 0 8px 0;">Motivo de la pausa:</p>
               <div style="background: #f3f4f6; padding: 12px; border-radius: 8px;">
@@ -110,14 +105,12 @@ export class MailService {
               </div>
             </div>
 
-            {/* Ticket ID */}
             <div style="background: #0F2A44; padding: 16px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
               <p style="color: #94a3b8; margin: 0 0 4px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Número de ticket</p>
               <p style="color: #00C2B8; margin: 0; font-size: 28px; font-weight: bold; letter-spacing: 2px;">${ticketId}</p>
               <p style="color: #94a3b8; margin: 8px 0 0 0; font-size: 11px;">Guardá este número para tu consulta</p>
             </div>
 
-            {/* Action steps */}
             <div style="margin-bottom: 20px;">
               <p style="color: #374151; font-weight: bold; margin: 0 0 12px 0;">¿Qué tenés que hacer?</p>
               <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
@@ -138,21 +131,18 @@ export class MailService {
               </div>
             </div>
 
-            {/* CTA Button */}
             <div style="text-align: center; margin-bottom: 20px;">
               <a href="mailto:soporte@market-design.com?subject=Reactivación%20diseño%20-%20Ticket%20${ticketId}&body=Hola,%0A%0AMi%20número%20de%20ticket%20es:%20${ticketId}%0A%0A" style="display: inline-block; background: #dc2626; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
                 📧 Contactar soporte ahora
               </a>
             </div>
 
-            {/* Time warning */}
             <div style="background: #fef2f2; padding: 12px; border-radius: 8px; text-align: center;">
               <p style="margin: 0; color: #991b1b; font-size: 13px; font-weight: bold;">
                 ⏰ Mientras tu diseño esté pausado, no recibís ventas
               </p>
             </div>
 
-            {/* Footer */}
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
             <p style="color: #9ca3af; font-size: 11px; text-align: center; margin: 0;">
               Este es un email automático de Market Design. No respondas directamente a este email.
