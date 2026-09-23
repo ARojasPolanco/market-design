@@ -22,12 +22,8 @@ export const createDesignSchema = z.object({
     .max(100, 'La categoría sugerida no puede exceder 100 caracteres'),
   technique: z
     .string()
-    .toLowerCase()
-    .pipe(
-      z.enum(TECHNIQUES, {
-        errorMap: () => ({ message: `Técnica inválida. Opciones: ${TECHNIQUES.join(', ')}` }),
-      })
-    ),
+    .min(2, 'La técnica debe tener al menos 2 caracteres')
+    .max(50, 'La técnica no puede exceder 50 caracteres'),
 });
 
 export const updateDesignSchema = z.object({
