@@ -1281,7 +1281,7 @@ function TechniquesSection() {
 function DesignsSection() {
   const [designs, setDesigns] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState('approved');
+  const [filter, setFilter] = useState('all');
   const [pauseModal, setPauseModal] = useState(null);
   const [pauseReason, setPauseReason] = useState('');
   const { showToast } = useToast();
