@@ -1,5 +1,14 @@
 export async function up({ context: queryInterface }) {
-  // Add columns only if they don't exist
+  // Add 'paused' to the design_status ENUM
+  try {
+    await queryInterface.sequelize.query(
+      "ALTER TYPE design_status ADD VALUE IF NOT EXISTS 'paused'"
+    );
+  } catch (e) {
+    // Value might already exist
+  }
+
+  // Add pause fields if they don't exist
   const columns = await queryInterface.sequelize.query(
     "SELECT column_name FROM information_schema.columns WHERE table_name = 'designs' AND column_name IN ('pause_reason', 'paused_at', 'paused_by', 'ticket_id')"
   );
