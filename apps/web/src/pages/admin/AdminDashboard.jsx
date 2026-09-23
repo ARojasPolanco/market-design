@@ -279,8 +279,34 @@ function ModerationCard({ design, onAction }) {
   const [rejectReason, setRejectReason] = useState('');
   const [showSuccess, setShowSuccess] = useState(null);
   const [assignedCategory, setAssignedCategory] = useState('');
+  const [showCategoryWarning, setShowCategoryWarning] = useState(false);
 
   const handleApprove = async () => {
+    // Check if category is assigned
+    if (!assignedCategory && !design.category) {
+      setShowCategoryWarning(true);
+      return;
+    }
+    
+    try {
+      // If category was assigned, update the design first
+      if (assignedCategory) {
+        await api.patch(`/v1/designs/${design.id}`, { category: assignedCategory});
+      }
+      
+      await api.patch(`/v1/designs/${design.id}/approve`);
+      setShowSuccess('approved');
+      setTimeout(() => {
+        setShowSuccess(null);
+        onAction?.();
+      }, 1500);
+    } catch (err) {
+      logger.error('Error approving design:', err);
+    }
+  };
+
+  const confirmApproveWithoutCategory = async () => {
+    setShowCategoryWarning(false);
     try {
       await api.patch(`/v1/designs/${design.id}/approve`);
       setShowSuccess('approved');
@@ -477,6 +503,37 @@ function ModerationCard({ design, onAction }) {
                 className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Confirmar rechazo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Category warning modal */}
+      {showCategoryWarning && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <AlertTriangle size={20} className="text-yellow-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Sin categoría asignada</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-6">
+              Este diseño no tiene una categoría asignada. ¿Estás seguro de que querés aprobarlo sin categoría?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCategoryWarning(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancelar y asignar
+              </button>
+              <button
+                onClick={confirmApproveWithoutCategory}
+                className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg text-sm font-medium hover:bg-yellow-700 transition-colors"
+              >
+                Aprobar sin categoría
               </button>
             </div>
           </div>
