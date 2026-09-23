@@ -54,7 +54,7 @@ export const queryDesignSchema = z.object({
     .toLowerCase()
     .pipe(z.enum(TECHNIQUES))
     .optional(),
-  status: z.enum(['pending', 'approved', 'rejected']).optional(),
+  status: z.enum(['pending', 'approved', 'rejected', 'paused']).optional(),
   priceMin: z.coerce.number().positive().optional(),
   priceMax: z.coerce.number().positive().optional(),
   search: z.string().max(200).optional(),
