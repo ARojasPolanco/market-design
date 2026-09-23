@@ -1387,16 +1387,18 @@ function DesignsSection() {
                 {design.status === 'approved' && (
                   <button
                     onClick={() => setPauseModal(design)}
-                    className="text-xs px-3 py-1.5 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors"
+                    className="flex items-center gap-1.5 text-xs px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-medium shadow-sm"
                   >
+                    <Clock size={14} />
                     Pausar
                   </button>
                 )}
                 {design.status === 'paused' && (
                   <button
                     onClick={() => handleUnpause(design.id)}
-                    className="text-xs px-3 py-1.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+                    className="flex items-center gap-1.5 text-xs px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm"
                   >
+                    <CheckCircle size={14} />
                     Reactivar
                   </button>
                 )}

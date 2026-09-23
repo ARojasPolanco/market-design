@@ -114,19 +114,19 @@ export class MailService {
             <div style="margin-bottom: 20px;">
               <p style="color: #374151; font-weight: bold; margin: 0 0 12px 0;">¿Qué tenés que hacer?</p>
               <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
-                <div style="background: #dc2626; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0;">1</div>
+                <div style="background: #dc2626; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; line-height: 24px; text-align: center;">1</div>
                 <p style="margin: 0; color: #4b5563; font-size: 14px;">Contactanos por email a <strong>soporte@market-design.com</strong></p>
               </div>
               <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
-                <div style="background: #dc2626; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0;">2</div>
+                <div style="background: #dc2626; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; line-height: 24px; text-align: center;">2</div>
                 <p style="margin: 0; color: #4b5563; font-size: 14px;">Mencioná el número de ticket: <strong>${ticketId}</strong></p>
               </div>
               <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
-                <div style="background: #dc2626; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0;">3</div>
+                <div style="background: #dc2626; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; line-height: 24px; text-align: center;">3</div>
                 <p style="margin: 0; color: #4b5563; font-size: 14px;">Respondé al motivo de la pausa con tu explicación</p>
               </div>
               <div style="display: flex; align-items: flex-start; gap: 12px;">
-                <div style="background: #16a34a; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0;">4</div>
+                <div style="background: #16a34a; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; line-height: 24px; text-align: center;">4</div>
                 <p style="margin: 0; color: #4b5563; font-size: 14px;">Una vez resuelto, reactivamos tu diseño</p>
               </div>
             </div>
