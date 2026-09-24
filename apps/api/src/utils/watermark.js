@@ -1,9 +1,5 @@
 import sharp from 'sharp';
 
-/**
- * Generate a watermarked preview from a design file
- * Based on user's calibrated values - do NOT modify without seeing the result first
- */
 export async function generateWatermarkedPreview(fileBuffer) {
   const image = sharp(fileBuffer);
   const metadata = await image.metadata();
@@ -15,21 +11,24 @@ export async function generateWatermarkedPreview(fileBuffer) {
     .resize(targetWidth, targetHeight)
     .toBuffer();
 
-  // VALORES FIJOS - no cambiar sin ver el resultado primero
-  const patternWidth = 300;
-  const patternHeight = 220;
-  const fontSize = 26;
+  const patternWidth = 220;
+  const patternHeight = 160;
+  const fontSize = 24;
   const fontWeight = 400;
-  const opacity = 0.15;
-  const rotation = -30;
-  const textColor = '#4a4a4a';
+  const opacity = 0.28;
+  const rotation = -28;
+  const textColor = '#6366F1';
 
   const watermarkSvg = `
     <svg width="${targetWidth}" height="${targetHeight}" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <pattern id="watermarkPattern" patternUnits="userSpaceOnUse"
                  width="${patternWidth}" height="${patternHeight}" patternTransform="rotate(${rotation})">
-          <text x="15" y="${patternHeight / 2}" font-family="Arial, sans-serif" font-size="${fontSize}"
+          <g fill="none" stroke="${textColor}" stroke-opacity="${opacity}" stroke-width="2">
+            <rect x="0" y="8" width="18" height="16" rx="3" />
+            <path d="M 3 8 A 6 6 0 0 1 15 8" />
+          </g>
+          <text x="24" y="${patternHeight / 2}" font-family="Arial, sans-serif" font-size="${fontSize}"
                 font-weight="${fontWeight}" fill="${textColor}" fill-opacity="${opacity}">
             Market Design
           </text>
