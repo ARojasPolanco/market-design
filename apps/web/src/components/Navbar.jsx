@@ -85,7 +85,7 @@ export default function Navbar() {
               <div className="relative" ref={notifRef}>
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
-                  className="relative text-gray-600 hover:text-gray-900"
+                  className="relative text-gray-600 hover:text-gray-900 p-0 border-0 bg-transparent cursor-pointer"
                 >
                   <Bell size={20} />
                   {unreadCount > 0 && (
