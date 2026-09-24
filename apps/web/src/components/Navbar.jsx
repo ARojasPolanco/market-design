@@ -1,15 +1,30 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Heart, Menu, X, User } from 'lucide-react';
-import { useState } from 'react';
+import { Search, Heart, Menu, X, User, Bell } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useFavorites } from '../context/FavoritesContext.jsx';
+import { useNotifications } from '../hooks/useNotifications.js';
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showNotifications, setShowNotifications] = useState(false);
   const { user, logout } = useAuth();
   const { favorites } = useFavorites();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const navigate = useNavigate();
+  const notifRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -66,6 +81,57 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
+            {user && (
+              <div className="relative" ref={notifRef}>
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="relative text-gray-600 hover:text-gray-900"
+                >
+                  <Bell size={20} />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-brand-teal text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+                {showNotifications && (
+                  <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50 max-h-96 overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-3 border-b">
+                      <h3 className="font-semibold text-gray-900">Notificaciones</h3>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={markAllAsRead}
+                          className="text-xs text-brand-teal hover:underline"
+                        >
+                          Marcar todas como leídas
+                        </button>
+                      )}
+                    </div>
+                    <div className="overflow-y-auto max-h-72">
+                      {notifications.length > 0 ? (
+                        notifications.map((notif) => (
+                          <div
+                            key={notif.id}
+                            onClick={() => !notif.isRead && markAsRead(notif.id)}
+                            className={`px-4 py-3 border-b last:border-0 cursor-pointer hover:bg-gray-50 transition-colors ${
+                              !notif.isRead ? 'bg-blue-50' : ''
+                            }`}
+                          >
+                            <p className="text-sm font-medium text-gray-900">{notif.title}</p>
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-2">{notif.message}</p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              {new Date(notif.createdAt).toLocaleDateString('es-AR')}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500 text-center py-8">No tenés notificaciones</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             {user ? (
               <div className="flex items-center gap-4">
                 <Link

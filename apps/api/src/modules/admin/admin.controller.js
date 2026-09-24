@@ -1,5 +1,6 @@
 import { adminService } from './admin.service.js';
 import { designService } from '../designs/design.service.js';
+import { notificationService } from '../notifications/notification.service.js';
 import { mailService } from '../../config/resend/resend.js';
 import { r2Storage } from '../../config/r2/r2.js';
 import { catchAsync } from '../../errors/catchAsync.js';
@@ -16,14 +17,17 @@ export const approveDesign = catchAsync(async (req, res, next) => {
 
   const approved = await adminService.approveDesign(req.params.id, req.sessionUser.id);
 
-  // Send email to seller
+  // Create notification for seller
   try {
-    const seller = design.seller;
-    if (seller?.email) {
-      await mailService.sendDesignApproved(seller.email, design.title);
-    }
-  } catch (mailError) {
-    console.error('Error sending approval email:', mailError);
+    await notificationService.create({
+      userId: design.sellerId,
+      type: 'approved',
+      title: '¡Diseño aprobado!',
+      message: `Tu diseño "${design.title}" fue aprobado y ya está publicado en el marketplace.`,
+      designId: design.id,
+    });
+  } catch (notifError) {
+    console.error('Error creating notification:', notifError);
   }
 
   res.status(200).json({
@@ -48,14 +52,17 @@ export const rejectDesign = catchAsync(async (req, res, next) => {
 
   const rejected = await adminService.rejectDesign(req.params.id, req.sessionUser.id, reason);
 
-  // Send email to seller
+  // Create notification for seller
   try {
-    const seller = design.seller;
-    if (seller?.email) {
-      await mailService.sendDesignRejected(seller.email, design.title, reason);
-    }
-  } catch (mailError) {
-    console.error('Error sending rejection email:', mailError);
+    await notificationService.create({
+      userId: design.sellerId,
+      type: 'rejected',
+      title: 'Diseño rechazado',
+      message: `Tu diseño "${design.title}" fue rechazado. Motivo: ${reason}`,
+      designId: design.id,
+    });
+  } catch (notifError) {
+    console.error('Error creating notification:', notifError);
   }
 
   res.status(200).json({
@@ -82,6 +89,19 @@ export const pauseDesign = catchAsync(async (req, res, next) => {
   const ticketId = `MD-${String(Date.now()).slice(-6)}`;
 
   const paused = await designService.pause(req.params.id, req.sessionUser.id, reason, ticketId);
+
+  // Create notification for seller
+  try {
+    await notificationService.create({
+      userId: design.sellerId,
+      type: 'paused',
+      title: 'Diseño pausado - Acción requerida',
+      message: `Tu diseño "${design.title}" fue pausado. Ticket: ${ticketId}. Motivo: ${reason}`,
+      designId: design.id,
+    });
+  } catch (notifError) {
+    console.error('Error creating notification:', notifError);
+  }
 
   // Send email to seller
   try {

@@ -5,6 +5,7 @@ import purchasesRouter from '../modules/purchases/purchase.route.js';
 import favoritesRouter from '../modules/favorites/favorite.route.js';
 import adminRouter from '../modules/admin/admin.route.js';
 import badgesRouter from '../modules/badges/badge.route.js';
+import notificationsRouter from '../modules/notifications/notification.route.js';
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use('/purchases', purchasesRouter);
 router.use('/favorites', favoritesRouter);
 router.use('/admin', adminRouter);
 router.use('/badges', badgesRouter);
+router.use('/notifications', notificationsRouter);
 
 export default router;
