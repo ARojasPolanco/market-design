@@ -6,8 +6,13 @@ export function useNotifications() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const token = localStorage.getItem('token');
 
   const fetchNotifications = async () => {
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
     try {
       const res = await api.get('/v1/notifications');
       setNotifications(res.data.notifications || []);
@@ -21,10 +26,11 @@ export function useNotifications() {
 
   useEffect(() => {
     fetchNotifications();
+    if (!token) return;
     // Poll every 30 seconds
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [token]);
 
   const markAsRead = async (id) => {
     try {
