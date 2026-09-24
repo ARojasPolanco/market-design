@@ -82,7 +82,7 @@ export default function Navbar() {
               )}
             </Link>
             {user && (
-              <div className="relative" ref={notifRef}>
+              <div className="relative flex items-center" ref={notifRef}>
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
                   className="relative text-gray-600 hover:text-gray-900 p-0 border-0 bg-transparent cursor-pointer"
