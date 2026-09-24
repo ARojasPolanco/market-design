@@ -19,6 +19,7 @@ import {
   Pencil,
   Trash2,
   Wrench,
+  Download,
 } from 'lucide-react';
 import { useAdminStats, usePendingDesigns, useAdminReports, useAdminUsers } from '../../hooks/useDesigns.js';
 import { useCategories } from '../../hooks/useCategories.js';
@@ -284,6 +285,8 @@ function ModerationCard({ design, onAction }) {
   const [showSuccess, setShowSuccess] = useState(null);
   const [assignedCategory, setAssignedCategory] = useState('');
   const [showCategoryWarning, setShowCategoryWarning] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const { showToast } = useToast();
 
   const handleApprove = async () => {
     // Check if category is assigned
@@ -336,6 +339,26 @@ function ModerationCard({ design, onAction }) {
       }, 1500);
     } catch (err) {
       logger.error('Error rejecting design:', err);
+    }
+  };
+
+  const handleDownloadOriginal = async () => {
+    setDownloading(true);
+    try {
+      const res = await api.get(`/v1/admin/designs/${design.id}/download`);
+      const { downloadUrl, fileName } = res.data;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = fileName || 'archivo-original.zip';
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Descarga iniciada', { type: 'success' });
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al descargar el archivo', { type: 'error' });
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -452,6 +475,15 @@ function ModerationCard({ design, onAction }) {
               >
                 <XCircle size={16} /> Rechazar
               </button>
+              {design.originalFileKey && (
+                <button
+                  onClick={handleDownloadOriginal}
+                  disabled={downloading}
+                  className="flex items-center gap-1 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors disabled:opacity-50"
+                >
+                  <Download size={16} /> {downloading ? 'Descargando...' : 'Descargar archivo original'}
+                </button>
+              )}
             </div>
           </div>
         </div>

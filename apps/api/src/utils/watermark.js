@@ -19,19 +19,24 @@ export async function generateWatermarkedPreview(fileBuffer) {
   const rotation = -28;
   const textColor = '#6366F1';
 
+  // Icon positioned inline with text, centered vertically
+  // Icon is 80% of text height, aligned at middle
   const watermarkSvg = `
     <svg width="${targetWidth}" height="${targetHeight}" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <pattern id="watermarkPattern" patternUnits="userSpaceOnUse"
                  width="${patternWidth}" height="${patternHeight}" patternTransform="rotate(${rotation})">
-          <g fill="none" stroke="${textColor}" stroke-opacity="${opacity}" stroke-width="2">
-            <rect x="0" y="8" width="18" height="16" rx="3" />
-            <path d="M 3 8 A 6 6 0 0 1 15 8" />
+          <g transform="translate(0, ${patternHeight / 2 - 10})">
+            <g fill="none" stroke="${textColor}" stroke-opacity="${opacity}" stroke-width="2">
+              <rect x="0" y="0" width="16" height="14" rx="2" />
+              <path d="M 2 0 A 5 5 0 0 1 14 0" />
+            </g>
+            <text x="22" y="12" font-family="Arial, sans-serif" font-size="${fontSize}"
+                  font-weight="${fontWeight}" fill="${textColor}" fill-opacity="${opacity}"
+                  dominant-baseline="middle">
+              Market Design
+            </text>
           </g>
-          <text x="24" y="${patternHeight / 2}" font-family="Arial, sans-serif" font-size="${fontSize}"
-                font-weight="${fontWeight}" fill="${textColor}" fill-opacity="${opacity}">
-            Market Design
-          </text>
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill="url(#watermarkPattern)" />
