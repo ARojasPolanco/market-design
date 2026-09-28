@@ -145,7 +145,7 @@ export class DesignService {
     return await design.update({ viewCount: design.viewCount + 1 });
   }
 
-  async approve(id, adminId) {
+  async approve(id, adminId, additionalData = {}) {
     const design = await Design.findByPk(id);
     if (!design) return null;
     return await design.update({
@@ -153,6 +153,7 @@ export class DesignService {
       approvedAt: new Date(),
       approvedBy: adminId,
       rejectionReason: null,
+      ...additionalData,
     });
   }
 

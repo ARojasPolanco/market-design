@@ -296,12 +296,13 @@ function ModerationCard({ design, onAction }) {
     }
     
     try {
-      // If category was assigned, update the design first
+      // Send category with approve call
+      const approveData = {};
       if (assignedCategory) {
-        await api.patch(`/v1/designs/${design.id}`, { category: assignedCategory});
+        approveData.category = assignedCategory;
       }
       
-      await api.patch(`/v1/designs/${design.id}/approve`);
+      await api.patch(`/v1/designs/${design.id}/approve`, approveData);
       setShowSuccess('approved');
       setTimeout(() => {
         setShowSuccess(null);

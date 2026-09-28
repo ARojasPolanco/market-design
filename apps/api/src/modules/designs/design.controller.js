@@ -187,7 +187,13 @@ export const approveDesign = catchAsync(async (req, res, next) => {
     return next(new AppError('Este diseño no está pendiente de aprobación.', 400));
   }
 
-  const approved = await designService.approve(req.params.id, req.sessionUser.id);
+  // Assign category if provided
+  const updateData = {};
+  if (req.body.category) {
+    updateData.category = req.body.category.toLowerCase();
+  }
+
+  const approved = await designService.approve(req.params.id, req.sessionUser.id, updateData);
 
   // Create notification for seller
   try {
