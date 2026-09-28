@@ -1,4 +1,5 @@
 import { designService } from './design.service.js';
+import { notificationService } from '../notifications/notification.service.js';
 import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
 import { validateCreateDesign, validateUpdateDesign, validateQueryDesign } from './design.schema.js';
@@ -188,6 +189,19 @@ export const approveDesign = catchAsync(async (req, res, next) => {
 
   const approved = await designService.approve(req.params.id, req.sessionUser.id);
 
+  // Create notification for seller
+  try {
+    await notificationService.create({
+      userId: design.sellerId,
+      type: 'approved',
+      title: '¡Diseño aprobado!',
+      message: `Tu diseño "${design.title}" fue aprobado y ya está publicado en el marketplace.`,
+      designId: design.id,
+    });
+  } catch (notifError) {
+    console.error('Error creating notification:', notifError);
+  }
+
   res.status(200).json({
     status: 'success',
     design: approved,
@@ -211,6 +225,19 @@ export const rejectDesign = catchAsync(async (req, res, next) => {
   }
 
   const rejected = await designService.reject(req.params.id, reason);
+
+  // Create notification for seller
+  try {
+    await notificationService.create({
+      userId: design.sellerId,
+      type: 'rejected',
+      title: 'Diseño rechazado',
+      message: `Tu diseño "${design.title}" fue rechazado. Motivo: ${reason}`,
+      designId: design.id,
+    });
+  } catch (notifError) {
+    console.error('Error creating notification:', notifError);
+  }
 
   res.status(200).json({
     status: 'success',
