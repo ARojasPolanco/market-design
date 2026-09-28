@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 const CATEGORIES = ['sublimado', 'estampado', 'papeleria', 'infantil', 'deportivo', 'religioso', 'otro'];
-const TECHNIQUES = ['sublimado', 'estampado', 'vinilo', 'dtf', 'otro'];
 
 export const createDesignSchema = z.object({
   title: z
@@ -38,8 +37,8 @@ export const updateDesignSchema = z.object({
   categorySuggested: z.string().max(100).optional(),
   technique: z
     .string()
-    .toLowerCase()
-    .pipe(z.enum(TECHNIQUES))
+    .min(2, 'La técnica debe tener al menos 2 caracteres')
+    .max(50, 'La técnica no puede exceder 50 caracteres')
     .optional(),
 });
 
@@ -51,8 +50,6 @@ export const queryDesignSchema = z.object({
     .optional(),
   technique: z
     .string()
-    .toLowerCase()
-    .pipe(z.enum(TECHNIQUES))
     .optional(),
   status: z.enum(['pending', 'approved', 'rejected', 'paused']).optional(),
   priceMin: z.coerce.number().positive().optional(),

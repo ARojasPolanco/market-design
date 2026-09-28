@@ -64,7 +64,10 @@ export default function UploadDesignPage() {
         price: d.price?.toString() || '',
         declaration: false,
       });
-      if (d.previewUrl) {
+      // Load all preview URLs
+      if (d.previewUrls && d.previewUrls.length > 0) {
+        setPreviewUrls(d.previewUrls);
+      } else if (d.previewUrl) {
         setPreviewUrls([d.previewUrl]);
       }
     }).catch(() => {
