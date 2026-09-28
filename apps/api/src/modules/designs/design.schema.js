@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-const CATEGORIES = ['sublimado', 'estampado', 'papeleria', 'infantil', 'deportivo', 'religioso', 'otro'];
-
 export const createDesignSchema = z.object({
   title: z
     .string()
@@ -31,8 +29,6 @@ export const updateDesignSchema = z.object({
   price: z.number().positive().max(999999.99).optional(),
   category: z
     .string()
-    .toLowerCase()
-    .pipe(z.enum(CATEGORIES))
     .optional(),
   categorySuggested: z.string().max(100).optional(),
   technique: z
@@ -45,8 +41,6 @@ export const updateDesignSchema = z.object({
 export const queryDesignSchema = z.object({
   category: z
     .string()
-    .toLowerCase()
-    .pipe(z.enum(CATEGORIES))
     .optional(),
   technique: z
     .string()
