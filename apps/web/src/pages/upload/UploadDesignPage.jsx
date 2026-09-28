@@ -289,6 +289,19 @@ export default function UploadDesignPage() {
                 </div>
               )}
 
+              {/* Edit mode info */}
+              {isEditMode && !designFile && (
+                <div className="bg-green-50 rounded-lg p-4 mt-4">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle size={16} className="text-green-600 mt-0.5 shrink-0" />
+                    <div className="text-sm text-green-800">
+                      <p className="font-medium">Archivo existente</p>
+                      <p>Si no subís un nuevo archivo, se mantendrá el archivo original del diseño.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Specs */}
               <div className="bg-blue-50 rounded-lg p-4 mt-4">
                 <div className="flex items-start gap-2">
