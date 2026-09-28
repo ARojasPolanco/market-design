@@ -118,7 +118,7 @@ export default function Navbar() {
                             }`}
                           >
                             <p className="text-sm font-medium text-gray-900">{notif.title}</p>
-                            <p className="text-xs text-gray-500 mt-1 line-clamp-2">{notif.message}</p>
+                            <p className="text-xs text-gray-500 mt-1">{notif.message}</p>
                             <p className="text-xs text-gray-400 mt-1">
                               {new Date(notif.createdAt).toLocaleDateString('es-AR')}
                             </p>
