@@ -416,36 +416,45 @@ export default function SellerDashboard() {
       {activeTab === 'designs' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {myDesigns.filter(d => d.status === 'approved').map((design) => (
-            <Link
+            <div
               key={design.id}
-              to={`/diseno/${design.id}`}
               className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
             >
-              <div className="aspect-video relative">
-                <img
-                  src={design.previewUrl}
-                  alt={design.title}
-                  className="w-full h-full object-cover"
-                />
-                <span className="absolute top-2 right-2 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
-                  Publicado
-                </span>
-              </div>
+              <Link to={`/diseno/${design.id}`}>
+                <div className="aspect-video relative">
+                  <img
+                    src={design.previewUrl}
+                    alt={design.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <span className="absolute top-2 right-2 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
+                    Publicado
+                  </span>
+                </div>
+              </Link>
               <div className="p-4">
                 <h3 className="font-medium text-gray-900 mb-1">{design.title}</h3>
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <span>${design.price.toLocaleString()}</span>
+                <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+                  <span>${Number(design.price).toLocaleString()}</span>
                   <div className="flex items-center gap-3">
                     <span className="flex items-center gap-1">
-                      <ShoppingCart size={14} /> {design.salesCount}
+                      <ShoppingCart size={14} /> {design.salesCount || 0}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Eye size={14} /> {design.viewCount}
+                      <Eye size={14} /> {design.viewCount || 0}
                     </span>
                   </div>
                 </div>
+                <div className="flex gap-2">
+                  <Link
+                    to={`/vendedor/panel/subir?edit=${design.id}`}
+                    className="flex-1 text-center text-xs px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    Editar
+                  </Link>
+                </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}

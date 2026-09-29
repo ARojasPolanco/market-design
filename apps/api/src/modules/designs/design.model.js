@@ -92,6 +92,36 @@ Design.init(
       allowNull: true,
       field: 'preview_keys',
     },
+    pendingPreviewUrl: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+      field: 'pending_preview_url',
+    },
+    pendingPreviewKey: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+      field: 'pending_preview_key',
+    },
+    pendingPreviewUrls: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+      field: 'pending_preview_urls',
+    },
+    pendingPreviewKeys: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+      field: 'pending_preview_keys',
+    },
+    deleteRequested: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      field: 'delete_requested',
+    },
+    deleteRequestedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'delete_requested_at',
+    },
     originalFileKey: {
       type: DataTypes.STRING(500),
       allowNull: true,
