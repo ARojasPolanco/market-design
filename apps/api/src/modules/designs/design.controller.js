@@ -5,6 +5,25 @@ import { AppError } from '../../errors/appError.js';
 import { validateCreateDesign, validateUpdateDesign, validateQueryDesign } from './design.schema.js';
 import { r2Storage } from '../../config/r2/r2.js';
 import { cloudinaryStorage } from '../../config/cloudinary/cloudinary.js';
+import User from '../auth/auth.model.js';
+
+// Helper to notify all admins
+async function notifyAdmins(type, title, message, designId) {
+  try {
+    const admins = await User.findAll({ where: { role: 'admin', isDeleted: false } });
+    for (const admin of admins) {
+      await notificationService.create({
+        userId: admin.id,
+        type,
+        title,
+        message,
+        designId,
+      });
+    }
+  } catch (err) {
+    console.error('Error notifying admins:', err);
+  }
+}
 
 export const getAllDesigns = catchAsync(async (req, res) => {
   const { hasError, errorMessages, data } = validateQueryDesign(req.query);
@@ -369,18 +388,13 @@ export const requestPreviewReplacement = catchAsync(async (req, res, next) => {
     pendingPreviewKeys: previewPublicIds.length > 0 ? previewPublicIds : null,
   });
 
-  // Create notification for admin
-  try {
-    await notificationService.create({
-      userId: design.sellerId, // Will be overridden by admin logic
-      type: 'preview_review',
-      title: 'Nuevo preview pendiente de revisión',
-      message: `El vendedor reemplazó los previews del diseño "${design.title}". Revisá y aprobá.`,
-      designId: design.id,
-    });
-  } catch (notifError) {
-    console.error('Error creating notification:', notifError);
-  }
+  // Notify admins
+  await notifyAdmins(
+    'preview_review',
+    'Nuevo preview pendiente de revisión',
+    `El vendedor reemplazó los previews del diseño "${design.title}". Revisá y aprobá.`,
+    design.id
+  );
 
   res.status(200).json({ 
     status: 'success', 
@@ -474,18 +488,13 @@ export const requestDelete = catchAsync(async (req, res, next) => {
     deleteRequestedAt: new Date(),
   });
 
-  // Create notification for admin
-  try {
-    await notificationService.create({
-      userId: design.sellerId, // Will be overridden by admin logic
-      type: 'delete_request',
-      title: 'Solicitud de eliminación',
-      message: `El vendedor solicitó eliminar el diseño "${design.title}". Revisá y aprobá.`,
-      designId: design.id,
-    });
-  } catch (notifError) {
-    console.error('Error creating notification:', notifError);
-  }
+  // Notify admins
+  await notifyAdmins(
+    'delete_request',
+    'Solicitud de eliminación',
+    `El vendedor solicitó eliminar el diseño "${design.title}". Revisá y aprobá.`,
+    design.id
+  );
 
   res.status(200).json({ 
     status: 'success', 
