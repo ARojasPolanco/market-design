@@ -204,6 +204,15 @@ export class DesignService {
     });
   }
 
+  async countByCategory() {
+    return await sequelize.query(
+      `SELECT category, COUNT(*) as count 
+       FROM designs 
+       WHERE status = 'approved' AND is_deleted = false AND category IS NOT NULL
+       GROUP BY category`
+    );
+  }
+
   async findFeatured(limit = 8) {
     return await Design.findAll({
       where: { status: 'approved', isDeleted: false, ratingAvg: { [Op.gte]: 4.0 } },

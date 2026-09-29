@@ -10,7 +10,7 @@ import {
   Users,
   Monitor,
 } from 'lucide-react';
-import { useDesigns, useTrending, useFeatured } from '../hooks/useDesigns.js';
+import { useTrending, useFeatured } from '../hooks/useDesigns.js';
 import DesignCard from '../components/DesignCard.jsx';
 import { DesignGridSkeleton } from '../components/Skeletons.jsx';
 
@@ -42,7 +42,6 @@ const FEATURES = [
 ];
 
 export default function HomePage() {
-  const { categories } = useDesigns();
   const { designs: trending } = useTrending();
   const { designs: featured } = useFeatured();
   const [isLoading, setIsLoading] = useState(true);
@@ -113,25 +112,6 @@ export default function HomePage() {
           Tu talento también se vende
         </h2>
         <div className="w-24 h-1 bg-gradient-to-r from-brand-rose to-brand-teal mx-auto mt-4 rounded-full" />
-      </section>
-
-      {/* Categories */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h2 className="text-2xl font-bold text-dark mb-6">Categorías</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              to={`/catalogo?category=${cat.id}`}
-              className="bg-gray-50 hover:bg-brand-teal/5 border border-gray-100 hover:border-brand-teal/30 rounded-xl p-4 text-center transition-all group"
-            >
-              <span className="text-sm font-medium text-gray-900 group-hover:text-brand-teal">
-                {cat.name}
-              </span>
-              <span className="block text-xs text-gray-500 mt-1">{cat.count} diseños</span>
-            </Link>
-          ))}
-        </div>
       </section>
 
       {/* Trending */}

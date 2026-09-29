@@ -25,7 +25,6 @@ export function useCategories() {
         setCategories(res.data.categories);
       }
     } catch (err) {
-      // Use defaults if endpoint fails
       logger.error('Error fetching categories:', err);
     }
   };
@@ -86,4 +85,28 @@ export function useCategories() {
   };
 
   return { categories, addCategory, updateCategory, deleteCategory, categoryExists };
+}
+
+export function useCategoryCounts() {
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await api.get('/v1/admin/categories/counts');
+      if (res.data.categories) {
+        setCategories(res.data.categories);
+      }
+    } catch (err) {
+      logger.error('Error fetching category counts:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { categories, isLoading, refetch: fetchCategories };
 }

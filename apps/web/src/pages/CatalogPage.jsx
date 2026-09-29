@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 import { useDesigns } from '../hooks/useDesigns.js';
+import { useCategoryCounts } from '../hooks/useCategories.js';
 import DesignCard from '../components/DesignCard.jsx';
 import { DesignGridSkeleton } from '../components/Skeletons.jsx';
 import { EmptyCatalog } from '../components/EmptyStates.jsx';
@@ -10,6 +11,7 @@ export default function CatalogPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { categories: categoryCounts } = useCategoryCounts();
 
   const filters = {
     category: searchParams.get('category') || '',
@@ -20,7 +22,7 @@ export default function CatalogPage() {
     priceMax: searchParams.get('priceMax') ? Number(searchParams.get('priceMax')) : null,
   };
 
-  const { designs, categories, techniques, total } = useDesigns(filters);
+  const { designs, techniques, total } = useDesigns(filters);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 500);
@@ -104,7 +106,7 @@ export default function CatalogPage() {
         <div className="flex flex-wrap gap-2 mb-4">
           {filters.category && (
             <span className="inline-flex items-center gap-1 bg-coral-50 text-coral-500 text-sm px-3 py-1 rounded-full">
-              {categories.find((c) => c.id === filters.category)?.name}
+              {filters.category}
               <button
                 onClick={() => updateFilter('category', '')}
                 className="hover:text-coral-700"
@@ -154,14 +156,14 @@ export default function CatalogPage() {
               <div className="mb-6">
                 <h4 className="text-sm font-medium text-gray-700 mb-3">Categoría</h4>
                 <div className="space-y-2">
-                  {categories.map((cat) => (
-                    <label key={cat.id} className="flex items-center gap-2 cursor-pointer group">
+                  {categoryCounts.map((cat) => (
+                    <label key={cat.name} className="flex items-center gap-2 cursor-pointer group">
                       <input
                         type="radio"
                         name="category"
-                        checked={filters.category === cat.id}
+                        checked={filters.category === cat.name}
                         onChange={() =>
-                          updateFilter('category', filters.category === cat.id ? '' : cat.id)
+                          updateFilter('category', filters.category === cat.name ? '' : cat.name)
                         }
                         className="text-coral-400 focus:ring-coral-500"
                       />
