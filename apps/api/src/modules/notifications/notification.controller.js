@@ -24,3 +24,10 @@ export const markAllAsRead = catchAsync(async (req, res) => {
   await notificationService.markAllAsRead(req.sessionUser.id);
   res.status(200).json({ status: 'success', message: 'Todas marcadas como leídas' });
 });
+
+export const deleteNotification = catchAsync(async (req, res, next) => {
+  const notification = await notificationService.delete(req.params.id, req.sessionUser.id);
+  if (!notification) return next(new AppError('Notificación no encontrada.', 404));
+
+  res.status(200).json({ status: 'success', message: 'Notificación eliminada' });
+});

@@ -53,5 +53,19 @@ export function useNotifications() {
     }
   };
 
-  return { notifications, unreadCount, isLoading, markAsRead, markAllAsRead, refetch: fetchNotifications };
+  const deleteNotification = async (id) => {
+    try {
+      await api.delete(`/v1/notifications/${id}`);
+      setNotifications(prev => prev.filter(n => n.id !== id));
+      // Recalculate unread count
+      setUnreadCount(prev => {
+        const notif = notifications.find(n => n.id === id);
+        return notif && !notif.isRead ? Math.max(0, prev - 1) : prev;
+      });
+    } catch (err) {
+      logger.error('Error deleting notification:', err);
+    }
+  };
+
+  return { notifications, unreadCount, isLoading, markAsRead, markAllAsRead, deleteNotification, refetch: fetchNotifications };
 }

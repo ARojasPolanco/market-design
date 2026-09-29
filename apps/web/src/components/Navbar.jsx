@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Heart, Menu, X, User, Bell } from 'lucide-react';
+import { Search, Heart, Menu, X, User, Bell, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useFavorites } from '../context/FavoritesContext.jsx';
@@ -11,7 +11,7 @@ export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const { user, logout } = useAuth();
   const { favorites } = useFavorites();
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, markAllAsRead, deleteNotification } = useNotifications();
   const navigate = useNavigate();
   const notifRef = useRef(null);
 
@@ -84,7 +84,13 @@ export default function Navbar() {
             {user && (
               <div className="relative flex items-center" ref={notifRef}>
                 <button
-                  onClick={() => setShowNotifications(!showNotifications)}
+                  onClick={() => {
+                    setShowNotifications(!showNotifications);
+                    // Auto-mark all as read when opening
+                    if (!showNotifications && unreadCount > 0) {
+                      markAllAsRead();
+                    }
+                  }}
                   className="relative text-gray-600 hover:text-gray-900 p-0 border-0 bg-transparent cursor-pointer"
                 >
                   <Bell size={20} />
@@ -95,37 +101,67 @@ export default function Navbar() {
                   )}
                 </button>
                 {showNotifications && (
-                  <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50 max-h-96 overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-3 border-b">
-                      <h3 className="font-semibold text-gray-900">Notificaciones</h3>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={markAllAsRead}
-                          className="text-xs text-brand-teal hover:underline"
-                        >
-                          Marcar todas como leídas
-                        </button>
-                      )}
+                  <div className="absolute right-0 top-full mt-2 w-96 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+                    <div className="px-5 py-4 border-b border-gray-100">
+                      <h3 className="font-semibold text-gray-900 text-base">Notificaciones</h3>
                     </div>
-                    <div className="overflow-y-auto max-h-72">
+                    <div className="overflow-y-auto max-h-80 p-2">
                       {notifications.length > 0 ? (
-                        notifications.map((notif) => (
-                          <div
-                            key={notif.id}
-                            onClick={() => !notif.isRead && markAsRead(notif.id)}
-                            className={`px-4 py-3 border-b last:border-0 cursor-pointer hover:bg-gray-50 transition-colors ${
-                              !notif.isRead ? 'bg-blue-50' : ''
-                            }`}
-                          >
-                            <p className="text-sm font-medium text-gray-900">{notif.title}</p>
-                            <p className="text-xs text-gray-500 mt-1">{notif.message}</p>
-                            <p className="text-xs text-gray-400 mt-1">
-                              {new Date(notif.createdAt).toLocaleDateString('es-AR')}
-                            </p>
-                          </div>
-                        ))
+                        notifications.map((notif) => {
+                          const Icon = notif.type === 'approved' ? CheckCircle 
+                            : notif.type === 'rejected' ? XCircle 
+                            : notif.type === 'paused' ? AlertTriangle 
+                            : Clock;
+                          const iconColor = notif.type === 'approved' ? 'text-green-500' 
+                            : notif.type === 'rejected' ? 'text-red-500' 
+                            : notif.type === 'paused' ? 'text-yellow-500' 
+                            : 'text-gray-400';
+                          
+                          return (
+                            <div
+                              key={notif.id}
+                              className={`group relative flex items-start gap-3 p-3 rounded-xl mb-1 transition-all hover:bg-gray-50 ${
+                                !notif.isRead ? 'bg-blue-50/50' : 'bg-white'
+                              }`}
+                            >
+                              {/* Type icon */}
+                              <div className={`shrink-0 mt-0.5 ${iconColor}`}>
+                                <Icon size={18} />
+                              </div>
+                              
+                              {/* Content */}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  {!notif.isRead && (
+                                    <span className="shrink-0 w-2 h-2 rounded-full bg-brand-teal" />
+                                  )}
+                                  <p className="text-sm font-semibold text-gray-900 truncate">{notif.title}</p>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1 line-clamp-2">{notif.message}</p>
+                                <p className="text-[11px] text-gray-400 mt-1.5">
+                                  {new Date(notif.createdAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}
+                                </p>
+                              </div>
+
+                              {/* Delete button */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteNotification(notif.id);
+                                }}
+                                className="shrink-0 opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                title="Eliminar notificación"
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          );
+                        })
                       ) : (
-                        <p className="text-sm text-gray-500 text-center py-8">No tenés notificaciones</p>
+                        <div className="text-center py-12">
+                          <Bell size={32} className="mx-auto text-gray-300 mb-3" />
+                          <p className="text-sm text-gray-500">No tenés notificaciones</p>
+                        </div>
                       )}
                     </div>
                   </div>

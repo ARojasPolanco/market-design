@@ -34,6 +34,14 @@ export class NotificationService {
       { where: { userId, isRead: false } }
     );
   }
+
+  async delete(id, userId) {
+    const notification = await Notification.findOne({
+      where: { id, userId },
+    });
+    if (!notification) return null;
+    return await notification.destroy();
+  }
 }
 
 export const notificationService = new NotificationService();
