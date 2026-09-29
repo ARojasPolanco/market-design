@@ -209,7 +209,9 @@ export class DesignService {
       `SELECT category, COUNT(*) as count 
        FROM designs 
        WHERE status = 'approved' AND is_deleted = false AND category IS NOT NULL
-       GROUP BY category`
+       GROUP BY category
+       HAVING COUNT(*) > 0
+       ORDER BY count DESC`
     );
   }
 

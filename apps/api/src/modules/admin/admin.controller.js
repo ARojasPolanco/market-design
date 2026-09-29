@@ -281,24 +281,13 @@ export const getPublicTechniques = catchAsync(async (req, res) => {
 });
 
 export const getCategoryCounts = catchAsync(async (req, res) => {
-  // Get all categories from config
-  const categoriesConfig = await adminService.getConfig('categories');
-  const allCategories = categoriesConfig || [
-    'Sublimado', 'Estampado', 'Papelería', 'Infantil', 'Deportivo', 'Religioso',
-  ];
-
   // Get counts for approved designs grouped by category
+  // Only categories with at least 1 approved design, ordered by count DESC
   const [counts] = await designService.countByCategory();
 
-  // Merge: all categories with counts (0 if no designs)
-  const countMap = {};
-  counts.forEach(row => {
-    countMap[row.category] = parseInt(row.count, 10);
-  });
-
-  const categories = allCategories.map(cat => ({
-    name: cat,
-    count: countMap[cat] || 0,
+  const categories = counts.map(row => ({
+    name: row.category,
+    count: parseInt(row.count, 10),
   }));
 
   res.status(200).json({ status: 'success', categories });
