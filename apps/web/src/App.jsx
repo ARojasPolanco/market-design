@@ -13,6 +13,7 @@ import SellerDashboard from './pages/SellerDashboard.jsx';
 import BuyerDashboard from './pages/BuyerDashboard.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import UploadDesignPage from './pages/upload/UploadDesignPage.jsx';
+import EditDesignPage from './pages/upload/EditDesignPage.jsx';
 import ActivateSellerPage from './pages/upload/ActivateSellerPage.jsx';
 import RankDemoPage from './pages/RankDemoPage.jsx';
 import TermsPage from './pages/TermsPage.jsx';
@@ -46,6 +47,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <UploadDesignPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vendedor/panel/editar/:id"
+            element={
+              <ProtectedRoute>
+                <EditDesignPage />
               </ProtectedRoute>
             }
           />
