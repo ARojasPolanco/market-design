@@ -371,7 +371,7 @@ function ModerationCard({ design, onAction }) {
           <Link to={`/diseno/${design.id}`} className="shrink-0 group">
             <div className="relative overflow-hidden rounded-lg">
               <img
-                src={design.previewUrl}
+                src={design.pendingPreviewUrl || design.previewUrl}
                 alt={design.title}
                 className="w-24 h-24 object-cover group-hover:opacity-80 transition-opacity"
               />
