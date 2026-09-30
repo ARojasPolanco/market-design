@@ -68,6 +68,10 @@ export const login = catchAsync(async (req, res, next) => {
     return next(new AppError('El email o la contraseña son incorrectos', 401));
   }
 
+  if (user.status === 'suspended') {
+    return next(new AppError('Tu cuenta está suspendida. Contactá a soporte.', 403));
+  }
+
   const token = generateJWT({ id: user.id, role: user.role });
 
   res.status(200).json({

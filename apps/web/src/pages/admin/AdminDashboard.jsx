@@ -21,7 +21,7 @@ import {
   Wrench,
   Download,
 } from 'lucide-react';
-import { useAdminStats, usePendingDesigns, useAdminReports, useAdminUsers } from '../../hooks/useDesigns.js';
+import { useAdminStats, usePendingDesigns, useAdminReports, useAdminUsers, usePreviewRequests, useDeleteRequests } from '../../hooks/useDesigns.js';
 import { useCategories } from '../../hooks/useCategories.js';
 import { useTechniques } from '../../hooks/useTechniques.js';
 import { useToast } from '../../context/ToastContext.jsx';
@@ -31,9 +31,8 @@ import { RankBadge } from '../../components/RankBadge.jsx';
 const MANUAL_RANKS = ['platino', 'diamante'];
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('pending');
+  const [activeTab, setActiveTab] = useState('requests');
   const { stats } = useAdminStats();
-  const { designs: pending, refetch: refetchPending } = usePendingDesigns();
   const { reports } = useAdminReports();
 
   return (
@@ -85,7 +84,7 @@ export default function AdminDashboard() {
       {/* Tabs */}
       <div className="flex gap-1 border-b mb-6 overflow-x-auto">
         {[
-          { id: 'pending', label: `Pendientes (${pending.length})`, icon: Clock },
+          { id: 'requests', label: 'Solicitudes', icon: Clock },
           { id: 'designs', label: 'Diseños', icon: Eye },
           { id: 'users', label: 'Usuarios', icon: Users },
           {
@@ -112,20 +111,8 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Pending designs */}
-      {activeTab === 'pending' && (
-        <div className="space-y-4">
-          {pending.length > 0 ? (
-            pending.map((design) => <ModerationCard key={design.id} design={design} onAction={refetchPending} />)
-          ) : (
-            <div className="text-center py-12">
-              <CheckCircle size={48} className="mx-auto text-green-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Sin diseños pendientes</h3>
-              <p className="text-gray-500">Todos los diseños fueron revisados.</p>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Requests */}
+      {activeTab === 'requests' && <SolicitudesSection />}
 
       {/* Designs management */}
       {activeTab === 'designs' && <DesignsSection />}
@@ -1311,6 +1298,192 @@ function TechniquesSection() {
   );
 }
 
+function SolicitudesSection() {
+  const [subTab, setSubTab] = useState('new');
+  const { designs: newPending, refetch: refetchNew } = usePendingDesigns();
+  const { designs: previewReqs, refetch: refetchPreview } = usePreviewRequests();
+  const { designs: deleteReqs, refetch: refetchDelete } = useDeleteRequests();
+  const { showToast } = useToast();
+
+  const handlePreviewAction = async (designId, action) => {
+    try {
+      await api.patch(`/v1/designs/${designId}/${action}-preview`);
+      showToast(
+        action === 'approve' ? 'Preview aprobado y publicado' : 'Preview rechazado',
+        { type: 'success' }
+      );
+      refetchPreview();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al procesar la solicitud', { type: 'error' });
+    }
+  };
+
+  const handleDeleteAction = async (designId, action) => {
+    try {
+      if (action === 'approve') {
+        await api.patch(`/v1/designs/${designId}/approve-delete`);
+      } else {
+        await api.patch(`/v1/admin/designs/${designId}/reject-delete`);
+      }
+      showToast(
+        action === 'approve' ? 'Diseño eliminado del marketplace' : 'Solicitud rechazada',
+        { type: 'success' }
+      );
+      refetchDelete();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al procesar la solicitud', { type: 'error' });
+    }
+  };
+
+  const subTabs = [
+    { id: 'new', label: `Diseños nuevos (${newPending.length})` },
+    { id: 'preview', label: `Ediciones de preview (${previewReqs.length})` },
+    { id: 'delete', label: `Eliminaciones (${deleteReqs.length})` },
+  ];
+
+  return (
+    <div>
+      {/* Sub-tabs */}
+      <div className="flex gap-2 mb-4 flex-wrap">
+        {subTabs.map((st) => (
+          <button
+            key={st.id}
+            onClick={() => setSubTab(st.id)}
+            className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+              subTab === st.id ? 'bg-dark text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {st.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Diseños nuevos */}
+      {subTab === 'new' && (
+        <div className="space-y-4">
+          {newPending.length > 0 ? (
+            newPending.map((design) => (
+              <ModerationCard key={design.id} design={design} onAction={refetchNew} />
+            ))
+          ) : (
+            <EmptyRequests label="Sin diseños nuevos pendientes" />
+          )}
+        </div>
+      )}
+
+      {/* Ediciones de preview */}
+      {subTab === 'preview' && (
+        <div className="space-y-4">
+          {previewReqs.length > 0 ? (
+            previewReqs.map((design) => (
+              <div key={design.id} className="bg-white rounded-xl shadow-sm p-4">
+                <div className="flex items-start gap-4">
+                  {/* Current preview */}
+                  <div className="text-center shrink-0">
+                    <img
+                      src={design.previewUrl}
+                      alt="Actual"
+                      className="w-24 h-24 rounded-lg object-cover border border-gray-200"
+                    />
+                    <span className="text-xs text-gray-500 mt-1 block">Actual (publicada)</span>
+                  </div>
+                  {/* New preview */}
+                  <div className="text-center shrink-0">
+                    <img
+                      src={design.pendingPreviewUrl}
+                      alt="Nueva"
+                      className="w-24 h-24 rounded-lg object-cover border-2 border-coral-400"
+                    />
+                    <span className="text-xs text-coral-500 mt-1 block">Nueva (propuesta)</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-gray-900">{design.title}</h3>
+                    <p className="text-sm text-gray-500">
+                      {design.seller?.storeName || design.seller?.username} ·{' '}
+                      {new Date(design.updatedAt).toLocaleDateString('es-AR')}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Solicitud de reemplazo de previews. La versión actual sigue publicada.
+                    </p>
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        onClick={() => handlePreviewAction(design.id, 'approve')}
+                        className="flex items-center gap-1.5 text-xs px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
+                      >
+                        <CheckCircle size={14} /> Aprobar preview
+                      </button>
+                      <button
+                        onClick={() => handlePreviewAction(design.id, 'reject')}
+                        className="flex items-center gap-1.5 text-xs px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium"
+                      >
+                        <XCircle size={14} /> Rechazar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <EmptyRequests label="Sin solicitudes de edición de preview" />
+          )}
+        </div>
+      )}
+
+      {/* Eliminaciones */}
+      {subTab === 'delete' && (
+        <div className="space-y-4">
+          {deleteReqs.length > 0 ? (
+            deleteReqs.map((design) => (
+              <div key={design.id} className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-4">
+                <img
+                  src={design.previewUrl}
+                  alt={design.title}
+                  className="w-16 h-16 rounded-lg object-cover shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-gray-900 truncate">{design.title}</h3>
+                  <p className="text-sm text-gray-500">
+                    {design.seller?.storeName || design.seller?.username}
+                  </p>
+                  <p className="text-xs text-red-500 mt-1">
+                    Solicitó eliminar el {design.deleteRequestedAt ? new Date(design.deleteRequestedAt).toLocaleDateString('es-AR') : ''}
+                  </p>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <button
+                    onClick={() => handleDeleteAction(design.id, 'approve')}
+                    className="flex items-center gap-1.5 text-xs px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium"
+                  >
+                    <Trash2 size={14} /> Eliminar
+                  </button>
+                  <button
+                    onClick={() => handleDeleteAction(design.id, 'reject')}
+                    className="flex items-center gap-1.5 text-xs px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
+                  >
+                    Descartar
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <EmptyRequests label="Sin solicitudes de eliminación" />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EmptyRequests({ label }) {
+  return (
+    <div className="text-center py-12">
+      <CheckCircle size={48} className="mx-auto text-green-400 mb-4" />
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">{label}</h3>
+      <p className="text-gray-500">No hay nada para revisar por ahora.</p>
+    </div>
+  );
+}
+
 function DesignsSection() {
   const [designs, setDesigns] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -1404,7 +1577,7 @@ function DesignsSection() {
                   {design.seller?.storeName || design.seller?.username} · ${Number(design.price).toLocaleString()}
                 </p>
                 <p className="text-xs text-gray-400">
-                  {design.categorySuggested || 'Sin categoría'} · {design.technique}
+                  {design.category || design.categorySuggested || 'Sin categoría'} · {design.technique}
                 </p>
               </div>
               <div className="flex items-center gap-2">

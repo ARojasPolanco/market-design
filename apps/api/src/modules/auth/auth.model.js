@@ -94,6 +94,11 @@ User.init(
       defaultValue: false,
       field: 'is_deleted',
     },
+    status: {
+      type: DataTypes.ENUM('active', 'suspended'),
+      defaultValue: 'active',
+      allowNull: false,
+    },
     changedPasswordAt: {
       type: DataTypes.DATE,
       allowNull: true,

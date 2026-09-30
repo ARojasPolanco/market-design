@@ -6,6 +6,9 @@ import {
   unpauseDesign,
   getPausedDesigns,
   getPendingDesigns,
+  getPreviewRequests,
+  getDeleteRequests,
+  rejectDeleteRequest,
   downloadDesignFile,
   getAllConfig,
   updateConfig,
@@ -41,11 +44,14 @@ router.use(restrictTo('admin'));
 
 // Moderation
 router.get('/designs/pending', getPendingDesigns);
+router.get('/designs/preview-requests', getPreviewRequests);
+router.get('/designs/delete-requests', getDeleteRequests);
 router.get('/designs/paused', getPausedDesigns);
 router.patch('/designs/:id/approve', approveDesign);
 router.patch('/designs/:id/reject', rejectDesign);
 router.patch('/designs/:id/pause', pauseDesign);
 router.patch('/designs/:id/unpause', unpauseDesign);
+router.patch('/designs/:id/reject-delete', rejectDeleteRequest);
 router.get('/designs/:id/download', downloadDesignFile);
 
 // Config

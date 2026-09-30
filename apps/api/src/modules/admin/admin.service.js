@@ -122,12 +122,16 @@ export class AdminService {
 
   // Stats
   async getStats() {
-    const [totalUsers, totalDesigns, pendingDesigns, totalPurchases, totalRevenue] = await Promise.all([
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const [totalUsers, totalDesigns, pendingDesigns, totalPurchases, totalRevenue, approvedToday] = await Promise.all([
       User.count({ where: { isDeleted: false } }),
       Design.count({ where: { isDeleted: false } }),
       Design.count({ where: { status: 'pending', isDeleted: false } }),
       Purchase.count({ where: { status: 'completed' } }),
       Purchase.sum('commission', { where: { status: 'completed' } }),
+      Design.count({ where: { status: 'approved', isDeleted: false, approvedAt: { [Op.gte]: startOfDay } } }),
     ]);
 
     return {
@@ -136,6 +140,7 @@ export class AdminService {
       pendingDesigns,
       totalPurchases,
       totalRevenue: totalRevenue || 0,
+      approvedToday,
     };
   }
 
@@ -191,7 +196,9 @@ export class AdminService {
   async suspendUser(userId) {
     const user = await User.findByPk(userId);
     if (!user) return null;
-    return await user.update({ status: user.status === 'suspended' ? 'active' : 'suspended' });
+    return await user.update({
+      status: user.status === 'suspended' ? 'active' : 'suspended',
+    });
   }
 
   async updateUserRank(userId, rank) {

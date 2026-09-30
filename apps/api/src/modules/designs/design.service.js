@@ -2,9 +2,6 @@ import Design from './design.model.js';
 import User from '../auth/auth.model.js';
 import { Op } from 'sequelize';
 import sequelize from '../../config/database/database.js';
-import { r2Storage } from '../../config/r2/r2.js';
-import { cloudinaryStorage } from '../../config/cloudinary/cloudinary.js';
-import logger from '../../utils/logger.js';
 
 export class DesignService {
   async findAll(filters = {}) {
@@ -102,6 +99,67 @@ export class DesignService {
     });
   }
 
+  async findNewPending() {
+    return await Design.findAll({
+      where: {
+        status: 'pending',
+        isDeleted: false,
+        pendingPreviewUrl: null,
+      },
+      include: [
+        {
+          model: User,
+          as: 'seller',
+          attributes: ['id', 'fullname', 'username', 'storeName', 'avatarUrl'],
+        },
+      ],
+      order: [['created_at', 'ASC']],
+    });
+  }
+
+  async findPreviewRequests() {
+    return await Design.findAll({
+      where: {
+        isDeleted: false,
+        pendingPreviewUrl: { [Op.ne]: null },
+      },
+      include: [
+        {
+          model: User,
+          as: 'seller',
+          attributes: ['id', 'fullname', 'username', 'storeName', 'avatarUrl'],
+        },
+      ],
+      order: [['updated_at', 'DESC']],
+    });
+  }
+
+  async findDeleteRequests() {
+    return await Design.findAll({
+      where: {
+        isDeleted: false,
+        deleteRequested: true,
+      },
+      include: [
+        {
+          model: User,
+          as: 'seller',
+          attributes: ['id', 'fullname', 'username', 'storeName', 'avatarUrl'],
+        },
+      ],
+      order: [['delete_requested_at', 'DESC']],
+    });
+  }
+
+  async rejectDelete(id) {
+    const design = await Design.findByPk(id);
+    if (!design) return null;
+    return await design.update({
+      deleteRequested: false,
+      deleteRequestedAt: null,
+    });
+  }
+
   async create(data) {
     return await Design.create(data);
   }
@@ -116,27 +174,9 @@ export class DesignService {
     const design = await Design.findByPk(id);
     if (!design) return null;
 
-    // Delete files from storage
-    try {
-      // Delete original file from R2
-      if (design.originalFileKey) {
-        await r2Storage.deleteFile(design.originalFileKey);
-      }
-
-      // Delete previews from Cloudinary
-      if (design.previewKeys && Array.isArray(design.previewKeys)) {
-        for (const key of design.previewKeys) {
-          await cloudinaryStorage.deletePreview(key);
-        }
-      } else if (design.previewKey) {
-        await cloudinaryStorage.deletePreview(design.previewKey);
-      }
-    } catch (err) {
-      logger.error('Error deleting design files:', err);
-    }
-
-    // Hard delete from database
-    return await design.destroy();
+    // Soft delete only - keep files in R2/Cloudinary so buyers who
+    // already purchased can still download from "Mis compras".
+    return await design.update({ isDeleted: true });
   }
 
   async incrementViewCount(id) {

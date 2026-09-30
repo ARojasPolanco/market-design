@@ -188,6 +188,17 @@ export const deleteDesign = catchAsync(async (req, res, next) => {
     return next(new AppError('No tenés permiso para eliminar este diseño.', 403));
   }
 
+  // Approved/paused designs require admin approval to be removed.
+  // Not-yet-approved designs (pending/rejected) can be deleted directly.
+  if (design.status === 'approved' || design.status === 'paused') {
+    return next(
+      new AppError(
+        'Este diseño está publicado. Usá "Solicitar eliminación" para que la administración lo revise.',
+        400
+      )
+    );
+  }
+
   await designService.delete(req.params.id);
 
   res.status(200).json({
@@ -380,13 +391,13 @@ export const requestPreviewReplacement = catchAsync(async (req, res, next) => {
     previewPublicIds.push(publicId);
   }
 
-  // Store as pending previews and set status to pending for moderation
+  // Store as pending previews. Do NOT change status: the current version
+  // stays published and visible while the new one awaits moderation.
   const updated = await designService.update(req.params.id, {
     pendingPreviewUrl: previewUrls[0] || null,
     pendingPreviewKey: previewPublicIds[0] || null,
     pendingPreviewUrls: previewUrls.length > 0 ? previewUrls : null,
     pendingPreviewKeys: previewPublicIds.length > 0 ? previewPublicIds : null,
-    status: 'pending',
   });
 
   // Notify admins
@@ -412,7 +423,8 @@ export const approvePreview = catchAsync(async (req, res, next) => {
     return next(new AppError('No hay previews pendientes de aprobación.', 400));
   }
 
-  // Replace current previews with pending ones and restore status
+  // Replace current previews with pending ones. Status stays untouched
+  // (design keeps being published during and after the review).
   const updated = await designService.update(req.params.id, {
     previewUrl: design.pendingPreviewUrl,
     previewKey: design.pendingPreviewKey,
@@ -422,7 +434,6 @@ export const approvePreview = catchAsync(async (req, res, next) => {
     pendingPreviewKey: null,
     pendingPreviewUrls: null,
     pendingPreviewKeys: null,
-    status: 'approved',
   });
 
   // Notify seller
@@ -449,13 +460,12 @@ export const rejectPreview = catchAsync(async (req, res, next) => {
     return next(new AppError('No hay previews pendientes de aprobación.', 400));
   }
 
-  // Remove pending previews, keep current ones, restore status
+  // Remove pending previews, keep current ones published. Status untouched.
   const updated = await designService.update(req.params.id, {
     pendingPreviewUrl: null,
     pendingPreviewKey: null,
     pendingPreviewUrls: null,
     pendingPreviewKeys: null,
-    status: 'approved',
   });
 
   // Notify seller

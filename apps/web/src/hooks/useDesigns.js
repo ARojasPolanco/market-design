@@ -322,6 +322,50 @@ export function usePendingDesigns() {
   return { designs, isLoading, refetch: fetchPending };
 }
 
+export function usePreviewRequests() {
+  const [designs, setDesigns] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchRequests = async () => {
+    try {
+      const res = await api.get('/v1/admin/designs/preview-requests');
+      setDesigns(res.data.designs || []);
+    } catch (err) {
+      logger.error('Error fetching preview requests:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  return { designs, isLoading, refetch: fetchRequests };
+}
+
+export function useDeleteRequests() {
+  const [designs, setDesigns] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchRequests = async () => {
+    try {
+      const res = await api.get('/v1/admin/designs/delete-requests');
+      setDesigns(res.data.designs || []);
+    } catch (err) {
+      logger.error('Error fetching delete requests:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  return { designs, isLoading, refetch: fetchRequests };
+}
+
 export function useRejectedDesigns() {
   const [designs, setDesigns] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -368,6 +412,7 @@ export function useAdminStats() {
       setStats({
         ...defaultStats,
         pendingCount: data.pendingDesigns || 0,
+        approvedToday: data.approvedToday || 0,
         totalUsers: data.totalUsers || 0,
         totalDesigns: data.totalDesigns || 0,
         totalSales: data.totalPurchases || 0,

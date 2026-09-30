@@ -159,8 +159,44 @@ export const downloadDesignFile = catchAsync(async (req, res, next) => {
 });
 
 export const getPendingDesigns = catchAsync(async (req, res) => {
-  const designs = await adminService.getPendingDesigns();
+  const designs = await designService.findNewPending();
   res.status(200).json({ status: 'success', designs });
+});
+
+export const getPreviewRequests = catchAsync(async (req, res) => {
+  const designs = await designService.findPreviewRequests();
+  res.status(200).json({ status: 'success', designs });
+});
+
+export const getDeleteRequests = catchAsync(async (req, res) => {
+  const designs = await designService.findDeleteRequests();
+  res.status(200).json({ status: 'success', designs });
+});
+
+export const rejectDeleteRequest = catchAsync(async (req, res, next) => {
+  const design = await designService.findById(req.params.id);
+  if (!design) return next(new AppError('Diseño no encontrado.', 404));
+
+  if (!design.deleteRequested) {
+    return next(new AppError('No hay solicitud de eliminación pendiente.', 400));
+  }
+
+  await designService.rejectDelete(req.params.id);
+
+  // Notify seller
+  try {
+    await notificationService.create({
+      userId: design.sellerId,
+      type: 'delete_rejected',
+      title: 'Solicitud de eliminación rechazada',
+      message: `Tu solicitud para eliminar "${design.title}" fue revisada. El diseño sigue publicado.`,
+      designId: design.id,
+    });
+  } catch (notifError) {
+    console.error('Error creating notification:', notifError);
+  }
+
+  res.status(200).json({ status: 'success', message: 'Solicitud rechazada. El diseño sigue publicado.' });
 });
 
 // Config
