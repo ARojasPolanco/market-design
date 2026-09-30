@@ -380,12 +380,13 @@ export const requestPreviewReplacement = catchAsync(async (req, res, next) => {
     previewPublicIds.push(publicId);
   }
 
-  // Store as pending previews (don't replace current ones)
+  // Store as pending previews and set status to pending for moderation
   const updated = await designService.update(req.params.id, {
     pendingPreviewUrl: previewUrls[0] || null,
     pendingPreviewKey: previewPublicIds[0] || null,
     pendingPreviewUrls: previewUrls.length > 0 ? previewUrls : null,
     pendingPreviewKeys: previewPublicIds.length > 0 ? previewPublicIds : null,
+    status: 'pending',
   });
 
   // Notify admins
@@ -411,7 +412,7 @@ export const approvePreview = catchAsync(async (req, res, next) => {
     return next(new AppError('No hay previews pendientes de aprobación.', 400));
   }
 
-  // Replace current previews with pending ones
+  // Replace current previews with pending ones and restore status
   const updated = await designService.update(req.params.id, {
     previewUrl: design.pendingPreviewUrl,
     previewKey: design.pendingPreviewKey,
@@ -421,6 +422,7 @@ export const approvePreview = catchAsync(async (req, res, next) => {
     pendingPreviewKey: null,
     pendingPreviewUrls: null,
     pendingPreviewKeys: null,
+    status: 'approved',
   });
 
   // Notify seller
@@ -447,12 +449,13 @@ export const rejectPreview = catchAsync(async (req, res, next) => {
     return next(new AppError('No hay previews pendientes de aprobación.', 400));
   }
 
-  // Remove pending previews, keep current ones
+  // Remove pending previews, keep current ones, restore status
   const updated = await designService.update(req.params.id, {
     pendingPreviewUrl: null,
     pendingPreviewKey: null,
     pendingPreviewUrls: null,
     pendingPreviewKeys: null,
+    status: 'approved',
   });
 
   // Notify seller
