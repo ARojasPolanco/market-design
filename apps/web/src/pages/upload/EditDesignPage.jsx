@@ -21,8 +21,10 @@ export default function EditDesignPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [design, setDesign] = useState(null);
+  const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
+  const [savingTitle, setSavingTitle] = useState(false);
   const [savingPrice, setSavingPrice] = useState(false);
   const [savingDescription, setSavingDescription] = useState(false);
   const [previewFiles, setPreviewFiles] = useState([]);
@@ -34,6 +36,7 @@ export default function EditDesignPage() {
     api.get(`/v1/designs/${id}`).then((res) => {
       const d = res.data.design;
       setDesign(d);
+      setTitle(d.title || '');
       setPrice(d.price?.toString() || '');
       setDescription(d.description || '');
       if (d.previewUrls && d.previewUrls.length > 0) {
@@ -47,6 +50,22 @@ export default function EditDesignPage() {
       navigate('/vendedor/panel');
     });
   }, [id]);
+
+  const handleSaveTitle = async () => {
+    if (!title || title.trim().length < 3) {
+      showToast('El título debe tener al menos 3 caracteres', { type: 'error' });
+      return;
+    }
+    setSavingTitle(true);
+    try {
+      await api.patch(`/v1/designs/${id}`, { title: title.trim() });
+      showToast('Título actualizado', { type: 'success' });
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al actualizar título', { type: 'error' });
+    } finally {
+      setSavingTitle(false);
+    }
+  };
 
   const handleSavePrice = async () => {
     if (!price || Number(price) <= 0) {
@@ -166,6 +185,29 @@ export default function EditDesignPage() {
       <p className="text-gray-500 mb-8">{design.title}</p>
 
       <div className="space-y-6">
+        {/* Título - editable sin revisión */}
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h2 className="font-semibold text-gray-900 mb-4">Título</h2>
+          <div className="flex gap-3">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              maxLength={200}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+            />
+            <button
+              onClick={handleSaveTitle}
+              disabled={savingTitle}
+              className="flex items-center gap-2 bg-brand-teal text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-teal-dark transition-colors disabled:opacity-50"
+            >
+              <Save size={16} />
+              {savingTitle ? 'Guardando...' : 'Guardar'}
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">Se aplica inmediatamente, sin revisión.</p>
+        </div>
+
         {/* Precio - editable sin revisión */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="font-semibold text-gray-900 mb-4">Precio</h2>
@@ -303,10 +345,10 @@ export default function EditDesignPage() {
 
         {/* Solicitar eliminación */}
         {isApproved && (
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-red-100">
-            <h2 className="font-semibold text-red-700 mb-2">Zona de peligro</h2>
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="font-semibold text-gray-900 mb-2">Eliminar diseño</h2>
             <p className="text-sm text-gray-600 mb-4">
-              Solicitar la eliminación de este diseño. Requiere aprobación de administración.
+              Esta acción quita el diseño de la venta de forma permanente. Tu solicitud será revisada por el equipo de Market Design antes de aplicarse.
             </p>
             <button
               onClick={handleRequestDelete}
