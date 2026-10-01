@@ -23,6 +23,7 @@ import { useToast } from '../context/ToastContext.jsx';
 import api from '../config/api.js';
 import logger from '../utils/logger.js';
 import DesignCard from '../components/DesignCard.jsx';
+import PreviewUnavailable from '../components/PreviewUnavailable.jsx';
 import { EmptyPurchases, EmptyFavorites } from '../components/EmptyStates.jsx';
 
 const INTEREST_OPTIONS = [
@@ -212,11 +213,15 @@ export default function BuyerDashboard() {
                 >
                   <div className="flex flex-col sm:flex-row">
                     <div className="sm:w-32 sm:h-32 h-48 shrink-0">
-                      <img
-                        src={purchase.design?.previewUrl || '/designs/lobo-geometrico.png'}
-                        alt={purchase.design?.title || 'Diseño'}
-                        className="w-full h-full object-cover"
-                      />
+                      {purchase.design?.isDeleted || !purchase.design?.previewUrl ? (
+                        <PreviewUnavailable title={purchase.design?.title} />
+                      ) : (
+                        <img
+                          src={purchase.design.previewUrl}
+                          alt={purchase.design?.title || 'Diseño'}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
                     </div>
                     <div className="flex-1 p-4 flex flex-col justify-between">
                       <div>

@@ -37,7 +37,7 @@ export class PurchaseService {
   }
 
   async findByBuyer(buyerId) {
-    return await Purchase.findAll({
+    const purchases = await Purchase.findAll({
       where: { buyerId, status: 'completed' },
       include: [
         {
@@ -47,6 +47,18 @@ export class PurchaseService {
         },
       ],
       order: [['created_at', 'DESC']],
+    });
+
+    // Hide preview of soft-deleted designs (the download stays available).
+    return purchases.map((purchase) => {
+      const data = purchase.toJSON();
+      if (data.design && data.design.isDeleted) {
+        data.design.previewUrl = null;
+        data.design.previewKey = null;
+        data.design.previewUrls = null;
+        data.design.previewKeys = null;
+      }
+      return data;
     });
   }
 
