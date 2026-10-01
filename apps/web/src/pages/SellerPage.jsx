@@ -2,14 +2,17 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import { useSeller } from '../hooks/useSeller.js';
 import { usePublicSellerDesigns } from '../hooks/useDesigns.js';
+import { useUserAchievements } from '../hooks/useAchievements.js';
 import SellerBadge from '../components/SellerBadge.jsx';
 import { RankBadge } from '../components/RankBadge.jsx';
 import DesignCard from '../components/DesignCard.jsx';
+import AchievementGrid from '../components/AchievementGrid.jsx';
 
 export default function SellerPage() {
   const { id } = useParams();
   const { seller, error } = useSeller(id);
   const { designs } = usePublicSellerDesigns(id);
+  const { achievements } = useUserAchievements(id);
 
   if (error || !seller) {
     return (
@@ -73,6 +76,17 @@ export default function SellerPage() {
           </div>
         </div>
       </div>
+
+      {/* Achievements */}
+      {achievements.length > 0 && (
+        <div className="bg-white rounded-2xl shadow-sm p-8 mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-1">Logros</h2>
+          <p className="text-sm text-gray-500 mb-6">
+            Insignias que {displayName} consiguió en Market Design.
+          </p>
+          <AchievementGrid achievements={achievements} />
+        </div>
+      )}
 
       {/* Seller designs */}
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Diseños de {displayName}</h2>
