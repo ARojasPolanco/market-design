@@ -29,6 +29,8 @@ sobre una base de datos de test dedicada (no toca la base de desarrollo).
 - **Notificaciones**: in-app + mails transaccionales (Resend).
 - **Seguridad de cuentas**: captcha (hCaptcha) en registro y verificación de email
   obligatoria para comprar y vender (con reenvío y página `/verify-email`).
+- **Logros de vendedores**: 10 insignias (5 manuales por admin, 4 automáticas y "Leyenda"
+  que se otorga al completar las otras 9). Vitrina en el perfil público y gestión desde admin.
 - **Frontend**: home, catálogo, detalle, tienda, checkout, paneles (vendedor, comprador,
   admin), favoritos, términos/privacidad.
 

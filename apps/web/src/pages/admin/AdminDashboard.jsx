@@ -131,6 +131,139 @@ export default function AdminDashboard() {
   );
 }
 
+function AchievementGrantModal({ user, onClose }) {
+  const { showToast } = useToast();
+  const [catalog, setCatalog] = useState([]);
+  const [owned, setOwned] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      try {
+        const [catalogRes, userRes] = await Promise.all([
+          api.get('/v1/achievements'),
+          api.get(`/v1/achievements/user/${user.id}`),
+        ]);
+        if (!active) return;
+        setCatalog(catalogRes.data.achievements || []);
+        setOwned(userRes.data.achievements || []);
+      } catch (err) {
+        logger.error('Error loading achievements:', err);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      active = false;
+    };
+  }, [user.id]);
+
+  const manual = catalog.filter((a) => a.type === 'manual');
+  const ownedIds = new Set(owned.filter((a) => a.earned).map((a) => a.id));
+
+  const grant = async (achievementId) => {
+    setBusy(achievementId);
+    try {
+      const res = await api.post(`/v1/admin/users/${user.id}/achievements`, { achievementId });
+      setOwned(res.data.achievements || []);
+      showToast('Logro otorgado', { type: 'success' });
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al otorgar el logro', { type: 'error' });
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const revoke = async (achievementId) => {
+    setBusy(achievementId);
+    try {
+      const res = await api.delete(`/v1/admin/users/${user.id}/achievements/${achievementId}`);
+      setOwned(res.data.achievements || []);
+      showToast('Logro quitado', { type: 'success' });
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al quitar el logro', { type: 'error' });
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Otorgar logros"
+    >
+      <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 max-h-[85vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Logros de {user.fullname || user.username}
+          </h3>
+          <button
+            onClick={onClose}
+            aria-label="Cerrar"
+            className="p-1 hover:bg-gray-100 rounded-lg"
+          >
+            <X size={20} className="text-gray-500" />
+          </button>
+        </div>
+
+        {loading ? (
+          <p className="text-sm text-gray-500">Cargando...</p>
+        ) : (
+          <>
+            <p className="text-xs text-gray-500 mb-4">
+              Los logros automáticos se otorgan solos según la actividad. Estos son los de
+              otorgamiento manual.
+            </p>
+            <div className="space-y-3">
+              {manual.map((a) => {
+                const has = ownedIds.has(a.id);
+                return (
+                  <div
+                    key={a.id}
+                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-200"
+                  >
+                    <img
+                      src={`/badges/${a.id}.svg`}
+                      alt=""
+                      className={`w-10 h-10 shrink-0 ${has ? '' : 'grayscale opacity-40'}`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">{a.name}</p>
+                      <p className="text-xs text-gray-500">{a.description}</p>
+                    </div>
+                    {has ? (
+                      <button
+                        onClick={() => revoke(a.id)}
+                        disabled={busy === a.id}
+                        className="text-xs px-3 py-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 shrink-0"
+                      >
+                        Quitar
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => grant(a.id)}
+                        disabled={busy === a.id}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-dark text-white hover:bg-dark-light disabled:opacity-50 shrink-0"
+                      >
+                        Otorgar
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ModerationCard({ design, onAction }) {
   const { categories } = useCategories();
   const [showChecklist, setShowChecklist] = useState(false);
@@ -440,6 +573,7 @@ function UsersSection() {
   const [page, setPage] = useState(1);
   const [showRankModal, setShowRankModal] = useState(null);
   const [showRankConfirm, setShowRankConfirm] = useState(null);
+  const [showAchvModal, setShowAchvModal] = useState(null);
   const { users, total } = useAdminUsers({
     role: roleFilter,
     search,
@@ -562,6 +696,14 @@ function UsersSection() {
                           className="text-xs px-2 py-1 rounded-full font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
                         >
                           Cambiar rango
+                        </button>
+                      )}
+                      {user.role === 'seller' && (
+                        <button
+                          onClick={() => setShowAchvModal(user)}
+                          className="text-xs px-2 py-1 rounded-full font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                        >
+                          Logros
                         </button>
                       )}
                       <Link
@@ -727,6 +869,10 @@ function UsersSection() {
             </div>
           </div>
         </div>
+      )}
+
+      {showAchvModal && (
+        <AchievementGrantModal user={showAchvModal} onClose={() => setShowAchvModal(null)} />
       )}
     </div>
   );
