@@ -38,8 +38,9 @@ export class MercadoPagoService {
   }
 
   verifyWebhookSignature(_body, _signature) {
-    // MP webhook signature verification
-    // For now, we'll do basic validation
+    // TODO(prod): implementar la verificación de firma del webhook de Mercado Pago
+    // validando el header `x-signature` con MP_WEBHOOK_SECRET. Sin esto, cualquiera
+    // puede enviar un webhook falso y completar compras. BLOQUEANTE antes de producción.
     return true;
   }
 }

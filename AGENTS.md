@@ -141,6 +141,7 @@ Orden en `app.ts`:
 - HTTPS obligatorio en producción
 - URLs firmadas con expiración para descarga de archivos originales
 - Publicar diseños solo con cuenta de MP conectada y verificada
+- **Webhook de MP**: verificar la firma `x-signature` con `MP_WEBHOOK_SECRET`. Hoy `verifyWebhookSignature()` es un no-op → **bloqueante antes de producción**.
 
 ## Validación técnica al subir diseño
 
