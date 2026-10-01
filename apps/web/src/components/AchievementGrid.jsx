@@ -24,11 +24,18 @@ export default function AchievementGrid({ achievements = [] }) {
                 earned ? '' : 'grayscale opacity-40'
               }`}
             >
-              <img
-                src={`/badges/${a.id}.svg`}
-                alt={a.name}
-                className={isLegend ? 'w-16 h-16' : 'w-14 h-14'}
-              />
+              {isLegend && earned ? (
+                <span className="legend-medallion">
+                  <img src={`/badges/${a.id}.svg`} alt={a.name} className="w-16 h-16" />
+                  <span className="legend-shine" aria-hidden="true" />
+                </span>
+              ) : (
+                <img
+                  src={`/badges/${a.id}.svg`}
+                  alt={a.name}
+                  className={isLegend ? 'w-16 h-16' : 'w-14 h-14'}
+                />
+              )}
             </button>
 
             <span
