@@ -164,7 +164,7 @@ export default function DesignDetailPage() {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-              <span className="opacity-0 group-hover:opacity-100 bg-white/90 text-gray-900 text-sm px-4 py-2 rounded-full transition-opacity">
+              <span className="opacity-0 group-hover:opacity-100 bg-white/90 text-slate-900 text-sm px-4 py-2 rounded-full transition-opacity">
                 Click para ampliar
               </span>
             </div>
@@ -178,7 +178,7 @@ export default function DesignDetailPage() {
                     setCurrentPreview((prev) => (prev === 0 ? previewUrls.length - 1 : prev - 1));
                   }}
                   aria-label="Imagen anterior"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-colors"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-800 p-2 rounded-full shadow-lg transition-colors"
                 >
                   <ChevronLeft size={20} />
                 </button>
@@ -188,7 +188,7 @@ export default function DesignDetailPage() {
                     setCurrentPreview((prev) => (prev === previewUrls.length - 1 ? 0 : prev + 1));
                   }}
                   aria-label="Imagen siguiente"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-800 p-2 rounded-full shadow-lg transition-colors"
                 >
                   <ChevronRight size={20} />
                 </button>

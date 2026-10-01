@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useFavorites } from '../context/FavoritesContext.jsx';
 import NotificationBell from './NotificationBell.jsx';
+import ThemeToggle from './ThemeToggle.jsx';
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -75,6 +76,7 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
+            <ThemeToggle />
             {user && <NotificationBell />}
             {user ? (
               <div className="flex items-center gap-4">
@@ -114,6 +116,7 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
+            <ThemeToggle />
             {user && <NotificationBell />}
             <button
               className="text-gray-600"

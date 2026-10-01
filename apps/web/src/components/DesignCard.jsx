@@ -46,7 +46,7 @@ export default function DesignCard({ design }) {
             }
             className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
           >
-            <Heart size={18} className={fav ? 'fill-red-500 text-red-500' : 'text-gray-600'} />
+            <Heart size={18} className={fav ? 'fill-red-500 text-red-500' : 'text-slate-700'} />
           </button>
           {/* Category badge */}
           <span className="absolute top-3 left-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
