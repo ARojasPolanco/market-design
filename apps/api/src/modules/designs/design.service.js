@@ -1,5 +1,6 @@
 import Design from './design.model.js';
 import User from '../auth/auth.model.js';
+import ModerationLog from '../admin/moderation.model.js';
 import { Op } from 'sequelize';
 import sequelize from '../../config/database/database.js';
 
@@ -188,22 +189,30 @@ export class DesignService {
   async approve(id, adminId, additionalData = {}) {
     const design = await Design.findByPk(id);
     if (!design) return null;
-    return await design.update({
+    const updated = await design.update({
       status: 'approved',
       approvedAt: new Date(),
       approvedBy: adminId,
       rejectionReason: null,
       ...additionalData,
     });
+
+    await ModerationLog.create({ designId: id, adminId, action: 'approved' });
+
+    return updated;
   }
 
-  async reject(id, reason) {
+  async reject(id, adminId, reason) {
     const design = await Design.findByPk(id);
     if (!design) return null;
-    return await design.update({
+    const updated = await design.update({
       status: 'rejected',
       rejectionReason: reason,
     });
+
+    await ModerationLog.create({ designId: id, adminId, action: 'rejected', reason });
+
+    return updated;
   }
 
   async pause(id, adminId, reason, ticketId) {

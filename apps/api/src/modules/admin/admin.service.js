@@ -5,49 +5,9 @@ import Design from '../designs/design.model.js';
 import User from '../auth/auth.model.js';
 import Purchase from '../purchases/purchase.model.js';
 import { Op } from 'sequelize';
-import { ROLLING_PERIOD_DAYS, MANUAL_RANKS, determineRank } from '../../config/ranks.js';
 
 export class AdminService {
   // Moderation
-  async approveDesign(designId, adminId) {
-    const design = await Design.findByPk(designId);
-    if (!design) return null;
-
-    await design.update({
-      status: 'approved',
-      approvedAt: new Date(),
-      approvedBy: adminId,
-      rejectionReason: null,
-    });
-
-    await ModerationLog.create({
-      designId,
-      adminId,
-      action: 'approved',
-    });
-
-    return design;
-  }
-
-  async rejectDesign(designId, adminId, reason) {
-    const design = await Design.findByPk(designId);
-    if (!design) return null;
-
-    await design.update({
-      status: 'rejected',
-      rejectionReason: reason,
-    });
-
-    await ModerationLog.create({
-      designId,
-      adminId,
-      action: 'rejected',
-      reason,
-    });
-
-    return design;
-  }
-
   async getPendingDesigns() {
     return await Design.findAll({
       where: { status: 'pending', isDeleted: false },
@@ -206,42 +166,6 @@ export class AdminService {
     const user = await User.findByPk(userId);
     if (!user) return null;
     return await user.update({ rank });
-  }
-
-  // Auto rank calculation
-  async calculateRanks() {
-    const sellers = await User.findAll({
-      where: { role: 'seller', isDeleted: false },
-    });
-
-    for (const seller of sellers) {
-      // Skip manually assigned ranks (platino, diamante)
-      if (MANUAL_RANKS.includes(seller.rank)) continue;
-
-      // Count sales in rolling period
-      const salesCount = await Purchase.count({
-        where: {
-          status: 'completed',
-          createdAt: {
-            [Op.gte]: new Date(Date.now() - ROLLING_PERIOD_DAYS * 24 * 60 * 60 * 1000),
-          },
-        },
-        include: [
-          {
-            model: Design,
-            as: 'design',
-            where: { sellerId: seller.id },
-            attributes: [],
-          },
-        ],
-      });
-
-      const newRank = determineRank(salesCount);
-
-      if (newRank !== seller.rank) {
-        await seller.update({ rank: newRank });
-      }
-    }
   }
 }
 

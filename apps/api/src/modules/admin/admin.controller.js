@@ -1,5 +1,6 @@
 import { adminService } from './admin.service.js';
 import { designService } from '../designs/design.service.js';
+import { badgeService } from '../badges/badge.service.js';
 import { notificationService } from '../notifications/notification.service.js';
 import { mailService } from '../../config/resend/resend.js';
 import { r2Storage } from '../../config/r2/r2.js';
@@ -7,70 +8,6 @@ import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
 
 // Moderation
-export const approveDesign = catchAsync(async (req, res, next) => {
-  const design = await designService.findById(req.params.id);
-  if (!design) return next(new AppError('Diseño no encontrado.', 404));
-
-  if (design.status !== 'pending') {
-    return next(new AppError('Este diseño no está pendiente de aprobación.', 400));
-  }
-
-  const approved = await adminService.approveDesign(req.params.id, req.sessionUser.id);
-
-  // Create notification for seller
-  try {
-    await notificationService.create({
-      userId: design.sellerId,
-      type: 'approved',
-      title: '¡Diseño aprobado!',
-      message: `Tu diseño "${design.title}" fue aprobado y ya está publicado en el marketplace.`,
-      designId: design.id,
-    });
-  } catch (notifError) {
-    console.error('Error creating notification:', notifError);
-  }
-
-  res.status(200).json({
-    status: 'success',
-    design: approved,
-  });
-});
-
-export const rejectDesign = catchAsync(async (req, res, next) => {
-  const { reason } = req.body;
-
-  if (!reason || reason.trim().length < 10) {
-    return next(new AppError('El motivo del rechazo debe tener al menos 10 caracteres.', 422));
-  }
-
-  const design = await designService.findById(req.params.id);
-  if (!design) return next(new AppError('Diseño no encontrado.', 404));
-
-  if (design.status !== 'pending') {
-    return next(new AppError('Este diseño no está pendiente de aprobación.', 400));
-  }
-
-  const rejected = await adminService.rejectDesign(req.params.id, req.sessionUser.id, reason);
-
-  // Create notification for seller
-  try {
-    await notificationService.create({
-      userId: design.sellerId,
-      type: 'rejected',
-      title: 'Diseño rechazado',
-      message: `Tu diseño "${design.title}" fue rechazado. Motivo: ${reason}`,
-      designId: design.id,
-    });
-  } catch (notifError) {
-    console.error('Error creating notification:', notifError);
-  }
-
-  res.status(200).json({
-    status: 'success',
-    design: rejected,
-  });
-});
-
 export const pauseDesign = catchAsync(async (req, res, next) => {
   const { reason } = req.body;
 
@@ -293,8 +230,13 @@ export const updateUserRank = catchAsync(async (req, res, next) => {
 });
 
 export const calculateRanks = catchAsync(async (req, res) => {
-  await adminService.calculateRanks();
-  res.status(200).json({ status: 'success', message: 'Rangos calculados correctamente.' });
+  const results = await badgeService.calculateRanks();
+  const changed = results.filter((r) => r.changed);
+  res.status(200).json({
+    status: 'success',
+    message: `${changed.length} vendedor(es) subieron de nivel.`,
+    results: changed,
+  });
 });
 
 export const getPublicCategories = catchAsync(async (req, res) => {

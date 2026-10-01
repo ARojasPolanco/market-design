@@ -260,7 +260,7 @@ export const rejectDesign = catchAsync(async (req, res, next) => {
     return next(new AppError('Este diseño no está pendiente de aprobación.', 400));
   }
 
-  const rejected = await designService.reject(req.params.id, reason);
+  const rejected = await designService.reject(req.params.id, req.sessionUser.id, reason);
 
   // Create notification for seller
   try {

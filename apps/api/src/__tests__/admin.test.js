@@ -133,6 +133,12 @@ describe('Admin Module', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.design.status).toBe('approved');
+
+      const [logs] = await sequelize.query(
+        'SELECT action FROM moderation_logs WHERE design_id = :id ORDER BY created_at DESC LIMIT 1',
+        { replacements: { id: designId } }
+      );
+      expect(logs[0]?.action).toBe('approved');
     });
   });
 
@@ -163,6 +169,12 @@ describe('Admin Module', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.design.status).toBe('rejected');
+
+      const [logs] = await sequelize.query(
+        'SELECT action FROM moderation_logs WHERE design_id = :id ORDER BY created_at DESC LIMIT 1',
+        { replacements: { id: rejectId } }
+      );
+      expect(logs[0]?.action).toBe('rejected');
     });
 
     it('should fail without reason', async () => {

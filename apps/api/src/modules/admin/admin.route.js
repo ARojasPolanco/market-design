@@ -1,7 +1,5 @@
 import { Router } from 'express';
 import {
-  approveDesign,
-  rejectDesign,
   pauseDesign,
   unpauseDesign,
   getPausedDesigns,
@@ -24,6 +22,8 @@ import {
   getCategoryCounts,
 } from './admin.controller.js';
 import { createReport } from './admin.controller.js';
+// Reuse the single moderation implementation (also writes ModerationLog).
+import { approveDesign, rejectDesign } from '../designs/design.controller.js';
 import { protect, restrictTo } from '../auth/auth.middleware.js';
 
 const router = Router();
