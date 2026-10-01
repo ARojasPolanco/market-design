@@ -27,6 +27,7 @@ import { useTechniques } from '../../hooks/useTechniques.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import api from '../../config/api.js';
 import { RankBadge } from '../../components/RankBadge.jsx';
+import PreviewGallery from '../../components/PreviewGallery.jsx';
 
 const MANUAL_RANKS = ['platino', 'diamante'];
 
@@ -1375,37 +1376,27 @@ function SolicitudesSection() {
       {subTab === 'preview' && (
         <div className="space-y-4">
           {previewReqs.length > 0 ? (
-            previewReqs.map((design) => (
-              <div key={design.id} className="bg-white rounded-xl shadow-sm p-4">
-                <div className="flex items-start gap-4">
-                  {/* Current preview */}
-                  <div className="text-center shrink-0">
-                    <img
-                      src={design.previewUrl}
-                      alt="Actual"
-                      className="w-24 h-24 rounded-lg object-cover border border-gray-200"
-                    />
-                    <span className="text-xs text-gray-500 mt-1 block">Actual (publicada)</span>
-                  </div>
-                  {/* New preview */}
-                  <div className="text-center shrink-0">
-                    <img
-                      src={design.pendingPreviewUrl}
-                      alt="Nueva"
-                      className="w-24 h-24 rounded-lg object-cover border-2 border-coral-400"
-                    />
-                    <span className="text-xs text-coral-500 mt-1 block">Nueva (propuesta)</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-gray-900">{design.title}</h3>
-                    <p className="text-sm text-gray-500">
-                      {design.seller?.storeName || design.seller?.username} ·{' '}
-                      {new Date(design.updatedAt).toLocaleDateString('es-AR')}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      Solicitud de reemplazo de previews. La versión actual sigue publicada.
-                    </p>
-                    <div className="flex gap-2 mt-3">
+            previewReqs.map((design) => {
+              const newPreviews =
+                design.pendingPreviewUrls?.length > 0
+                  ? design.pendingPreviewUrls
+                  : [design.pendingPreviewUrl].filter(Boolean);
+              const currentPreviews =
+                design.previewUrls?.length > 0
+                  ? design.previewUrls
+                  : [design.previewUrl].filter(Boolean);
+
+              return (
+                <div key={design.id} className="bg-white rounded-xl shadow-sm p-4">
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div className="min-w-0">
+                      <h3 className="font-medium text-gray-900 truncate">{design.title}</h3>
+                      <p className="text-sm text-gray-500">
+                        {design.seller?.storeName || design.seller?.username} ·{' '}
+                        {new Date(design.updatedAt).toLocaleDateString('es-AR')}
+                      </p>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
                       <button
                         onClick={() => handlePreviewAction(design.id, 'approve')}
                         className="flex items-center gap-1.5 text-xs px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
@@ -1420,9 +1411,24 @@ function SolicitudesSection() {
                       </button>
                     </div>
                   </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 mb-2">
+                        Actual publicada ({currentPreviews.length})
+                      </p>
+                      <PreviewGallery images={currentPreviews} columns={3} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-coral-500 mb-2">
+                        Nueva propuesta ({newPreviews.length})
+                      </p>
+                      <PreviewGallery images={newPreviews} columns={3} />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <EmptyRequests label="Sin solicitudes de edición de preview" />
           )}

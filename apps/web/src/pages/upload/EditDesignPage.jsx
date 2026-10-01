@@ -9,6 +9,7 @@ import {
   Upload,
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext.jsx';
+import ConfirmDialog from '../../components/ConfirmDialog.jsx';
 import api from '../../config/api.js';
 
 const MIN_FILE_SIZE = 1024;
@@ -30,6 +31,7 @@ export default function EditDesignPage() {
   const [previewFiles, setPreviewFiles] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
   const [submittingPreview, setSubmittingPreview] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -140,7 +142,7 @@ export default function EditDesignPage() {
   };
 
   const handleRequestDelete = async () => {
-    if (!confirm('¿Estás seguro? El diseño seguirá visible hasta que un admin apruebe la eliminación.')) return;
+    setShowDeleteConfirm(false);
     try {
       await api.patch(`/v1/designs/${id}/request-delete`);
       showToast('Solicitud de eliminación enviada', { type: 'success' });
@@ -351,7 +353,7 @@ export default function EditDesignPage() {
               Esta acción quita el diseño de la venta de forma permanente. Tu solicitud será revisada por el equipo de Market Design antes de aplicarse.
             </p>
             <button
-              onClick={handleRequestDelete}
+              onClick={() => setShowDeleteConfirm(true)}
               className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors"
             >
               Solicitar eliminación
@@ -359,6 +361,17 @@ export default function EditDesignPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Solicitar eliminación"
+        description="Esta acción quita el diseño de la venta de forma permanente. Tu solicitud será revisada por el equipo de Market Design antes de aplicarse."
+        confirmLabel="Solicitar eliminación"
+        cancelLabel="Cancelar"
+        danger
+        onConfirm={handleRequestDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }

@@ -135,9 +135,9 @@ export default function Navbar() {
                                   {!notif.isRead && (
                                     <span className="shrink-0 w-2 h-2 rounded-full bg-brand-teal" />
                                   )}
-                                  <p className="text-sm font-semibold text-gray-900 truncate">{notif.title}</p>
+                                  <p className="text-sm font-semibold text-gray-900 break-words">{notif.title}</p>
                                 </div>
-                                <p className="text-xs text-gray-500 mt-1 line-clamp-2">{notif.message}</p>
+                                <p className="text-xs text-gray-500 mt-1 whitespace-normal break-words">{notif.message}</p>
                                 <p className="text-[11px] text-gray-400 mt-1.5">
                                   {new Date(notif.createdAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}
                                 </p>
