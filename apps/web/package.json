@@ -10,6 +10,7 @@
     "lint": "eslint src/"
   },
   "dependencies": {
+    "@hcaptcha/react-hcaptcha": "^2.2.0",
     "axios": "^1.7.0",
     "framer-motion": "^11.0.0",
     "lucide-react": "^0.460.0",

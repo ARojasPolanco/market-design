@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer.jsx';
+import EmailVerificationBanner from './components/EmailVerificationBanner.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import HomePage from './pages/HomePage.jsx';
 import CatalogPage from './pages/CatalogPage.jsx';
@@ -19,12 +20,14 @@ import ActivateSellerPage from './pages/upload/ActivateSellerPage.jsx';
 import TermsPage from './pages/TermsPage.jsx';
 import PrivacyPage from './pages/PrivacyPage.jsx';
 import FavoritesPage from './pages/FavoritesPage.jsx';
+import VerifyEmailPage from './pages/VerifyEmailPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 
 function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      <EmailVerificationBanner />
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -76,6 +79,7 @@ function App() {
             }
           />
           <Route path="/admin/*" element={<AdminDashboard />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/terminos" element={<TermsPage />} />
           <Route path="/privacidad" element={<PrivacyPage />} />
           <Route path="/favoritos" element={<FavoritesPage />} />

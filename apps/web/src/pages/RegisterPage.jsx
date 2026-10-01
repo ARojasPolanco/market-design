@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { Eye, EyeOff } from 'lucide-react';
+
+const HCAPTCHA_SITE_KEY = import.meta.env.VITE_HCAPTCHA_SITE_KEY;
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -17,6 +20,8 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [captchaToken, setCaptchaToken] = useState('');
+  const captchaRef = useRef(null);
   const { register } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -27,19 +32,25 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (HCAPTCHA_SITE_KEY && !captchaToken) {
+      setError('Completá el captcha para continuar.');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
-      const data = { ...formData };
+      const data = { ...formData, captchaToken };
       if (!wantToSell) {
         delete data.storeName;
       }
       await register(data);
-      showToast('Cuenta creada correctamente', { type: 'success' });
+      showToast('Cuenta creada correctamente. Revisá tu email para verificarla.', { type: 'success' });
       navigate('/');
     } catch (err) {
       const message = err.response?.data?.message || 'Error al crear la cuenta';
       setError(message);
+      captchaRef.current?.resetCaptcha();
+      setCaptchaToken('');
     } finally {
       setLoading(false);
     }
@@ -181,6 +192,17 @@ export default function RegisterPage() {
                 de Market Design.
               </span>
             </label>
+
+            {HCAPTCHA_SITE_KEY && (
+              <div className="flex justify-center">
+                <HCaptcha
+                  ref={captchaRef}
+                  sitekey={HCAPTCHA_SITE_KEY}
+                  onVerify={setCaptchaToken}
+                  onExpire={() => setCaptchaToken('')}
+                />
+              </div>
+            )}
 
             <button
               type="submit"
