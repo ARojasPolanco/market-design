@@ -1,38 +1,27 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Heart, Menu, X, User, Bell, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { Search, Heart, Menu, X, User } from 'lucide-react';
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useFavorites } from '../context/FavoritesContext.jsx';
-import { useNotifications } from '../hooks/useNotifications.js';
+import NotificationBell from './NotificationBell.jsx';
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showNotifications, setShowNotifications] = useState(false);
   const { user, logout } = useAuth();
   const { favorites } = useFavorites();
-  const { notifications, unreadCount, markAllAsRead, deleteNotification } = useNotifications();
   const navigate = useNavigate();
-  const notifRef = useRef(null);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (notifRef.current && !notifRef.current.contains(e.target)) {
-        setShowNotifications(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/catalogo?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
+      setMobileOpen(false);
     }
   };
+
+  const closeMobile = () => setMobileOpen(false);
 
   const getPanelLink = () => {
     if (!user) return '/login';
@@ -46,7 +35,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2" onClick={closeMobile}>
             <img src="/logoSolo.png" alt="Market Design" className="h-9" />
             <span className="text-lg font-bold text-dark hidden sm:block">Market Design</span>
           </Link>
@@ -63,6 +52,7 @@ export default function Navbar() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar diseños..."
+                aria-label="Buscar diseños"
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent"
               />
             </div>
@@ -73,7 +63,11 @@ export default function Navbar() {
             <Link to="/catalogo" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
               Catálogo
             </Link>
-            <Link to="/favoritos" className="relative text-gray-600 hover:text-gray-900">
+            <Link
+              to="/favoritos"
+              className="relative text-gray-600 hover:text-gray-900"
+              aria-label="Favoritos"
+            >
               <Heart size={20} />
               {favorites.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
@@ -81,93 +75,7 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
-            {user && (
-              <div className="relative flex items-center" ref={notifRef}>
-                <button
-                  onClick={() => {
-                    setShowNotifications(!showNotifications);
-                    // Auto-mark all as read when opening
-                    if (!showNotifications && unreadCount > 0) {
-                      markAllAsRead();
-                    }
-                  }}
-                  className="relative text-gray-600 hover:text-gray-900 p-0 border-0 bg-transparent cursor-pointer"
-                >
-                  <Bell size={20} />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-brand-teal text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </button>
-                {showNotifications && (
-                  <div className="absolute right-0 top-full mt-2 w-96 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
-                    <div className="px-5 py-4 border-b border-gray-100">
-                      <h3 className="font-semibold text-gray-900 text-base">Notificaciones</h3>
-                    </div>
-                    <div className="overflow-y-auto max-h-80 p-2">
-                      {notifications.length > 0 ? (
-                        notifications.map((notif) => {
-                          const Icon = notif.type === 'approved' ? CheckCircle 
-                            : notif.type === 'rejected' ? XCircle 
-                            : notif.type === 'paused' ? AlertTriangle 
-                            : Clock;
-                          const iconColor = notif.type === 'approved' ? 'text-green-500' 
-                            : notif.type === 'rejected' ? 'text-red-500' 
-                            : notif.type === 'paused' ? 'text-yellow-500' 
-                            : 'text-gray-400';
-                          
-                          return (
-                            <div
-                              key={notif.id}
-                              className={`group relative flex items-start gap-3 p-3 rounded-xl mb-1 transition-all hover:bg-gray-50 ${
-                                !notif.isRead ? 'bg-blue-50/50' : 'bg-white'
-                              }`}
-                            >
-                              {/* Type icon */}
-                              <div className={`shrink-0 mt-0.5 ${iconColor}`}>
-                                <Icon size={18} />
-                              </div>
-                              
-                              {/* Content */}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  {!notif.isRead && (
-                                    <span className="shrink-0 w-2 h-2 rounded-full bg-brand-teal" />
-                                  )}
-                                  <p className="text-sm font-semibold text-gray-900 break-words">{notif.title}</p>
-                                </div>
-                                <p className="text-xs text-gray-500 mt-1 whitespace-normal break-words">{notif.message}</p>
-                                <p className="text-[11px] text-gray-400 mt-1.5">
-                                  {new Date(notif.createdAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}
-                                </p>
-                              </div>
-
-                              {/* Delete button */}
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  deleteNotification(notif.id);
-                                }}
-                                className="shrink-0 opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                                title="Eliminar notificación"
-                              >
-                                <X size={14} />
-                              </button>
-                            </div>
-                          );
-                        })
-                      ) : (
-                        <div className="text-center py-12">
-                          <Bell size={32} className="mx-auto text-gray-300 mb-3" />
-                          <p className="text-sm text-gray-500">No tenés notificaciones</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+            {user && <NotificationBell />}
             {user ? (
               <div className="flex items-center gap-4">
                 <Link
@@ -191,10 +99,31 @@ export default function Navbar() {
             )}
           </nav>
 
-          {/* Mobile menu button */}
-          <button className="md:hidden text-gray-600" onClick={() => setMobileOpen(!mobileOpen)}>
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* Mobile actions */}
+          <div className="md:hidden flex items-center gap-4">
+            <Link
+              to="/favoritos"
+              className="relative text-gray-600"
+              aria-label="Favoritos"
+              onClick={closeMobile}
+            >
+              <Heart size={20} />
+              {favorites.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                  {favorites.length}
+                </span>
+              )}
+            </Link>
+            {user && <NotificationBell />}
+            <button
+              className="text-gray-600"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label={mobileOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-expanded={mobileOpen}
+            >
+              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}
@@ -211,29 +140,45 @@ export default function Navbar() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar diseños..."
+                  aria-label="Buscar diseños"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
                 />
               </form>
             </div>
             <div className="flex flex-col gap-3">
-              <Link to="/catalogo" className="text-gray-600 hover:text-gray-900 font-medium">
+              <Link
+                to="/catalogo"
+                onClick={closeMobile}
+                className="text-gray-600 hover:text-gray-900 font-medium"
+              >
                 Catálogo
               </Link>
-              <Link to="/favoritos" className="text-gray-600 hover:text-gray-900">
+              <Link to="/favoritos" onClick={closeMobile} className="text-gray-600 hover:text-gray-900">
                 Favoritos ({favorites.length})
               </Link>
               {user ? (
                 <>
-                  <Link to={getPanelLink()} className="text-gray-600 hover:text-gray-900">
+                  <Link
+                    to={getPanelLink()}
+                    onClick={closeMobile}
+                    className="text-gray-600 hover:text-gray-900"
+                  >
                     Mi Panel
                   </Link>
-                  <button onClick={logout} className="text-left text-gray-600 hover:text-gray-900">
+                  <button
+                    onClick={() => {
+                      logout();
+                      closeMobile();
+                    }}
+                    className="text-left text-gray-600 hover:text-gray-900"
+                  >
                     Salir
                   </button>
                 </>
               ) : (
                 <Link
                   to="/login"
+                  onClick={closeMobile}
                   className="bg-dark text-white px-4 py-2 rounded-lg text-sm font-medium text-center hover:bg-dark-light"
                 >
                   Ingresar

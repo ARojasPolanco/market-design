@@ -330,7 +330,7 @@ export default function UploadDesignPage() {
               </p>
 
               {/* Preview grid */}
-              <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4">
                 {[0, 1, 2].map((index) => (
                   <div
                     key={index}
