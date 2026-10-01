@@ -30,6 +30,8 @@ import {
   usePurchases,
 } from '../hooks/useDesigns.js';
 import { useCurrentSeller } from '../hooks/useSeller.js';
+import { useUserAchievements } from '../hooks/useAchievements.js';
+import AchievementGrid from '../components/AchievementGrid.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import api from '../config/api.js';
@@ -51,6 +53,8 @@ export default function SellerDashboard() {
   const pending = myDesigns.filter((d) => d.status === 'pending');
   const rejected = myDesigns.filter((d) => d.status === 'rejected');
   const { seller, isLoading } = useCurrentSeller();
+  const { achievements } = useUserAchievements(seller?.id);
+  const earnedAchievements = achievements.filter((a) => a.earned).length;
   const { showToast } = useToast();
 
   const handleDeleteDesign = async () => {
@@ -259,6 +263,7 @@ export default function SellerDashboard() {
           { id: 'rejected', label: `Rechazados (${rejected.length})`, tooltip: 'Acá podés ver los diseños que fueron rechazados' },
           { id: 'sales', label: 'Ventas', tooltip: 'Acá podés ver tu historial de ventas y ganancias' },
           { id: 'purchases', label: `Mis compras (${purchases.length})`, tooltip: 'Acá podés ver los diseños que compraste' },
+          { id: 'achievements', label: `Logros (${earnedAchievements})`, tooltip: 'Acá podés ver tus logros e insignias' },
           { id: 'profile', label: 'Mi perfil', tooltip: 'Acá podés editar tu perfil de vendedor' },
         ].map((tab) => (
           <div key={tab.id} className="relative flex">
@@ -287,6 +292,18 @@ export default function SellerDashboard() {
           </div>
         ))}
       </div>
+
+      {/* Achievements */}
+      {activeTab === 'achievements' && (
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h2 className="font-semibold text-gray-900 mb-1">Mis logros</h2>
+          <p className="text-sm text-gray-500 mb-6">
+            {earnedAchievements} de {achievements.length} obtenidos. Los que se ven en gris todavía
+            no los conseguiste.
+          </p>
+          <AchievementGrid achievements={achievements} />
+        </div>
+      )}
 
       {/* Tab content */}
       {activeTab === 'overview' && (
