@@ -214,7 +214,7 @@ export default function BuyerDashboard() {
                   <div className="flex flex-col sm:flex-row">
                     <div className="sm:w-32 sm:h-32 h-48 shrink-0">
                       {purchase.design?.isDeleted || !purchase.design?.previewUrl ? (
-                        <PreviewUnavailable title={purchase.design?.title} />
+                        <PreviewUnavailable />
                       ) : (
                         <img
                           src={purchase.design.previewUrl}
@@ -227,12 +227,18 @@ export default function BuyerDashboard() {
                       <div>
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            <Link
-                              to={`/diseno/${purchase.designId}`}
-                              className="font-semibold text-gray-900 hover:text-brand-teal"
-                            >
-                              {purchase.design?.title || 'Diseño'}
-                            </Link>
+                            {purchase.design?.isDeleted ? (
+                              <span className="font-semibold text-gray-900">
+                                {purchase.design?.title || 'Diseño'}
+                              </span>
+                            ) : (
+                              <Link
+                                to={`/diseno/${purchase.designId}`}
+                                className="font-semibold text-gray-900 hover:text-brand-teal"
+                              >
+                                {purchase.design?.title || 'Diseño'}
+                              </Link>
+                            )}
                             <p className="text-sm text-gray-500">
                               {purchase.design?.seller?.storeName || 'Vendedor'}
                             </p>
@@ -259,12 +265,14 @@ export default function BuyerDashboard() {
                           <Download size={16} />
                           {downloading === purchase.id ? 'Descargando...' : 'Descargar'}
                         </button>
-                        <Link
-                          to={`/diseno/${purchase.designId}`}
-                          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 text-sm"
-                        >
-                          Ver diseño <ChevronRight size={14} />
-                        </Link>
+                        {!purchase.design?.isDeleted && (
+                          <Link
+                            to={`/diseno/${purchase.designId}`}
+                            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 text-sm"
+                          >
+                            Ver diseño <ChevronRight size={14} />
+                          </Link>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -168,7 +168,7 @@ export const handleWebhook = catchAsync(async (req, res) => {
           if (design && buyer) {
             try {
               // Generate signed download URL
-              const downloadUrl = `${process.env.CORS_ORIGIN || 'http://localhost:5173'}/compra/${completed.downloadToken}`;
+              const downloadUrl = `${envs.CORS_ORIGIN}/compra/${completed.downloadToken}`;
 
               await mailService.sendPurchaseConfirmation(buyer.email, {
                 designTitle: design.title,

@@ -170,9 +170,9 @@ export default function TermsPage() {
             </thead>
             <tbody>
               <tr className="border-t"><td className="px-4 py-2">Bronce</td><td className="px-4 py-2">0 a 50</td><td className="px-4 py-2">20%</td></tr>
-              <tr className="border-t"><td className="px-4 py-2">Plata</td><td className="px-4 py-2">Más de 50 y hasta 100</td><td className="px-4 py-2">18%</td></tr>
-              <tr className="border-t"><td className="px-4 py-2">Oro</td><td className="px-4 py-2">Más de 100 y hasta 250</td><td className="px-4 py-2">15%</td></tr>
-              <tr className="border-t"><td className="px-4 py-2">Platino</td><td className="px-4 py-2">Más de 250</td><td className="px-4 py-2">12%</td></tr>
+              <tr className="border-t"><td className="px-4 py-2">Plata</td><td className="px-4 py-2">Más de 50 y hasta 200</td><td className="px-4 py-2">18%</td></tr>
+              <tr className="border-t"><td className="px-4 py-2">Oro</td><td className="px-4 py-2">Más de 200</td><td className="px-4 py-2">15%</td></tr>
+              <tr className="border-t"><td className="px-4 py-2">Platino</td><td className="px-4 py-2">Otorgado por la administración</td><td className="px-4 py-2">12%</td></tr>
               <tr className="border-t"><td className="px-4 py-2">Diamante</td><td className="px-4 py-2">Vendedores fundadores</td><td className="px-4 py-2">10%</td></tr>
             </tbody>
           </table>
