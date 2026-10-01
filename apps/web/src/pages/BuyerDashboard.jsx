@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Package,
@@ -13,7 +13,6 @@ import {
   TrendingUp,
   User,
   Upload,
-  Star,
 } from 'lucide-react';
 import BackButton from '../components/BackButton.jsx';
 import { usePurchases, useDesigns } from '../hooks/useDesigns.js';
@@ -24,6 +23,7 @@ import api from '../config/api.js';
 import logger from '../utils/logger.js';
 import DesignCard from '../components/DesignCard.jsx';
 import PreviewUnavailable from '../components/PreviewUnavailable.jsx';
+import BuyerOnboarding, { isBuyerOnboardingDone } from '../components/BuyerOnboarding.jsx';
 import { EmptyPurchases, EmptyFavorites } from '../components/EmptyStates.jsx';
 
 const INTEREST_OPTIONS = [
@@ -43,7 +43,14 @@ export default function BuyerDashboard() {
   const { designs: allDesigns } = useDesigns();
   const { user } = useAuth();
   const { showToast } = useToast();
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const favoriteDesigns = allDesigns.filter((d) => favorites.includes(d.id));
+
+  useEffect(() => {
+    if (user?.id && !isBuyerOnboardingDone(user.id)) {
+      setShowOnboarding(true);
+    }
+  }, [user]);
 
   const displayName = user?.username || user?.fullname || 'Usuario';
   const avatarLetter = displayName.charAt(0).toUpperCase();
@@ -135,48 +142,10 @@ export default function BuyerDashboard() {
         </div>
       )}
 
-      {/* How it works for buyers */}
-      <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-          <Sparkles size={18} className="text-brand-violet" />
-          ¿Cómo funciona Market Design?
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-brand-teal/10 rounded-lg shrink-0">
-              <ShoppingBag size={18} className="text-brand-teal" />
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Comprá diseños</h4>
-              <p className="text-xs text-gray-500 mt-1">
-                Explorá el catálogo y comprá diseños originales de artistas independientes.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-brand-violet/10 rounded-lg shrink-0">
-              <Download size={18} className="text-brand-violet" />
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Descargá al instante</h4>
-              <p className="text-xs text-gray-500 mt-1">
-                Recibís el archivo por email inmediatamente después del pago.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-brand-orange/10 rounded-lg shrink-0">
-              <Star size={18} className="text-brand-orange" />
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Dejá tu review</h4>
-              <p className="text-xs text-gray-500 mt-1">
-                Ayudá a otros compradores compartiendo tu experiencia.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Buyer onboarding (dismissible) */}
+      {showOnboarding && (
+        <BuyerOnboarding userId={user?.id} onDismiss={() => setShowOnboarding(false)} />
+      )}
 
       {/* Tabs */}
       <div className="flex gap-1 border-b mb-6 overflow-x-auto">
