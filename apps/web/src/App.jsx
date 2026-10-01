@@ -7,6 +7,7 @@ import CatalogPage from './pages/CatalogPage.jsx';
 import DesignDetailPage from './pages/DesignDetailPage.jsx';
 import SellerPage from './pages/SellerPage.jsx';
 import CheckoutPage from './pages/CheckoutPage.jsx';
+import PurchaseDownloadPage from './pages/PurchaseDownloadPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import SellerDashboard from './pages/SellerDashboard.jsx';
@@ -15,7 +16,6 @@ import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import UploadDesignPage from './pages/upload/UploadDesignPage.jsx';
 import EditDesignPage from './pages/upload/EditDesignPage.jsx';
 import ActivateSellerPage from './pages/upload/ActivateSellerPage.jsx';
-import RankDemoPage from './pages/RankDemoPage.jsx';
 import TermsPage from './pages/TermsPage.jsx';
 import PrivacyPage from './pages/PrivacyPage.jsx';
 import FavoritesPage from './pages/FavoritesPage.jsx';
@@ -32,6 +32,7 @@ function App() {
           <Route path="/diseno/:id" element={<DesignDetailPage />} />
           <Route path="/vendedor/:id" element={<SellerPage />} />
           <Route path="/checkout/:id" element={<CheckoutPage />} />
+          <Route path="/compra/:token" element={<PurchaseDownloadPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/registro" element={<RegisterPage />} />
           <Route
@@ -75,7 +76,6 @@ function App() {
             }
           />
           <Route path="/admin/*" element={<AdminDashboard />} />
-          <Route path="/demo/rangos" element={<RankDemoPage />} />
           <Route path="/terminos" element={<TermsPage />} />
           <Route path="/privacidad" element={<PrivacyPage />} />
           <Route path="/favoritos" element={<FavoritesPage />} />
