@@ -1,142 +1,55 @@
-# Task.md — Desarrollo Marketplace de Diseños
+# Task.md — Marketplace de Diseños
 
-## Estado actual: Frontend MVP completado, Backend pendiente
+Estado actual: 2026-10-01
 
----
+## Resumen
 
-## Fase 0: Setup del monorepo y tooling ✅
+Backend y frontend integrados. Fases 0–9 completas. Suite de tests **86/86** corriendo
+sobre una base de datos de test dedicada (no toca la base de desarrollo).
 
-- [x] Monorepo con npm workspaces (apps/api, apps/web, packages/shared)
-- [x] Husky + lint-staged + commitlint
-- [x] ESLint 9 flat config + Prettier
-- [x] Docker Compose (PostgreSQL 16)
-- [x] Variables de entorno (.env.example)
-- [x] Scripts raíz (dev, dev:web, build, lint, format, docker:up)
-- [x] Verificación (npm install, lint, format, docker)
+## Bases de datos
 
----
+- **Desarrollo**: `marketplace_diseños` (`DB_URI`).
+- **Test**: `marketplace_disenos_test` (`TEST_DB_URI`, se usa con `NODE_ENV=test`).
+- Creación de la base de test: `docker/initdb` (primer arranque) o manual (ver AGENTS.md).
+- Limpieza de datos de test que hayan quedado en desarrollo: `node scripts/clean-test-data.js`.
 
-## Fase 1: Frontend — Home + Catálogo + Detalle + Tienda ✅
+## Hecho
 
-- [x] Setup Vite + React + Tailwind CSS
-- [x] Axios instance con interceptor JWT
-- [x] Contextos: Auth, Favorites, Toast
-- [x] Hooks de mocks: useDesigns (25 diseños), useSeller (4 vendedores)
-- [x] Componentes: Navbar, Footer, DesignCard, RatingStars, SellerBadge, Skeletons, EmptyStates
-- [x] Home: Hero, features, slogan, categorías, tendencia, destacados
-- [x] Catálogo: Grid, filtros (categoría, técnica, precio, orden), pills de filtros activos, empty state
-- [x] Detalle: Preview con zoom, info, vendedor, reviews, login para comprar/review
-- [x] Tienda: Perfil de vendedor con diseños
+- **Auth**: registro/login, verificación de email, JWT, cambio de contraseña, suspensión.
+- **Diseños**: upload wizard, validación técnica, preview con marca de agua (Cloudinary),
+  original en R2 (URLs firmadas), múltiples previews, edición de precio/descripción,
+  reemplazo de preview con revisión de admin, eliminación con solicitud.
+- **Compras**: Mercado Pago (preferencia + webhook + simulación), snapshot de comisión,
+  entrega por mail con link de descarga, re-descarga desde "Mis compras", ratings.
+- **Admin**: moderación (aprobar/rechazar/pausar), usuarios, categorías/técnicas, denuncias,
+  estadísticas, solicitudes (previews/eliminaciones).
+- **Rangos/comisiones**: Bronce 20%, Plata 18% (50+), Oro 15% (200+), Platino 12% y
+  Diamante 10% (manuales). Fuente única en `apps/api/src/config/ranks.js`.
+- **Notificaciones**: in-app + mails transaccionales (Resend).
+- **Frontend**: home, catálogo, detalle, tienda, checkout, paneles (vendedor, comprador,
+  admin), favoritos, términos/privacidad.
 
----
+## Decisiones clave
 
-## Fase 2: Frontend — Checkout + Paneles ✅
+- **Comisión fija en código**, no editable desde el panel admin. `PUT /v1/admin/config`
+  tiene whitelist: solo `categories` y `techniques` (el resto → 422).
+- **Categoría**: texto libre sugerido por el vendedor; el admin asigna la real al aprobar.
+- **Previews** siempre con marca de agua (Cloudinary); **originales** en R2 (bucket privado).
+- **Soft delete**: los diseños aprobados se eliminan vía solicitud + aprobación de admin.
+- **Link de descarga del mail**: de un solo uso; re-descarga desde el panel.
 
-- [x] Checkout: Resumen de compra, pantalla de éxito con aviso de email + invitación a review
-- [x] Panel vendedor: Stats, diseños, pendientes, rechazados, ventas, editar perfil, nivel de comisión
-- [x] Panel comprador: Compras, favoritos, sugerencias por intereses, editar perfil
-- [x] Panel admin: Moderación (aprobar/rechazar con motivo), usuarios, denuncias, categorías, config
+## Pendiente
 
----
+- **M5 (prod)**: implementar la verificación de firma `x-signature` del webhook de MP
+  (`verifyWebhookSignature()` es un no-op). Bloqueante antes de producción.
+- **Producción (Fase 10)**: HTTPS, logging (Winston), Swagger, CORS/MP definitivos.
+- **Tests manuales de UI** pendientes (placeholder de preview, toasts, modales, galería,
+  notificaciones, rangos, `/compra/:token`).
 
-## Fase 3: Frontend — Auth + Onboarding ✅
+## Comandos
 
-- [x] Login: Formulario + link "¿Olvidaste tu contraseña?"
-- [x] Registro: Nombre completo, username, email, contraseña, checkbox "Quiero vender" con campo tienda
-- [x] Onboarding de vendedores: 4 tarjetas animadas (specs, qué no se acepta, ganancia, moderación)
-- [x] Formulario de carga: Wizard de 4 pasos (archivo, preview, info, declaración) + preview en tiempo real
-
----
-
-## Fase 3.5: Sistema de rangos ✅
-
-- [x] Componentes SVG: Bronce, Plata, Oro, Platino, Diamante
-- [x] Rangos automáticos: Bronce (20%), Plata (18%), Oro (15%)
-- [x] Rangos manuales: Platino (12%, admin only), Diamante (10%, primeros 10)
-- [x] Admin: Modal para cambiar rangos de vendedores
-- [x] Panel vendedor Diamante: Banner, stats extendidos, logros
-- [x] Demo de rangos (/demo/rangos)
-
----
-
-## Fase 4: Backend — Auth y seguridad ⬜
-
-- [ ] Configurar Sequelize + Umzug + migraciones
-- [ ] Migración 001: tabla `users`, tabla `errors`
-- [ ] Plugins: bcrypt (encrypted-password), JWT (generate-jwt)
-- [ ] Módulo Auth: model, service, schema, controller, route, middleware
-- [ ] Seguridad: helmet, cors, rate-limit, captcha
-- [ ] Errores: AppError, catchAsync, errorMatchers, globalErrorHandler
-- [ ] Verificación de email (token + mail con Resend)
-- [ ] Tests: registro, login, rutas protegidas
-
----
-
-## Fase 5: Backend — Designs CRUD + validación técnica ⬜
-
-- [ ] Migración 002: designs, design_files
-- [ ] Módulo Designs: model, service, schema, controller, route
-- [ ] Storage R2: uploadFile, getSignedUrl, deleteFile
-- [ ] Upload Multer: memoryStorage, filtro MIME
-- [ ] Sharp: preview con marca de agua, validación DPI/formato/peso
-- [ ] Full-text search: pg_trgm, índices GIN
-- [ ] Tests: CRUD, filtros, validación técnica
-
----
-
-## Fase 6: Backend — Purchases + webhook MP + entrega ⬜
-
-- [ ] Migración 003: purchases, ratings
-- [ ] Módulo Purchases: model, service, schema, controller, route
-- [ ] Mercado Pago: OAuth, createPreference, webhook, verifyPayment
-- [ ] Entrega automática: URL firmada + mail con link
-- [ ] Re-descarga autenticada
-- [ ] Ratings: solo si compró
-- [ ] Tests: flujo de compra completo
-
----
-
-## Fase 7: Backend — Admin + moderación ✅
-
-- [x] Migración 004: moderation_logs, favorites, config, reports
-- [x] Módulo Admin: moderación, config, reportes, denuncias
-- [x] Módulo Favorites: CRUD
-- [x] Sistema de rangos: lógica automática + manual
-- [x] Migración 009: campos de pausa (pause_reason, paused_at, paused_by, ticket_id)
-- [x] Pausa manual de diseños por admin
-- [x] Email de pausa con ticket ID al vendedor
-- [x] Descarga de archivo original por admin
-- [x] Sistema de denuncias (reportes)
-- [ ] Tests: moderación, favoritos, config
-
----
-
-## Fase 8: Backend — Comisión escalonada + badges ⬜
-
-- [ ] Comisión por período móvil (90 días)
-- [ ] Niveles configurables desde admin
-- [ ] Badge "Vendedor verificado" automático
-- [ ] Badge "Top seller" automático
-- [ ] Notificaciones mail (Resend)
-
----
-
-## Fase 9: Integración ⬜
-
-- [ ] Reemplazar useDesigns() mock → fetch real
-- [ ] Reemplazar useSeller() mock → fetch real
-- [ ] Reemplazar usePurchases() mock → fetch real
-- [ ] Reemplazar useCategories() mock → fetch real
-- [ ] Conectar auth, upload, checkout, paneles
-- [ ] Testing end-to-end
-
----
-
-## Fase 10: Pulido y producción ⬜
-
-- [ ] HTTPS en producción
-- [ ] Logs y monitoreo (Winston)
-- [ ] Documentación API (Swagger)
-- [ ] Tests completos
-- [ ] Variables de entorno producción
-- [ ] CORS producción
+- `npm run dev` — API + web en desarrollo.
+- `npm test` — suite (workspace `@marketplace/api`).
+- `npm run docker:up` — levanta PostgreSQL.
+- `node scripts/clean-test-data.js` — desde `apps/api`.
