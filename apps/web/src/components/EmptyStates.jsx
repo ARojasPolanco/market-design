@@ -36,14 +36,14 @@ export function EmptyState({
   );
 }
 
-export function EmptyCatalog() {
+export function EmptyCatalog({ onClear }) {
   return (
     <EmptyState
       icon={Search}
       title="No se encontraron diseños"
-      description="No hay diseños que coincidan con tus filtros. Probá con otros criterios de búsqueda."
-      actionLabel="Limpiar filtros"
-      onAction={() => window.location.reload()}
+      description="No hay diseños que coincidan con tu búsqueda. Probá con otros criterios."
+      actionLabel={onClear ? 'Limpiar filtros' : undefined}
+      onAction={onClear}
     />
   );
 }
