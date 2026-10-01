@@ -1,4 +1,5 @@
 import { designService } from './design.service.js';
+import { achievementService } from '../achievements/achievement.service.js';
 import { notificationService } from '../notifications/notification.service.js';
 import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
@@ -242,6 +243,12 @@ export const approveDesign = catchAsync(async (req, res, next) => {
     console.error('Error creating notification:', notifError);
   }
 
+  try {
+    await achievementService.evaluateAutomatic(design.sellerId);
+  } catch (achError) {
+    console.error('Error evaluating achievements:', achError);
+  }
+
   res.status(200).json({
     status: 'success',
     design: approved,
@@ -277,6 +284,12 @@ export const rejectDesign = catchAsync(async (req, res, next) => {
     });
   } catch (notifError) {
     console.error('Error creating notification:', notifError);
+  }
+
+  try {
+    await achievementService.evaluateAutomatic(design.sellerId);
+  } catch (achError) {
+    console.error('Error evaluating achievements:', achError);
   }
 
   res.status(200).json({

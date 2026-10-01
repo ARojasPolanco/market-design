@@ -6,6 +6,7 @@ import { r2Storage } from '../../config/r2/r2.js';
 import { mailService } from '../../config/resend/resend.js';
 import { envs } from '../../config/enviroments.js';
 import { getCommissionRate } from '../../config/ranks.js';
+import { achievementService } from '../achievements/achievement.service.js';
 import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
 import { validateCreatePurchase, validateCreateRating } from './purchase.schema.js';
@@ -94,6 +95,12 @@ export const createPurchase = catchAsync(async (req, res, next) => {
     } catch (_emailError) {
       // Don't fail the purchase if email fails
     }
+
+    try {
+      await achievementService.evaluateAutomatic(design.sellerId);
+    } catch (achError) {
+      console.error('Error evaluating achievements:', achError);
+    }
   }
 
   // Create MP preference
@@ -170,6 +177,14 @@ export const handleWebhook = catchAsync(async (req, res) => {
               });
             } catch (mailError) {
               console.error('Error sending purchase email:', mailError);
+            }
+          }
+
+          if (design) {
+            try {
+              await achievementService.evaluateAutomatic(design.sellerId);
+            } catch (achError) {
+              console.error('Error evaluating achievements:', achError);
             }
           }
         }

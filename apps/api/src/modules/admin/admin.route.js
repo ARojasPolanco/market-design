@@ -24,6 +24,12 @@ import {
 import { createReport } from './admin.controller.js';
 // Reuse the single moderation implementation (also writes ModerationLog).
 import { approveDesign, rejectDesign } from '../designs/design.controller.js';
+import {
+  grantAchievement,
+  revokeAchievement,
+  recalculateUserAchievements,
+  recalculateAllAchievements,
+} from '../achievements/achievement.controller.js';
 import { protect, restrictTo } from '../auth/auth.middleware.js';
 
 const router = Router();
@@ -69,6 +75,12 @@ router.get('/stats', getStats);
 router.get('/users', getUsers);
 router.patch('/users/:id/suspend', suspendUser);
 router.patch('/users/:id/rank', updateUserRank);
+
+// Achievements
+router.post('/users/:id/achievements', grantAchievement);
+router.post('/users/:id/achievements/recalculate', recalculateUserAchievements);
+router.delete('/users/:id/achievements/:achievementId', revokeAchievement);
+router.post('/achievements/recalculate', recalculateAllAchievements);
 
 // Rank calculation
 router.post('/ranks/calculate', calculateRanks);
