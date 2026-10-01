@@ -3,8 +3,13 @@ import Design from '../designs/design.model.js';
 import Purchase from '../purchases/purchase.model.js';
 import { mailService } from '../../config/resend/resend.js';
 import { Op } from 'sequelize';
-
-const ROLLING_PERIOD_DAYS = 90;
+import {
+  ROLLING_PERIOD_DAYS,
+  MANUAL_RANKS,
+  determineRank,
+  getRankInfo,
+  getNextRank,
+} from '../../config/ranks.js';
 
 export class BadgeService {
   async calculateRanks() {
@@ -18,7 +23,7 @@ export class BadgeService {
       const oldRank = seller.rank;
 
       // Skip manually assigned ranks (platino, diamante)
-      if (['platino', 'diamante'].includes(seller.rank)) {
+      if (MANUAL_RANKS.includes(seller.rank)) {
         results.push({ id: seller.id, name: seller.fullname, rank: seller.rank, changed: false });
         continue;
       }
@@ -42,9 +47,7 @@ export class BadgeService {
       });
 
       // Determine rank based on sales
-      let newRank = 'bronce';
-      if (salesCount >= 200) newRank = 'oro';
-      else if (salesCount >= 50) newRank = 'plata';
+      const newRank = determineRank(salesCount);
 
       if (newRank !== oldRank) {
         await seller.update({ rank: newRank });
@@ -52,7 +55,7 @@ export class BadgeService {
 
         // Send email notification
         try {
-          const rankInfo = this._getRankInfo(newRank);
+          const rankInfo = getRankInfo(newRank);
           await mailService.sendRankUpgrade(seller.email, rankInfo.name, rankInfo.commission);
         } catch (mailError) {
           console.error(`Error sending rank email to ${seller.email}:`, mailError);
@@ -146,8 +149,8 @@ export class BadgeService {
       ],
     });
 
-    const rankInfo = this._getRankInfo(seller.rank);
-    const nextRank = this._getNextRank(seller.rank);
+    const rankInfo = getRankInfo(seller.rank);
+    const nextRank = getNextRank(seller.rank);
 
     return {
       currentRank: seller.rank,
@@ -163,28 +166,6 @@ export class BadgeService {
           }
         : null,
     };
-  }
-
-  _getRankInfo(rank) {
-    const ranks = {
-      bronce: { name: 'Bronce', commission: 20, salesNeeded: 0 },
-      plata: { name: 'Plata', commission: 18, salesNeeded: 50 },
-      oro: { name: 'Oro', commission: 15, salesNeeded: 200 },
-      platino: { name: 'Platino', commission: 12, salesNeeded: 0 },
-      diamante: { name: 'Diamante', commission: 10, salesNeeded: 0 },
-    };
-    return ranks[rank] || ranks.bronce;
-  }
-
-  _getNextRank(currentRank) {
-    const progression = {
-      bronce: { name: 'Plata', commission: 18, salesNeeded: 50 },
-      plata: { name: 'Oro', commission: 15, salesNeeded: 200 },
-      oro: null,
-      platino: null,
-      diamante: null,
-    };
-    return progression[currentRank] || null;
   }
 }
 

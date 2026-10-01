@@ -5,7 +5,7 @@ import { mpService } from '../../config/mercadopago/mercadopago.js';
 import { r2Storage } from '../../config/r2/r2.js';
 import { mailService } from '../../config/resend/resend.js';
 import { envs } from '../../config/enviroments.js';
-import { adminService } from '../admin/admin.service.js';
+import { getCommissionRate } from '../../config/ranks.js';
 import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
 import { validateCreatePurchase, validateCreateRating } from './purchase.schema.js';
@@ -31,23 +31,9 @@ export const createPurchase = catchAsync(async (req, res, next) => {
     return next(new AppError('Ya compraste este diseño.', 400));
   }
 
-  // Calculate commission based on seller rank and admin config
-  let config = {};
-  try {
-    config = await adminService.getConfig('commission') || {};
-  } catch (_e) {
-    config = {};
-  }
-  const COMMISSION_RATES = {
-    bronce: (config.commission_base || 20) / 100,
-    plata: 0.18,
-    oro: 0.15,
-    platino: (config.commission_min || 12) / 100,
-    diamante: 0.10,
-  };
-
+  // Calculate commission based on seller rank (fixed rates, not admin-editable)
   const sellerRank = design.seller?.rank || 'bronce';
-  const commissionRate = COMMISSION_RATES[sellerRank] || 0.20;
+  const commissionRate = getCommissionRate(sellerRank) / 100;
   const commission = Math.round(design.price * commissionRate * 100) / 100;
   const sellerEarnings = Math.round((design.price - commission) * 100) / 100;
 

@@ -6,7 +6,6 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  Settings,
   BarChart3,
   AlertTriangle,
   ExternalLink,
@@ -93,7 +92,6 @@ export default function AdminDashboard() {
             label: `Denuncias (${reports.filter((r) => r.status === 'pending').length})`,
             icon: AlertTriangle,
           },
-          { id: 'config', label: 'Configuración', icon: Settings },
           { id: 'categories', label: 'Categorías', icon: Tag },
           { id: 'techniques', label: 'Técnicas', icon: Wrench },
         ].map((tab) => (
@@ -124,143 +122,11 @@ export default function AdminDashboard() {
       {/* Reports */}
       {activeTab === 'reports' && <ReportsSection />}
 
-      {/* Config */}
-      {activeTab === 'config' && <ConfigSection />}
-
       {/* Categories */}
       {activeTab === 'categories' && <CategoriesSection />}
 
       {/* Techniques */}
       {activeTab === 'techniques' && <TechniquesSection />}
-    </div>
-  );
-}
-
-function ConfigSection() {
-  const [config, setConfig] = useState({
-    commission_base: 20,
-    commission_level1: 18,
-    commission_min: 15,
-    dpi_min: 150,
-    formats: ['PDF', 'PNG', 'ZIP'],
-  });
-  const [saving, setSaving] = useState(false);
-  const { showToast } = useToast();
-
-  useEffect(() => {
-    fetchConfig();
-  }, []);
-
-  const fetchConfig = async () => {
-    try {
-      const res = await api.get('/v1/admin/config');
-      if (res.data.config && res.data.config.commission) {
-        setConfig((prev) => ({ ...prev, ...res.data.config.commission }));
-      }
-    } catch (err) {
-      logger.error('Error fetching config:', err);
-    }
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      await api.put('/v1/admin/config', { key: 'commission', value: config });
-      showToast('Configuración guardada', { type: 'success' });
-    } catch (_err) {
-      showToast('Error al guardar', { type: 'error' });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const updateConfig = (key, value) => {
-    setConfig((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const toggleFormat = (format) => {
-    setConfig((prev) => ({
-      ...prev,
-      formats: prev.formats.includes(format)
-        ? prev.formats.filter((f) => f !== format)
-        : [...prev.formats, format],
-    }));
-  };
-
-  return (
-    <div className="bg-white rounded-xl shadow-sm p-6 max-w-2xl">
-      <h2 className="font-semibold text-gray-900 mb-6">Configuración de comisiones</h2>
-      <div className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Comisión base (%)
-          </label>
-          <input
-            type="number"
-            value={config.commission_base}
-            onChange={(e) => updateConfig('commission_base', Number(e.target.value))}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Comisión nivel 1 (%) — al alcanzar 50 ventas
-          </label>
-          <input
-            type="number"
-            value={config.commission_level1}
-            onChange={(e) => updateConfig('commission_level1', Number(e.target.value))}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Comisión mínima (%) — tope
-          </label>
-          <input
-            type="number"
-            value={config.commission_min}
-            onChange={(e) => updateConfig('commission_min', Number(e.target.value))}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            DPI mínimo aceptado
-          </label>
-          <input
-            type="number"
-            value={config.dpi_min}
-            onChange={(e) => updateConfig('dpi_min', Number(e.target.value))}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Formatos aceptados
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {['PDF', 'PNG', 'ZIP', 'AI', 'PSD', 'EPS'].map((format) => (
-              <label key={format} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={config.formats.includes(format)}
-                  onChange={() => toggleFormat(format)}
-                  className="text-coral-400 focus:ring-coral-500 rounded"
-                />
-                <span className="text-sm text-gray-600">{format}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="bg-dark text-white px-6 py-2 rounded-lg font-medium hover:bg-dark-light transition-colors disabled:opacity-50"
-        >
-          {saving ? 'Guardando...' : 'Guardar configuración'}
-        </button>
-      </div>
     </div>
   );
 }

@@ -205,11 +205,19 @@ export const getAllConfig = catchAsync(async (req, res) => {
   res.status(200).json({ status: 'success', config });
 });
 
+// Only these keys can be edited via the API. Commission and other values are
+// intentionally not configurable (fixed in code) to avoid tampering.
+const EDITABLE_CONFIG_KEYS = ['categories', 'techniques'];
+
 export const updateConfig = catchAsync(async (req, res) => {
   const { key, value } = req.body;
 
   if (!key) {
     return res.status(422).json({ status: 'error', message: 'La clave es requerida.' });
+  }
+
+  if (!EDITABLE_CONFIG_KEYS.includes(key)) {
+    return res.status(422).json({ status: 'error', message: 'Clave de configuración no editable.' });
   }
 
   const config = await adminService.updateConfig(key, value);

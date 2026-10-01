@@ -5,6 +5,7 @@ import Design from '../designs/design.model.js';
 import User from '../auth/auth.model.js';
 import Purchase from '../purchases/purchase.model.js';
 import { Op } from 'sequelize';
+import { ROLLING_PERIOD_DAYS, MANUAL_RANKS, determineRank } from '../../config/ranks.js';
 
 export class AdminService {
   // Moderation
@@ -215,14 +216,14 @@ export class AdminService {
 
     for (const seller of sellers) {
       // Skip manually assigned ranks (platino, diamante)
-      if (['platino', 'diamante'].includes(seller.rank)) continue;
+      if (MANUAL_RANKS.includes(seller.rank)) continue;
 
-      // Count sales in last 90 days
+      // Count sales in rolling period
       const salesCount = await Purchase.count({
         where: {
           status: 'completed',
           createdAt: {
-            [Op.gte]: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000),
+            [Op.gte]: new Date(Date.now() - ROLLING_PERIOD_DAYS * 24 * 60 * 60 * 1000),
           },
         },
         include: [
@@ -235,9 +236,7 @@ export class AdminService {
         ],
       });
 
-      let newRank = 'bronce';
-      if (salesCount >= 200) newRank = 'oro';
-      else if (salesCount >= 50) newRank = 'plata';
+      const newRank = determineRank(salesCount);
 
       if (newRank !== seller.rank) {
         await seller.update({ rank: newRank });
