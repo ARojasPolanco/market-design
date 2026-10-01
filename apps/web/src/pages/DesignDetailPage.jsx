@@ -177,6 +177,7 @@ export default function DesignDetailPage() {
                     e.stopPropagation();
                     setCurrentPreview((prev) => (prev === 0 ? previewUrls.length - 1 : prev - 1));
                   }}
+                  aria-label="Imagen anterior"
                   className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-colors"
                 >
                   <ChevronLeft size={20} />
@@ -186,6 +187,7 @@ export default function DesignDetailPage() {
                     e.stopPropagation();
                     setCurrentPreview((prev) => (prev === previewUrls.length - 1 ? 0 : prev + 1));
                   }}
+                  aria-label="Imagen siguiente"
                   className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-colors"
                 >
                   <ChevronRight size={20} />
@@ -201,6 +203,7 @@ export default function DesignDetailPage() {
                 <button
                   key={index}
                   onClick={() => setCurrentPreview(index)}
+                  aria-label={`Ver imagen ${index + 1}`}
                   className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
                     currentPreview === index ? 'border-brand-teal' : 'border-transparent hover:border-gray-300'
                   }`}
@@ -273,6 +276,7 @@ export default function DesignDetailPage() {
             )}
             <button
               onClick={() => (fav ? removeFavorite(design.id) : addFavorite(design.id))}
+              aria-label={fav ? 'Quitar de favoritos' : 'Agregar a favoritos'}
               className={`p-3 border rounded-lg transition-colors ${
                 fav
                   ? 'border-red-300 bg-red-50 hover:bg-red-100'
@@ -381,7 +385,10 @@ export default function DesignDetailPage() {
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
+                      type="button"
                       onClick={() => setRatingScore(star)}
+                      aria-label={`${star} ${star === 1 ? 'estrella' : 'estrellas'}`}
+                      aria-pressed={star <= ratingScore}
                       className="p-1 transition-transform hover:scale-110"
                     >
                       <Star
@@ -461,10 +468,14 @@ export default function DesignDetailPage() {
       {showZoom && (
         <div
           className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Vista ampliada"
           onClick={() => setShowZoom(false)}
         >
           <button
             onClick={() => setShowZoom(false)}
+            aria-label="Cerrar"
             className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
           >
             <X size={32} />
@@ -478,6 +489,7 @@ export default function DesignDetailPage() {
                   e.stopPropagation();
                   setCurrentPreview((prev) => (prev === 0 ? previewUrls.length - 1 : prev - 1));
                 }}
+                aria-label="Imagen anterior"
                 className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white p-3 rounded-full z-10"
               >
                 <ChevronLeft size={24} />
@@ -487,6 +499,7 @@ export default function DesignDetailPage() {
                   e.stopPropagation();
                   setCurrentPreview((prev) => (prev === previewUrls.length - 1 ? 0 : prev + 1));
                 }}
+                aria-label="Imagen siguiente"
                 className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white p-3 rounded-full z-10"
               >
                 <ChevronRight size={24} />
@@ -512,6 +525,7 @@ export default function DesignDetailPage() {
                     e.stopPropagation();
                     setCurrentPreview(index);
                   }}
+                  aria-label={`Ver imagen ${index + 1}`}
                   className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-colors ${
                     currentPreview === index ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'
                   }`}
@@ -526,7 +540,12 @@ export default function DesignDetailPage() {
 
       {/* Report modal */}
       {showReportModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Reportar diseño"
+        >
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -537,6 +556,7 @@ export default function DesignDetailPage() {
               </div>
               <button
                 onClick={() => { setShowReportModal(false); setReportReason(''); }}
+                aria-label="Cerrar"
                 className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <X size={20} className="text-gray-500" />

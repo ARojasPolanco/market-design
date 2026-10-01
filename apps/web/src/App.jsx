@@ -26,9 +26,15 @@ import NotFoundPage from './pages/NotFoundPage.jsx';
 function App() {
   return (
     <div className="min-h-screen flex flex-col">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:bg-dark focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
+      >
+        Saltar al contenido
+      </a>
       <Navbar />
       <EmailVerificationBanner />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/catalogo" element={<CatalogPage />} />

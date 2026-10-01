@@ -37,8 +37,14 @@ export default function DesignCard({ design }) {
           {/* Favorite button */}
           <button
             onClick={handleFavoriteClick}
+            aria-label={
+              user
+                ? fav
+                  ? 'Quitar de favoritos'
+                  : 'Agregar a favoritos'
+                : 'Iniciá sesión para agregar a favoritos'
+            }
             className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
-            title={user ? (fav ? 'Quitar de favoritos' : 'Agregar a favoritos') : 'Iniciá sesión para agregar a favoritos'}
           >
             <Heart size={18} className={fav ? 'fill-red-500 text-red-500' : 'text-gray-600'} />
           </button>
