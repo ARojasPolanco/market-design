@@ -106,7 +106,11 @@ export function useDesign(id) {
     }
   };
 
-  return { design, related, reviews, isLoading, error };
+  const refetch = () => {
+    if (id) fetchDesign();
+  };
+
+  return { design, related, reviews, isLoading, error, refetch };
 }
 
 export function useTrending() {

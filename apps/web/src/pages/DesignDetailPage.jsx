@@ -15,11 +15,10 @@ import logger from '../utils/logger.js';
 
 export default function DesignDetailPage() {
   const { id } = useParams();
-  const { design, related, reviews, error } = useDesign(id);
+  const { design, related, reviews, error, isLoading, refetch } = useDesign(id);
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
   const { user } = useAuth();
   const { showToast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
   const [showZoom, setShowZoom] = useState(false);
   const [currentPreview, setCurrentPreview] = useState(0);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -41,11 +40,24 @@ export default function DesignDetailPage() {
       : [];
 
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 400);
     window.scrollTo(0, 0);
-    return () => clearTimeout(timer);
   }, [id]);
+
+  // Keyboard support for the zoom viewer (Esc to close, arrows to navigate).
+  useEffect(() => {
+    if (!showZoom) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setShowZoom(false);
+      } else if (e.key === 'ArrowLeft' && previewUrls.length > 1) {
+        setCurrentPreview((prev) => (prev === 0 ? previewUrls.length - 1 : prev - 1));
+      } else if (e.key === 'ArrowRight' && previewUrls.length > 1) {
+        setCurrentPreview((prev) => (prev === previewUrls.length - 1 ? 0 : prev + 1));
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showZoom, previewUrls.length]);
 
   // Check if user has purchased this design
   useEffect(() => {
@@ -101,8 +113,8 @@ export default function DesignDetailPage() {
       setRatingScore(0);
       setRatingComment('');
       setHasRated(true);
-      // Refresh design data to update rating
-      window.location.reload();
+      // Refresh design data to update the rating without a full reload
+      refetch();
     } catch (err) {
       showToast(err.response?.data?.message || 'Error al enviar la valoración', { type: 'error' });
     } finally {
@@ -115,10 +127,7 @@ export default function DesignDetailPage() {
   if (error || !design) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <ErrorState
-          message={error || 'Diseño no encontrado'}
-          onRetry={() => window.location.reload()}
-        />
+        <ErrorState message={error || 'Diseño no encontrado'} onRetry={refetch} />
         <div className="text-center mt-4">
           <Link to="/catalogo" className="text-coral-400 hover:text-coral-500">
             Volver al catálogo
