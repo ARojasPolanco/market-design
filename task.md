@@ -27,6 +27,8 @@ sobre una base de datos de test dedicada (no toca la base de desarrollo).
 - **Rangos/comisiones**: Bronce 20%, Plata 18% (50+), Oro 15% (200+), Platino 12% y
   Diamante 10% (manuales). Fuente única en `apps/api/src/config/ranks.js`.
 - **Notificaciones**: in-app + mails transaccionales (Resend).
+- **Seguridad de cuentas**: captcha (hCaptcha) en registro y verificación de email
+  obligatoria para comprar y vender (con reenvío y página `/verify-email`).
 - **Frontend**: home, catálogo, detalle, tienda, checkout, paneles (vendedor, comprador,
   admin), favoritos, términos/privacidad.
 

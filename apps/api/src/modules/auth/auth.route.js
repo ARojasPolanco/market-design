@@ -7,6 +7,7 @@ import {
   updateProfile,
   changePassword,
   verifyEmail,
+  resendVerification,
   activateSeller,
   uploadAvatar,
 } from './auth.controller.js';
@@ -24,6 +25,7 @@ router.get('/profile/:id', getPublicProfile);
 router.get('/profile', protect, getProfile);
 router.patch('/profile', protect, updateProfile);
 router.patch('/change-password', protect, changePassword);
+router.post('/resend-verification', protect, resendVerification);
 router.post('/activate-seller', protect, activateSeller);
 router.post('/upload-avatar', protect, uploadSingle, uploadAvatar);
 

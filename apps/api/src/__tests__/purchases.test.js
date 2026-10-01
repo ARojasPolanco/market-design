@@ -47,6 +47,10 @@ describe('Purchases Module', () => {
 
       expect(res.status).toBe(201);
       buyerToken = res.body.token;
+
+      await sequelize.query(
+        `UPDATE users SET email_verified = true WHERE users_id = '${res.body.user.id}'`
+      );
     });
 
     it('should register a seller with MP connected', async () => {
@@ -69,7 +73,7 @@ describe('Purchases Module', () => {
       // Set role and connect MP
       const userId = res.body.user.id;
       await sequelize.query(
-        `UPDATE users SET role = 'seller', mp_connected = true, mp_access_token = 'test_token' WHERE users_id = '${userId}'`
+        `UPDATE users SET role = 'seller', mp_connected = true, mp_access_token = 'test_token', email_verified = true WHERE users_id = '${userId}'`
       );
 
       const loginRes = await request(server)
@@ -161,6 +165,27 @@ describe('Purchases Module', () => {
         .send({ designId: '00000000-0000-0000-0000-000000000000' });
 
       expect(res.status).toBe(404);
+    });
+
+    it('should reject an unverified buyer with 403', async () => {
+      if (!dbAvailable || !designId) return;
+
+      const email = `unverified_${Date.now()}@test.com`;
+      const reg = await request(server)
+        .post('/api/v1/auth/register')
+        .send({
+          fullname: 'Unverified Buyer',
+          username: 'unverified_' + Date.now(),
+          email,
+          password: 'password123',
+        });
+
+      const res = await request(server)
+        .post('/api/v1/purchases')
+        .set('Authorization', `Bearer ${reg.body.token}`)
+        .send({ designId });
+
+      expect(res.status).toBe(403);
     });
 
     it('should create a purchase', async () => {

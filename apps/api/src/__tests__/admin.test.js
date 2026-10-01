@@ -80,7 +80,7 @@ describe('Admin Module', () => {
       // Set user as seller with MP connected
       const userId = JSON.parse(Buffer.from(userToken.split('.')[1], 'base64').toString()).id;
       await sequelize.query(
-        `UPDATE users SET role = 'seller', mp_connected = true WHERE users_id = '${userId}'`
+        `UPDATE users SET role = 'seller', mp_connected = true, email_verified = true WHERE users_id = '${userId}'`
       );
 
       const res = await request(server)

@@ -4,6 +4,8 @@ import { AppError } from '../../errors/appError.js';
 import { generateJWT } from '../../config/plugins/generate-jwt.js';
 import { comparePassword } from '../../config/plugins/encrypted-password.js';
 import { r2Storage } from '../../config/r2/r2.js';
+import { mailService } from '../../config/resend/resend.js';
+import { verifyCaptcha } from '../../utils/captcha.js';
 import {
   validateRegister,
   validateLogin,
@@ -16,6 +18,11 @@ export const register = catchAsync(async (req, res, next) => {
   const { hasError, errorMessages, data } = validateRegister(req.body);
   if (hasError) {
     return res.status(422).json({ status: 'error', message: errorMessages.join(', ') });
+  }
+
+  const captchaOk = await verifyCaptcha(req.body.captchaToken);
+  if (!captchaOk) {
+    return next(new AppError('Captcha inválido. Intentá de nuevo.', 422));
   }
 
   const existingEmail = await authService.findOneByEmail(data.email);
@@ -35,6 +42,12 @@ export const register = catchAsync(async (req, res, next) => {
     emailVerificationToken: verificationToken,
   });
 
+  try {
+    await mailService.sendVerificationEmail(user.email, verificationToken);
+  } catch (mailError) {
+    console.error('Error sending verification email:', mailError);
+  }
+
   const token = generateJWT({ id: user.id, role: user.role });
 
   res.status(201).json({
@@ -48,6 +61,7 @@ export const register = catchAsync(async (req, res, next) => {
       role: user.role,
       storeName: user.storeName,
       rank: user.rank,
+      emailVerified: user.emailVerified,
     },
   });
 });
@@ -217,6 +231,25 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
   });
 });
 
+export const resendVerification = catchAsync(async (req, res) => {
+  const user = req.sessionUser;
+
+  if (user.emailVerified) {
+    return res.status(200).json({ status: 'success', message: 'Tu email ya está verificado.' });
+  }
+
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+  await authService.update(user.id, { emailVerificationToken: verificationToken });
+
+  try {
+    await mailService.sendVerificationEmail(user.email, verificationToken);
+  } catch (mailError) {
+    console.error('Error sending verification email:', mailError);
+  }
+
+  res.status(200).json({ status: 'success', message: 'Te reenviamos el email de verificación.' });
+});
+
 export const activateSeller = catchAsync(async (req, res, next) => {
   const { storeName, description } = req.body;
 
@@ -225,6 +258,10 @@ export const activateSeller = catchAsync(async (req, res, next) => {
   }
 
   const user = req.sessionUser;
+
+  if (!user.emailVerified) {
+    return next(new AppError('Verificá tu email antes de activar tu cuenta de vendedor.', 403));
+  }
 
   if (user.role === 'seller') {
     return next(new AppError('Ya tenés una cuenta de vendedor activa.', 400));

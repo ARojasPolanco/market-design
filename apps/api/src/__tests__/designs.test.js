@@ -53,7 +53,7 @@ describe('Designs Module', () => {
 
       // Set role to seller and connect MP
       await sequelize.query(
-        `UPDATE users SET role = 'seller', mp_connected = true, mp_access_token = 'test_token' WHERE users_id = '${sellerId}'`
+        `UPDATE users SET role = 'seller', mp_connected = true, mp_access_token = 'test_token', email_verified = true WHERE users_id = '${sellerId}'`
       );
 
       // Re-login to get token with correct role

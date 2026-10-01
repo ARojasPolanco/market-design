@@ -16,6 +16,10 @@ export const createPurchase = catchAsync(async (req, res, next) => {
     return res.status(422).json({ status: 'error', message: errorMessages.join(', ') });
   }
 
+  if (!req.sessionUser.emailVerified) {
+    return next(new AppError('Verificá tu email para poder comprar.', 403));
+  }
+
   const design = await designService.findById(data.designId);
   if (!design) {
     return next(new AppError('Diseño no encontrado', 404));

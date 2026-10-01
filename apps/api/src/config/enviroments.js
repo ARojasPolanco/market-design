@@ -17,6 +17,7 @@ const envSchema = z.object({
   MP_ACCESS_TOKEN: z.string().optional(),
   MP_PUBLIC_KEY: z.string().optional(),
   MP_WEBHOOK_SECRET: z.string().optional(),
+  HCAPTCHA_SECRET: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
   OWNER_EMAIL: z.string().optional(),
   CLOUDINARY_CLOUD_NAME: z.string().optional(),

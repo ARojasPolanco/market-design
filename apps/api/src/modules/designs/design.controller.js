@@ -63,7 +63,7 @@ export const getDesign = catchAsync(async (req, res, next) => {
   });
 });
 
-export const createDesign = catchAsync(async (req, res) => {
+export const createDesign = catchAsync(async (req, res, next) => {
   const parsedBody = {
     ...req.body,
     price: Number(req.body.price),
@@ -77,6 +77,10 @@ export const createDesign = catchAsync(async (req, res) => {
   }
 
   const user = req.sessionUser;
+
+  if (!user.emailVerified) {
+    return next(new AppError('Verificá tu email para poder subir diseños.', 403));
+  }
   const designFile = req.files?.file?.[0];
   const previewFiles = req.files?.previews || [];
 
