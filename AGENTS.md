@@ -92,6 +92,15 @@ Orden en `app.ts`:
 - Nunca usar `process.env.X` directo — siempre `envs.X`
 - `.env.example` documentado por grupos
 
+## Tests
+
+- **Vitest + Supertest**. Comando raíz: `npm test` (workspace `@marketplace/api`).
+- **Base de datos aislada**: con `NODE_ENV=test` la API usa `TEST_DB_URI` (no `DB_URI`), para no tocar los datos de desarrollo. No hay CI, así que los tests corren en local.
+- Crear la base de test una vez: `docker exec <container> psql -U marketplace -d postgres -c 'CREATE DATABASE marketplace_disenos_test'`. En instalaciones nuevas, `docker/initdb` la crea automáticamente en el primer arranque de Postgres.
+- Los tests **fallan si la base no está disponible** (no se auto-saltan). Levantá Postgres antes: `npm run docker:up`.
+- Los archivos corren en serie (`fileParallelism: false`) para evitar colisiones de emails/usuarios.
+- Limpieza de datos de test que hayan quedado en la base de desarrollo: `node scripts/clean-test-data.js` (desde `apps/api`).
+
 ## Convenciones de código
 
 - **Lenguaje**: JavaScript puro (no TypeScript en esta fase)
@@ -151,14 +160,19 @@ Antes de llegar a moderación, el sistema bloquea si no cumple:
 5. Backend genera URL firmada temporal → envía mail con link/adjunto
 6. Comprador puede re-descargar desde "Mis compras"
 
-## Configuración (no hardcodear)
+## Configuración
 
-Dejar como configurable desde panel admin:
+Editable desde panel admin (tabla `config`), solo mediante el endpoint `PUT /v1/admin/config` con **whitelist de claves**:
 
-- Porcentaje de comisión (base + escalonado por volumen)
-- Formatos de archivo aceptados
-- Texto/logo de marca de agua
-- DPI/resolución mínima
+- Categorías (`categories`)
+- Técnicas (`techniques`)
+
+**No configurable (fijo en código, por seguridad):**
+
+- Porcentaje de comisión y umbrales de rango → `apps/api/src/config/ranks.js`
+- Formatos de archivo aceptados, texto/logo de marca de agua y DPI mínimo → hardcodeados en el procesamiento de imágenes
+
+Cualquier otra clave enviada a `PUT /v1/admin/config` es rechazada (422).
 
 ## Roles
 

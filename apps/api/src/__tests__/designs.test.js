@@ -18,8 +18,9 @@ beforeAll(async () => {
     await sequelize.authenticate();
     dbAvailable = true;
   } catch (_error) {
-    console.log('Test DB not available');
-    return;
+    throw new Error(
+      'La base de datos de test no está disponible. Levantá PostgreSQL (docker compose up) antes de correr los tests.'
+    );
   }
 
   try {
@@ -173,7 +174,7 @@ describe('Designs Module', () => {
       expect(res.status).toBe(401);
     });
 
-    it('should fail with invalid category', async () => {
+    it('should accept a free-text category suggestion', async () => {
       if (!sellerToken) return;
 
       const res = await request(server)
@@ -183,11 +184,11 @@ describe('Designs Module', () => {
           title: 'Test Design',
           description: 'This is a test design description',
           price: 2500,
-          category: 'invalid_category',
+          categorySuggested: 'categoria libre',
           technique: 'sublimado',
         });
 
-      expect(res.status).toBe(422);
+      expect(res.status).toBe(201);
     });
 
     it('should fail with short title', async () => {
@@ -415,19 +416,42 @@ describe('Designs Module', () => {
   });
 
   describe('DELETE /api/v1/designs/:id', () => {
-    it('should soft delete a design', async () => {
+    it('should not delete an approved design directly', async () => {
       if (!designId || !sellerToken) return;
 
       const res = await request(server)
         .delete(`/api/v1/designs/${designId}`)
         .set('Authorization', `Bearer ${sellerToken}`);
 
+      expect(res.status).toBe(400);
+    });
+
+    it('should soft delete a pending design', async () => {
+      if (!sellerToken) return;
+
+      const createRes = await request(server)
+        .post('/api/v1/designs')
+        .set('Authorization', `Bearer ${sellerToken}`)
+        .send({
+          title: 'Design to Delete',
+          description: 'This design will be soft deleted for testing',
+          price: 1200,
+          categorySuggested: 'sublimado',
+          technique: 'sublimado',
+        });
+
+      expect(createRes.status).toBe(201);
+      const id = createRes.body.design.id;
+
+      const res = await request(server)
+        .delete(`/api/v1/designs/${id}`)
+        .set('Authorization', `Bearer ${sellerToken}`);
+
       expect(res.status).toBe(200);
       expect(res.body.status).toBe('success');
 
       // Verify it's deleted
-      const getRes = await request(server)
-        .get(`/api/v1/designs/${designId}`);
+      const getRes = await request(server).get(`/api/v1/designs/${id}`);
 
       expect(getRes.status).toBe(404);
     });

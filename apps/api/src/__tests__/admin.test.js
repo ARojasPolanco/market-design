@@ -17,8 +17,9 @@ beforeAll(async () => {
     await sequelize.authenticate();
     dbAvailable = true;
   } catch (_error) {
-    console.log('Test DB not available');
-    return;
+    throw new Error(
+      'La base de datos de test no está disponible. Levantá PostgreSQL (docker compose up) antes de correr los tests.'
+    );
   }
 
   try {
@@ -262,16 +263,27 @@ describe('Admin Module', () => {
       expect(res.body.config).toBeDefined();
     });
 
-    it('should update config', async () => {
+    it('should update an editable config key', async () => {
       if (!dbAvailable || !adminToken) return;
 
       const res = await request(server)
         .put('/api/v1/admin/config')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ key: 'commission_base', value: 25 });
+        .send({ key: 'categories', value: ['Sublimado', 'Estampado'] });
 
       expect(res.status).toBe(200);
       expect(res.body.config).toBeDefined();
+    });
+
+    it('should reject a non-editable config key (commission)', async () => {
+      if (!dbAvailable || !adminToken) return;
+
+      const res = await request(server)
+        .put('/api/v1/admin/config')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ key: 'commission', value: { base: 1 } });
+
+      expect(res.status).toBe(422);
     });
   });
 

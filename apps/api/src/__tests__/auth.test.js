@@ -17,8 +17,9 @@ beforeAll(async () => {
     console.log('Test DB connected');
     dbAvailable = true;
   } catch (_error) {
-    console.log('Test DB not available, skipping DB tests');
-    return;
+    throw new Error(
+      'La base de datos de test no está disponible. Levantá PostgreSQL (docker compose up) antes de correr los tests.'
+    );
   }
 
   try {

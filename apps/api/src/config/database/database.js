@@ -1,7 +1,11 @@
 import { Sequelize } from 'sequelize';
 import { envs } from '../enviroments.js';
 
-const sequelize = new Sequelize(envs.DB_URI, {
+// In tests, use a dedicated database so the dev data is never touched.
+const databaseUri =
+  envs.NODE_ENV === 'test' ? envs.TEST_DB_URI || envs.DB_URI : envs.DB_URI;
+
+const sequelize = new Sequelize(databaseUri, {
   dialect: 'postgres',
   logging: false,
   define: {

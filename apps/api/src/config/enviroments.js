@@ -6,6 +6,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   DB_URI: z.string().url(),
+  TEST_DB_URI: z.string().url().optional(),
   SECRET_JWT_SEED: z.string().min(32),
   JWT_EXPIRE_IN: z.string().default('1d'),
   R2_ACCOUNT_ID: z.string().optional(),

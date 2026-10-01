@@ -18,8 +18,9 @@ beforeAll(async () => {
     await sequelize.authenticate();
     dbAvailable = true;
   } catch (_error) {
-    console.log('Test DB not available');
-    return;
+    throw new Error(
+      'La base de datos de test no está disponible. Levantá PostgreSQL (docker compose up) antes de correr los tests.'
+    );
   }
 
   try {
