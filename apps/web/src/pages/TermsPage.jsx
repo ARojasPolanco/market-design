@@ -250,7 +250,7 @@ export default function TermsPage() {
         <p className="text-gray-600 mb-3">Para consultas, reclamos o solicitudes relacionadas con estos Términos:</p>
         <div className="bg-gray-50 rounded-lg p-4 text-gray-600 space-y-1">
           <p><strong>Market Design</strong></p>
-          <p>Correo: soporte@marketdesign.com</p>
+          <p>Correo: soporte@marketdesign.shop</p>
           <p>Responsable: Rojas Polanco Alan</p>
         </div>
       </article>
