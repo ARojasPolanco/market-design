@@ -547,9 +547,15 @@ export default function SellerDashboard() {
                   <h3 className="font-medium text-gray-900">{design.title}</h3>
                   <p className="text-sm text-gray-500">{design.category} · ${design.price.toLocaleString()}</p>
                 </div>
-                <span className="flex items-center gap-1 text-yellow-600 bg-yellow-50 text-sm px-3 py-1 rounded-full">
+                <span className="flex items-center gap-1 text-yellow-600 bg-yellow-50 text-sm px-3 py-1 rounded-full shrink-0">
                   <Clock size={14} /> Pendiente
                 </span>
+                <Link
+                  to={`/vendedor/panel/subir?edit=${design.id}`}
+                  className="text-sm font-medium text-brand-teal hover:text-brand-teal-dark whitespace-nowrap shrink-0"
+                >
+                  Editar y reenviar
+                </Link>
               </div>
             ))
           ) : (

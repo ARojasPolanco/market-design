@@ -147,6 +147,13 @@ export const updateDesign = catchAsync(async (req, res, next) => {
   const designFile = req.files?.file?.[0];
   const previewFiles = req.files?.previews || [];
 
+  // Published designs must change previews through the review flow.
+  if (previewFiles.length > 0 && (design.status === 'approved' || design.status === 'paused')) {
+    return next(
+      new AppError("Para cambiar la preview de un diseño publicado, usá 'Reemplazar preview'.", 400)
+    );
+  }
+
   // Upload new preview files to Cloudinary if provided
   const updateData = { ...data };
   if (previewFiles.length > 0) {
@@ -170,12 +177,26 @@ export const updateDesign = catchAsync(async (req, res, next) => {
   }
 
   // If rejected, set back to pending
-  if (design.status === 'rejected') {
+  const wasRejected = design.status === 'rejected';
+  if (wasRejected) {
     updateData.status = 'pending';
     updateData.rejectionReason = null;
   }
 
   const updated = await designService.update(req.params.id, updateData);
+
+  if (wasRejected) {
+    try {
+      await notifyAdmins(
+        'design_resubmitted',
+        'Diseño reenviado a revisión',
+        `El vendedor reenvió el diseño "${design.title}" tras un rechazo.`,
+        design.id
+      );
+    } catch (notifError) {
+      console.error('Error notifying admins:', notifError);
+    }
+  }
 
   res.status(200).json({
     status: 'success',

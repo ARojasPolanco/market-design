@@ -34,7 +34,7 @@ router.get('/:id', getDesign);
 
 // Protected routes
 router.post('/', protect, restrictTo('seller', 'admin'), uploadDesignFiles, createDesign);
-router.patch('/:id', protect, restrictTo('seller', 'admin'), updateDesign);
+router.patch('/:id', protect, restrictTo('seller', 'admin'), uploadDesignFiles, updateDesign);
 router.patch('/:id/price', protect, restrictTo('seller', 'admin'), updateDesignPrice);
 router.patch('/:id/description', protect, restrictTo('seller', 'admin'), updateDesignDescription);
 router.patch('/:id/preview', protect, restrictTo('seller', 'admin'), uploadDesignFiles, requestPreviewReplacement);
