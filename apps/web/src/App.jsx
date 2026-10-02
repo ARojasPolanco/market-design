@@ -8,6 +8,7 @@ import CatalogPage from './pages/CatalogPage.jsx';
 import DesignDetailPage from './pages/DesignDetailPage.jsx';
 import SellerPage from './pages/SellerPage.jsx';
 import CheckoutPage from './pages/CheckoutPage.jsx';
+import CheckoutResultPage from './pages/CheckoutResultPage.jsx';
 import PurchaseDownloadPage from './pages/PurchaseDownloadPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
@@ -40,6 +41,9 @@ function App() {
           <Route path="/catalogo" element={<CatalogPage />} />
           <Route path="/diseno/:id" element={<DesignDetailPage />} />
           <Route path="/vendedor/:id" element={<SellerPage />} />
+          <Route path="/checkout/success" element={<CheckoutResultPage status="success" />} />
+          <Route path="/checkout/failure" element={<CheckoutResultPage status="failure" />} />
+          <Route path="/checkout/pending" element={<CheckoutResultPage status="pending" />} />
           <Route path="/checkout/:id" element={<CheckoutPage />} />
           <Route path="/compra/:token" element={<PurchaseDownloadPage />} />
           <Route path="/login" element={<LoginPage />} />

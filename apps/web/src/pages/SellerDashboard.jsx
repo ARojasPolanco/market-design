@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Upload,
   TrendingUp,
@@ -39,6 +39,7 @@ import logger from '../utils/logger.js';
 import RatingStars from '../components/RatingStars.jsx';
 import PreviewUnavailable from '../components/PreviewUnavailable.jsx';
 import SellerReviews from '../components/SellerReviews.jsx';
+import { connectMercadoPago } from '../utils/mercadopago.js';
 import { RankBadge, getRankInfo } from '../components/RankBadge.jsx';
 
 export default function SellerDashboard() {
@@ -61,6 +62,21 @@ export default function SellerDashboard() {
   useEffect(() => {
     if (activeTab === 'reviews') refetchRatings();
   }, [activeTab]);
+
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const mp = searchParams.get('mp');
+    if (mp === 'connected') showToast('¡Mercado Pago conectado!', { type: 'success' });
+    else if (mp === 'error') showToast('No pudimos conectar Mercado Pago.', { type: 'error' });
+  }, []);
+
+  const handleConnectMP = async () => {
+    try {
+      await connectMercadoPago();
+    } catch (_err) {
+      showToast('No pudimos iniciar la conexión con Mercado Pago.', { type: 'error' });
+    }
+  };
 
   const handleDeleteDesign = async () => {
     if (!deleteModal) return;
@@ -253,6 +269,27 @@ export default function SellerDashboard() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Mercado Pago connection */}
+      {seller?.role === 'seller' && !seller?.mpConnected && (
+        <div className="bg-brand-violet/10 border border-brand-violet/30 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-4">
+          <div className="p-3 bg-white rounded-xl shadow-sm">
+            <DollarSign size={22} className="text-brand-violet" />
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <h3 className="font-semibold text-gray-900">Conectá tu Mercado Pago</h3>
+            <p className="text-sm text-gray-600">
+              Es necesario para recibir el dinero de tus ventas. La comisión se descuenta automáticamente.
+            </p>
+          </div>
+          <button
+            onClick={handleConnectMP}
+            className="bg-brand-violet text-white px-6 py-2.5 rounded-lg font-medium hover:bg-brand-violet/90 transition-colors"
+          >
+            Conectar Mercado Pago
+          </button>
         </div>
       )}
 

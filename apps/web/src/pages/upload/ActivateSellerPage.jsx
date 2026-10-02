@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import api from '../../config/api.js';
 import { Store, CreditCard, ArrowRight, CheckCircle } from 'lucide-react';
 import BackButton from '../../components/BackButton.jsx';
+import { connectMercadoPago } from '../../utils/mercadopago.js';
 
 export default function ActivateSellerPage() {
   const [storeName, setStoreName] = useState('');
@@ -36,8 +37,12 @@ export default function ActivateSellerPage() {
     }
   };
 
-  const handleConnectMP = () => {
-    showToast('Función de Mercado Pago próximamente', { type: 'info' });
+  const handleConnectMP = async () => {
+    try {
+      await connectMercadoPago();
+    } catch (_err) {
+      showToast('No pudimos iniciar la conexión con Mercado Pago.', { type: 'error' });
+    }
   };
 
   if (step === 2) {

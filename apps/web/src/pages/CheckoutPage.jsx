@@ -22,13 +22,20 @@ export default function CheckoutPage() {
     }
     setIsProcessing(true);
     try {
-      // Simulate payment - create purchase directly
-      await api.post('/v1/purchases', {
-        designId: id,
-        // In production, this would come from MP webhook
-        mpPaymentId: `sim_${Date.now()}`,
-        mpPreferenceId: `pref_${Date.now()}`,
-      });
+      const payload = { designId: id };
+      // Local dev keeps a simulated purchase; production goes through Mercado Pago.
+      if (import.meta.env.DEV) {
+        payload.mpPaymentId = `sim_${Date.now()}`;
+      }
+
+      const res = await api.post('/v1/purchases', payload);
+      const result = res.data.purchase || {};
+
+      if (result.initPoint) {
+        window.location.href = result.initPoint;
+        return;
+      }
+
       setIsPaid(true);
       showToast('¡Compra exitosa!', { type: 'success' });
     } catch (err) {
