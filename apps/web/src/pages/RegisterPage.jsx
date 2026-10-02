@@ -13,9 +13,7 @@ export default function RegisterPage() {
     username: '',
     email: '',
     password: '',
-    storeName: '',
   });
-  const [wantToSell, setWantToSell] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -40,9 +38,6 @@ export default function RegisterPage() {
     setError('');
     try {
       const data = { ...formData, captchaToken };
-      if (!wantToSell) {
-        delete data.storeName;
-      }
       await register(data);
       showToast('Cuenta creada correctamente. Revisá tu email para verificarla.', { type: 'success' });
       navigate('/');
@@ -62,7 +57,8 @@ export default function RegisterPage() {
         <div className="bg-white rounded-2xl shadow-sm p-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2 text-center">Crear cuenta</h1>
           <p className="text-sm text-gray-500 text-center mb-6">
-            Comprá y vendé diseños desde la misma cuenta.
+            Creá tu cuenta para comprar. Si querés vender, podés activar tu cuenta de vendedor
+            cuando quieras.
           </p>
 
           {/* Error message */}
@@ -137,40 +133,6 @@ export default function RegisterPage() {
               </div>
               <p className="text-xs text-gray-400 mt-1">Mínimo 8 caracteres</p>
             </div>
-
-            {/* Want to sell */}
-            <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-              <input
-                type="checkbox"
-                checked={wantToSell}
-                onChange={(e) => setWantToSell(e.target.checked)}
-                className="text-brand-teal focus:ring-brand-teal rounded"
-              />
-              <div>
-                <span className="text-sm font-medium text-gray-700">Quiero vender diseños</span>
-                <p className="text-xs text-gray-500">Podés activar esto después si preferís</p>
-              </div>
-            </label>
-
-            {/* Store name - only if want to sell */}
-            {wantToSell && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre de tu tienda
-                </label>
-                <input
-                  type="text"
-                  name="storeName"
-                  value={formData.storeName}
-                  onChange={handleChange}
-                  placeholder="Ej: Roxin Diseños, Arte Digital Juan..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Este es el nombre de tu tienda. Los compradores te ven así.
-                </p>
-              </div>
-            )}
 
             {/* Accept terms */}
             <label className="flex items-start gap-3 cursor-pointer">
