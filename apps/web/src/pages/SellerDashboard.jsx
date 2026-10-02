@@ -185,11 +185,12 @@ export default function SellerDashboard() {
             <div className="p-2 bg-green-100 rounded-lg">
               <DollarSign size={20} className="text-green-600" />
             </div>
-            <span className="text-sm text-gray-500">Ganancias totales</span>
+            <span className="text-sm text-gray-500">Ganancias netas</span>
           </div>
           <p className="text-2xl font-bold text-gray-900">
-            ${stats.totalEarnings.toLocaleString()}
+            ${Number(stats.netEarnings || 0).toLocaleString()}
           </p>
+          <p className="text-xs text-gray-500 mt-1">Neto, luego de comisiones</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-3 mb-2">
@@ -628,8 +629,9 @@ export default function SellerDashboard() {
                   <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">Diseño</th>
                   <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">Comprador</th>
                   <th className="text-right text-sm font-medium text-gray-500 px-6 py-3">Precio</th>
-                  <th className="text-right text-sm font-medium text-gray-500 px-6 py-3">Comisión</th>
-                  <th className="text-right text-sm font-medium text-gray-500 px-6 py-3">Ganancia</th>
+                  <th className="text-right text-sm font-medium text-gray-500 px-6 py-3 whitespace-nowrap">Comisión MD</th>
+                  <th className="text-right text-sm font-medium text-gray-500 px-6 py-3 whitespace-nowrap">Comisión MP</th>
+                  <th className="text-right text-sm font-medium text-gray-500 px-6 py-3 whitespace-nowrap">Ganancia neta</th>
                   <th className="text-right text-sm font-medium text-gray-500 px-6 py-3">Fecha</th>
                 </tr>
               </thead>
@@ -641,11 +643,14 @@ export default function SellerDashboard() {
                     <td className="px-6 py-4 text-sm text-gray-900 text-right">
                       ${Number(sale.price || 0).toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 text-sm text-red-600 text-right">
+                    <td className="px-6 py-4 text-sm text-red-600 text-right whitespace-nowrap">
                       -${Number(sale.commission || 0).toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-green-600 text-right">
-                      +${Number(sale.sellerEarnings || 0).toLocaleString()}
+                    <td className="px-6 py-4 text-sm text-red-600 text-right whitespace-nowrap">
+                      -${Number(sale.mpFee || 0).toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium text-green-600 text-right whitespace-nowrap">
+                      +${(Number(sale.sellerEarnings || 0) - Number(sale.mpFee || 0)).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 text-right">
                       {new Date(sale.createdAt).toLocaleDateString('es-AR')}

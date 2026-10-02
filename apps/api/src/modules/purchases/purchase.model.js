@@ -36,6 +36,11 @@ Purchase.init(
       allowNull: false,
       field: 'seller_earnings',
     },
+    mpFee: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+      field: 'mp_fee',
+    },
     mpPaymentId: {
       type: DataTypes.STRING(100),
       allowNull: true,

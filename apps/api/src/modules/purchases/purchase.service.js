@@ -78,7 +78,7 @@ export class PurchaseService {
     });
   }
 
-  async completePurchase(id, mpPaymentId) {
+  async completePurchase(id, mpPaymentId, mpFee = null) {
     const purchase = await Purchase.findByPk(id);
     if (!purchase) return null;
 
@@ -88,6 +88,7 @@ export class PurchaseService {
     return await purchase.update({
       status: 'completed',
       mpPaymentId,
+      mpFee,
       downloadToken,
       downloadTokenExpires,
     });

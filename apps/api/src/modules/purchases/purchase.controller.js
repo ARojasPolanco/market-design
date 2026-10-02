@@ -193,8 +193,13 @@ export const handleWebhook = catchAsync(async (req, res) => {
         }
 
         if (purchase && purchase.status !== 'completed') {
+          // Mercado Pago processing fee (borne by the seller)
+          const mpFee = Array.isArray(payment.fee_details)
+            ? payment.fee_details.reduce((sum, fee) => sum + Number(fee.amount || 0), 0)
+            : null;
+
           // Complete purchase
-          const completed = await purchaseService.completePurchase(purchase.id, paymentId);
+          const completed = await purchaseService.completePurchase(purchase.id, paymentId, mpFee);
 
           // Update design sales count
           await designService.update(purchase.designId, {
@@ -284,6 +289,8 @@ export const getMySales = catchAsync(async (req, res) => {
   const sales = await purchaseService.findBySeller(req.sessionUser.id);
 
   const totalEarnings = sales.reduce((sum, s) => sum + Number(s.sellerEarnings || 0), 0);
+  const totalMpFees = sales.reduce((sum, s) => sum + Number(s.mpFee || 0), 0);
+  const netEarnings = Math.round((totalEarnings - totalMpFees) * 100) / 100;
   const totalSales = sales.length;
 
   // Get seller's designs to calculate views
@@ -296,6 +303,8 @@ export const getMySales = catchAsync(async (req, res) => {
     sales,
     stats: {
       totalEarnings,
+      totalMpFees,
+      netEarnings,
       totalSales,
       totalViews,
       conversionRate,

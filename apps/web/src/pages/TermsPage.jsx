@@ -205,6 +205,7 @@ export default function TermsPage() {
           <li>Market Design, en concepto de comisión.</li>
         </ul>
         <p className="text-gray-600 mb-3">El vendedor deberá mantener correctamente vinculada su cuenta de Mercado Pago para poder recibir los fondos correspondientes.</p>
+        <p className="text-gray-600 mb-3">El costo de procesamiento de Mercado Pago (comisión de Mercado Pago) es descontado por Mercado Pago del dinero que recibe el vendedor, y es independiente de la comisión de Market Design. El vendedor recibe el monto resultante luego de ambas deducciones.</p>
         <p className="text-gray-600 mb-6">Market Design no solicita al vendedor que gestione pagos de las ventas por fuera de los mecanismos habilitados por la plataforma.</p>
 
         <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">13. Suspensión y baja de cuentas</h2>

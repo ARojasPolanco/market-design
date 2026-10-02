@@ -304,6 +304,8 @@ export function useSellerSales() {
   const [sales, setSales] = useState([]);
   const [stats, setStats] = useState({
     totalEarnings: 0,
+    totalMpFees: 0,
+    netEarnings: 0,
     totalSales: 0,
     totalViews: 0,
     conversionRate: 0,
@@ -326,6 +328,8 @@ export function useSellerSales() {
       setSales(salesData);
       setStats({
         totalEarnings: statsData.totalEarnings || 0,
+        totalMpFees: statsData.totalMpFees || 0,
+        netEarnings: (statsData.netEarnings ?? statsData.totalEarnings) || 0,
         totalSales: statsData.totalSales || 0,
         totalViews: statsData.totalViews || 0,
         conversionRate: statsData.conversionRate || 0,
