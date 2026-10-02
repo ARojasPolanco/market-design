@@ -8,6 +8,9 @@ import sequelize from './config/database/database.js';
 
 const app = express();
 
+// Trust the reverse proxy (Render/Vercel) so rate limiting uses the real client IP
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet());
 
