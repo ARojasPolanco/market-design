@@ -80,23 +80,6 @@ export const createPurchase = catchAsync(async (req, res, next) => {
       // Don't fail the purchase if email fails
     }
 
-    // Send sale notification email to seller
-    try {
-      const seller = design.seller;
-      if (seller?.email) {
-        await mailService.sendSaleNotification(
-          seller.email,
-          design.title,
-          req.sessionUser.username || req.sessionUser.fullname,
-          design.price,
-          commission,
-          sellerEarnings
-        );
-      }
-    } catch (_emailError) {
-      // Don't fail the purchase if email fails
-    }
-
     try {
       await notificationService.create({
         userId: design.sellerId,
