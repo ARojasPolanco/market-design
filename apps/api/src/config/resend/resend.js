@@ -6,21 +6,78 @@ const resend = new Resend(envs.RESEND_API_KEY);
 export class MailService {
   async sendVerificationEmail(to, token) {
     const verificationUrl = `${envs.CORS_ORIGIN}/verify-email?token=${token}`;
+    const logoUrl = `${envs.CORS_ORIGIN}/marketDesignLogo.png`;
+    const year = new Date().getFullYear();
 
-    await resend.emails.send({
+    return await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
       to,
       subject: 'Verificá tu email - Market Design',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #0F2A44;">¡Bienvenido a Market Design!</h1>
-          <p>Para completar tu registro, verificá tu email haciendo click en el siguiente botón:</p>
-          <a href="${verificationUrl}" style="display: inline-block; background: #00C2B8; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 16px 0;">
-            Verificar email
-          </a>
-          <p style="color: #666; font-size: 14px;">Si no creaste esta cuenta, ignorá este mensaje.</p>
-          <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-          <p style="color: #999; font-size: 12px;">Market Design - Diseños digitales que hacen crecer tus ideas.</p>
+        <div style="display: none; max-height: 0; overflow: hidden; opacity: 0;">
+          Verificá tu email para activar tu cuenta en Market Design.
+        </div>
+        <div style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
+          <div style="text-align: center; padding: 32px 20px; background: linear-gradient(135deg, #0F2A44 0%, #1a3d5c 100%); border-radius: 12px 12px 0 0;">
+            <div style="display: inline-block; background: #ffffff; border-radius: 16px; padding: 14px 20px;">
+              <img src="${logoUrl}" alt="Market Design" style="height: 44px; display: block; border: 0;" />
+            </div>
+            <p style="color: #ffffff; margin: 16px 0 0 0; font-size: 14px;">Diseños digitales que hacen crecer tus ideas</p>
+          </div>
+
+          <div style="background: #ffffff; padding: 32px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h1 style="color: #0F2A44; font-size: 24px; margin: 0 0 12px 0;">¡Bienvenido a Market Design!</h1>
+            <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 8px 0;">
+              Estás a un paso de empezar. Para <strong>comprar, vender y comentar</strong> necesitamos confirmar que este email es tuyo.
+            </p>
+            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
+              Hacé click en el botón para verificar tu cuenta. Mientras tanto, tu cuenta queda con acceso limitado.
+            </p>
+
+            <div style="text-align: center; margin: 0 0 24px 0;">
+              <a href="${verificationUrl}" style="display: inline-block; background: #00C2B8; color: #ffffff; padding: 14px 34px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                Verificar mi email
+              </a>
+            </div>
+
+            <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin: 0 0 4px 0; text-align: center;">
+              ¿El botón no funciona? Copiá y pegá este enlace en tu navegador:
+            </p>
+            <p style="color: #00C2B8; font-size: 12px; word-break: break-all; text-align: center; margin: 0 0 28px 0;">
+              ${verificationUrl}
+            </p>
+
+            <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+              <p style="color: #0F2A44; font-size: 14px; font-weight: bold; margin: 0 0 12px 0;">
+                Con tu cuenta verificada vas a poder:
+              </p>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%;">
+                <tr>
+                  <td style="padding: 4px 8px 4px 0; color: #00C2B8; font-size: 15px; width: 22px; vertical-align: top;">&#10003;</td>
+                  <td style="padding: 4px 0; color: #4b5563; font-size: 14px; line-height: 1.5;">Comprar diseños y descargarlos al instante</td>
+                </tr>
+                <tr>
+                  <td style="padding: 4px 8px 4px 0; color: #00C2B8; font-size: 15px; vertical-align: top;">&#10003;</td>
+                  <td style="padding: 4px 0; color: #4b5563; font-size: 14px; line-height: 1.5;">Publicar y vender tus propios diseños</td>
+                </tr>
+                <tr>
+                  <td style="padding: 4px 8px 4px 0; color: #00C2B8; font-size: 15px; vertical-align: top;">&#10003;</td>
+                  <td style="padding: 4px 0; color: #4b5563; font-size: 14px; line-height: 1.5;">Comentar y valorar a los vendedores</td>
+                </tr>
+              </table>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0 0 16px 0;" />
+            <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin: 0;">
+              Si no creaste esta cuenta, podés ignorar este mensaje: no se activará nada.
+            </p>
+          </div>
+
+          <div style="text-align: center; padding: 16px 0;">
+            <p style="color: #9ca3af; font-size: 11px; margin: 0;">
+              © ${year} Market Design. Todos los derechos reservados.
+            </p>
+          </div>
         </div>
       `,
     });
