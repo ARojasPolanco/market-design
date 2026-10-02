@@ -10,6 +10,14 @@ const LOGO_BUFFER = readFileSync(
   fileURLToPath(new URL('../../../assets/brand/logo.png', import.meta.url))
 );
 
+const RANK_COLORS = {
+  bronce: '#CD7F32',
+  plata: '#808080',
+  oro: '#DAA520',
+  platino: '#5AABAB',
+  diamante: '#7C3AED',
+};
+
 export class MailService {
   async sendVerificationEmail(to, token) {
     const verificationUrl = `${envs.CORS_ORIGIN}/verify-email?token=${token}`;
@@ -253,11 +261,12 @@ export class MailService {
   async sendRankUpgrade(to, newRank, newCommission) {
     const panelUrl = `${envs.CORS_ORIGIN}/vendedor/panel`;
     const year = new Date().getFullYear();
+    const rankColor = RANK_COLORS[String(newRank).toLowerCase()] || '#00C2B8';
 
     return await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
       to,
-      subject: `¡Subiste al rango ${newRank}! - Market Design`,
+      subject: `🎉 ¡Subiste al rango ${newRank}! - Market Design`,
       attachments: [
         {
           filename: 'market-design.png',
@@ -267,35 +276,41 @@ export class MailService {
       ],
       html: `
         <div style="display: none; max-height: 0; overflow: hidden; opacity: 0;">
-          ¡Felicitaciones! Subiste de rango en Market Design.
+          ¡Increíble! Subiste de rango en Market Design.
         </div>
         <div style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
-          <div style="text-align: center; padding: 32px 20px; background: linear-gradient(135deg, #0F2A44 0%, #1a3d5c 100%); border-radius: 12px 12px 0 0;">
-            <div style="display: inline-block; background: #ffffff; border-radius: 16px; padding: 14px 20px;">
-              <img src="cid:${LOGO_CID}" alt="Market Design" style="height: 44px; display: block; border: 0;" />
+          <div style="text-align: center; padding: 34px 20px 26px 20px; background: linear-gradient(135deg, #8B5CF6 0%, #FF5B8F 52%, #FFB347 100%); border-radius: 12px 12px 0 0;">
+            <div style="font-size: 32px; line-height: 1; margin-bottom: 14px;">🎉&nbsp;&nbsp;✨&nbsp;&nbsp;🎉</div>
+            <div style="display: inline-block; background: #ffffff; border-radius: 16px; padding: 12px 18px;">
+              <img src="cid:${LOGO_CID}" alt="Market Design" style="height: 40px; display: block; border: 0;" />
             </div>
-            <p style="color: #ffffff; margin: 16px 0 0 0; font-size: 14px;">Diseños digitales que hacen crecer tus ideas</p>
+            <p style="color: #ffffff; margin: 14px 0 0 0; font-size: 14px; font-weight: bold; letter-spacing: 0.3px;">¡Lograste algo increíble!</p>
           </div>
 
           <div style="background: #ffffff; padding: 32px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-            <h1 style="color: #0F2A44; font-size: 24px; margin: 0 0 8px 0; text-align: center;">¡Subiste de rango!</h1>
-            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0; text-align: center;">
-              Tu esfuerzo está dando resultado. Seguí así.
+            <h1 style="color: #0F2A44; font-size: 26px; margin: 0 0 8px 0; text-align: center;">¡Felicitaciones! 🏆</h1>
+            <p style="color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0; text-align: center;">
+              Subiste de rango y tu comisión bajó. Todo tu esfuerzo vendiendo en Market Design está dando frutos.
             </p>
 
-            <div style="background: #0F2A44; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
-              <p style="color: #94a3b8; margin: 0 0 4px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Tu nuevo rango</p>
-              <p style="color: #ffffff; margin: 0 0 16px 0; font-size: 30px; font-weight: bold;">${newRank}</p>
-              <p style="color: #94a3b8; margin: 0; font-size: 13px;">Nueva comisión por venta</p>
-              <p style="color: #00C2B8; margin: 4px 0 0 0; font-size: 26px; font-weight: bold;">${newCommission}%</p>
+            <div style="text-align: center; margin-bottom: 22px;">
+              <div style="display: inline-block; background: ${rankColor}; border-radius: 999px; padding: 14px 32px; box-shadow: 0 6px 16px rgba(0,0,0,0.18);">
+                <span style="color: #ffffff; font-size: 22px; font-weight: bold; letter-spacing: 0.5px;">⭐ ${newRank}</span>
+              </div>
             </div>
 
-            <p style="color: #374151; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0; text-align: center;">
-              Cuanto más vendés, más baja tu comisión. ¡Publicá diseños de calidad para llegar al siguiente nivel!
+            <div style="background: #f0fdfa; border: 2px solid #00C2B8; border-radius: 12px; padding: 22px; text-align: center; margin-bottom: 24px;">
+              <p style="color: #0f766e; margin: 0 0 2px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Tu nueva comisión por venta</p>
+              <p style="color: #0F2A44; margin: 0; font-size: 42px; font-weight: bold; line-height: 1.1;">${newCommission}%</p>
+              <p style="color: #0f766e; margin: 6px 0 0 0; font-size: 13px;">Menos comisión, más ganancia para vos 💚</p>
+            </div>
+
+            <p style="color: #374151; font-size: 14px; line-height: 1.6; margin: 0 0 26px 0; text-align: center;">
+              Seguí publicando diseños de calidad para desbloquear el siguiente nivel. <strong>¡El próximo rango te espera!</strong>
             </p>
 
             <div style="text-align: center;">
-              <a href="${panelUrl}" style="display: inline-block; background: #00C2B8; color: #ffffff; padding: 14px 34px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+              <a href="${panelUrl}" style="display: inline-block; background: linear-gradient(135deg, #8B5CF6 0%, #00C2B8 100%); color: #ffffff; padding: 15px 38px; border-radius: 999px; text-decoration: none; font-weight: bold; font-size: 16px;">
                 Ver mi panel
               </a>
             </div>
