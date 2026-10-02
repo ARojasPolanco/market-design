@@ -9,6 +9,7 @@ let buyerToken;
 let sellerToken;
 let adminToken;
 let designId;
+let purchaseId;
 let dbAvailable = false;
 
 beforeAll(async () => {
@@ -200,6 +201,8 @@ describe('Purchases Module', () => {
       expect(res.body.status).toBe('success');
       expect(res.body.purchase).toBeDefined();
       expect(res.body.purchase.price).toBe('2500.00');
+
+      purchaseId = res.body.purchase.id;
     });
 
     it('should fail duplicate purchase', async () => {
@@ -280,6 +283,65 @@ describe('Purchases Module', () => {
       expect(res.status).toBe(200);
       expect(res.body.status).toBe('success');
       expect(res.body.ratings).toBeDefined();
+    });
+  });
+
+  describe('POST /api/v1/purchases/ratings/:id/reply', () => {
+    let ratingId;
+
+    it('buyer creates a rating for the purchased design', async () => {
+      if (!dbAvailable || !buyerToken || !designId || !purchaseId) return;
+
+      const res = await request(server)
+        .post('/api/v1/purchases/ratings')
+        .set('Authorization', `Bearer ${buyerToken}`)
+        .send({ designId, purchaseId, score: 5, comment: 'Excelente diseño' });
+
+      expect(res.status).toBe(201);
+      ratingId = res.body.rating?.id;
+    });
+
+    it('seller replies to their review', async () => {
+      if (!dbAvailable || !sellerToken || !ratingId) return;
+
+      const res = await request(server)
+        .post(`/api/v1/purchases/ratings/${ratingId}/reply`)
+        .set('Authorization', `Bearer ${sellerToken}`)
+        .send({ reply: 'Gracias por tu comentario!' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.rating.sellerReply).toBe('Gracias por tu comentario!');
+    });
+
+    it('rejects a reply from a non-owner', async () => {
+      if (!dbAvailable || !buyerToken || !ratingId) return;
+
+      const res = await request(server)
+        .post(`/api/v1/purchases/ratings/${ratingId}/reply`)
+        .set('Authorization', `Bearer ${buyerToken}`)
+        .send({ reply: 'intento de respuesta' });
+
+      expect(res.status).toBe(403);
+    });
+
+    it('shows the reply in the design ratings', async () => {
+      if (!dbAvailable || !designId) return;
+
+      const res = await request(server).get(`/api/v1/purchases/ratings/${designId}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.ratings[0].sellerReply).toBeDefined();
+    });
+
+    it('seller can delete their reply', async () => {
+      if (!dbAvailable || !sellerToken || !ratingId) return;
+
+      const res = await request(server)
+        .delete(`/api/v1/purchases/ratings/${ratingId}/reply`)
+        .set('Authorization', `Bearer ${sellerToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.rating.sellerReply).toBeNull();
     });
   });
 

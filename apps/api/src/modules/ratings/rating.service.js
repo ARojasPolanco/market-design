@@ -41,6 +41,31 @@ export class RatingService {
     });
   }
 
+  async findWithDesign(id) {
+    return await Rating.findOne({
+      where: { id, isDeleted: false },
+      include: [{ model: Design, as: 'design', attributes: ['id', 'sellerId', 'title'] }],
+    });
+  }
+
+  async reply(ratingId, sellerId, text) {
+    const rating = await this.findWithDesign(ratingId);
+    if (!rating) return { error: 'not_found' };
+    if (rating.design?.sellerId !== sellerId) return { error: 'forbidden' };
+
+    await rating.update({ sellerReply: text, sellerReplyAt: new Date() });
+    return { rating };
+  }
+
+  async removeReply(ratingId, sellerId) {
+    const rating = await this.findWithDesign(ratingId);
+    if (!rating) return { error: 'not_found' };
+    if (rating.design?.sellerId !== sellerId) return { error: 'forbidden' };
+
+    await rating.update({ sellerReply: null, sellerReplyAt: null });
+    return { rating };
+  }
+
   async hasRated(purchaseId) {
     const rating = await Rating.findOne({
       where: { purchaseId, isDeleted: false },

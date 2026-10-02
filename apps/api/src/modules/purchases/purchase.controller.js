@@ -7,6 +7,7 @@ import { mailService } from '../../config/resend/resend.js';
 import { envs } from '../../config/enviroments.js';
 import { getCommissionRate } from '../../config/ranks.js';
 import { achievementService } from '../achievements/achievement.service.js';
+import { notificationService } from '../notifications/notification.service.js';
 import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
 import { validateCreatePurchase, validateCreateRating } from './purchase.schema.js';
@@ -357,5 +358,56 @@ export const getDesignRatings = catchAsync(async (req, res) => {
   res.status(200).json({
     status: 'success',
     ratings,
+  });
+});
+
+export const replyToRating = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const text = (req.body?.reply || '').trim();
+
+  if (text.length < 2 || text.length > 1000) {
+    return next(new AppError('La respuesta debe tener entre 2 y 1000 caracteres.', 422));
+  }
+
+  const { rating, error } = await ratingService.reply(id, req.sessionUser.id, text);
+  if (error === 'not_found') {
+    return next(new AppError('Reseña no encontrada.', 404));
+  }
+  if (error === 'forbidden') {
+    return next(new AppError('No podés responder reseñas de diseños que no son tuyos.', 403));
+  }
+
+  try {
+    await notificationService.create({
+      userId: rating.buyerId,
+      type: 'review_reply',
+      title: 'El vendedor respondió tu reseña',
+      message: `Respondieron tu comentario en "${rating.design?.title || 'un diseño'}": ${text.slice(0, 120)}`,
+      designId: rating.designId,
+    });
+  } catch (notifError) {
+    console.error('Error creating notification:', notifError);
+  }
+
+  res.status(200).json({
+    status: 'success',
+    rating,
+  });
+});
+
+export const deleteRatingReply = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+
+  const { rating, error } = await ratingService.removeReply(id, req.sessionUser.id);
+  if (error === 'not_found') {
+    return next(new AppError('Reseña no encontrada.', 404));
+  }
+  if (error === 'forbidden') {
+    return next(new AppError('No podés responder reseñas de diseños que no son tuyos.', 403));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    rating,
   });
 });

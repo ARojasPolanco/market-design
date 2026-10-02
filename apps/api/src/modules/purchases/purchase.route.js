@@ -9,6 +9,8 @@ import {
   reDownload,
   createRating,
   getDesignRatings,
+  replyToRating,
+  deleteRatingReply,
 } from './purchase.controller.js';
 import { protect } from '../auth/auth.middleware.js';
 
@@ -26,5 +28,7 @@ router.get('/my/sales', protect, getMySales);
 router.get('/:id/verify', protect, verifyPayment);
 router.post('/:id/redownload', protect, reDownload);
 router.post('/ratings', protect, createRating);
+router.post('/ratings/:id/reply', protect, replyToRating);
+router.delete('/ratings/:id/reply', protect, deleteRatingReply);
 
 export default router;

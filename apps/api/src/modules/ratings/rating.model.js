@@ -41,6 +41,16 @@ Rating.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    sellerReply: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'seller_reply',
+    },
+    sellerReplyAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'seller_reply_at',
+    },
     isDeleted: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
