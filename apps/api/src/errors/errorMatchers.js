@@ -27,6 +27,12 @@ const handlePgValueTooLong = () =>
 
 const handlePgInvalidType = () => new AppError('Tipo de dato inválido.', 400);
 
+const handleBodyParserParse = () =>
+  new AppError('El cuerpo de la solicitud no es válido.', 400);
+
+const handleBodyParserTooLarge = () =>
+  new AppError('El contenido enviado es demasiado grande.', 413);
+
 const handleMulterFileSize = () => new AppError('El archivo excede el tamaño máximo permitido.', 400);
 
 const handleMulterUnexpectedFile = () => new AppError('Campo de archivo inesperado.', 400);
@@ -46,6 +52,8 @@ export const errorMatchers = [
   { match: (err) => err.code === '23503', transform: handlePgForeignKeyViolation },
   { match: (err) => err.code === '22001', transform: handlePgValueTooLong },
   { match: (err) => err.code === '22P02', transform: handlePgInvalidType },
+  { match: (err) => err.type === 'entity.parse.failed', transform: handleBodyParserParse },
+  { match: (err) => err.type === 'entity.too.large', transform: handleBodyParserTooLarge },
   { match: (err) => err.code === 'LIMIT_FILE_SIZE', transform: handleMulterFileSize },
   { match: (err) => err.code === 'LIMIT_UNEXPECTED_FILE', transform: handleMulterUnexpectedFile },
 ];
