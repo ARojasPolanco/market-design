@@ -322,16 +322,30 @@ describe('Admin Module', () => {
       expect(res.body.users).toBeDefined();
     });
 
+    it('should require a reason to suspend a user', async () => {
+      if (!dbAvailable || !adminToken || !userToken) return;
+      const userId = JSON.parse(Buffer.from(userToken.split('.')[1], 'base64').toString()).id;
+
+      const res = await request(server)
+        .patch(`/api/v1/admin/users/${userId}/suspend`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({});
+
+      expect(res.status).toBe(422);
+    });
+
     it('should suspend and reactivate a user', async () => {
       if (!dbAvailable || !adminToken || !userToken) return;
       const userId = JSON.parse(Buffer.from(userToken.split('.')[1], 'base64').toString()).id;
 
       const suspend = await request(server)
         .patch(`/api/v1/admin/users/${userId}/suspend`)
-        .set('Authorization', `Bearer ${adminToken}`);
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ reason: 'Incumplimiento de las normas de la comunidad.' });
 
       expect(suspend.status).toBe(200);
       expect(suspend.body.user.status).toBe('suspended');
+      expect(suspend.body.user.suspensionReason).toBe('Incumplimiento de las normas de la comunidad.');
 
       const blocked = await request(server)
         .get('/api/v1/auth/profile')

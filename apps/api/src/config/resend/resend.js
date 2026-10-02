@@ -325,6 +325,60 @@ export class MailService {
       `,
     });
   }
+
+  async sendAccountSuspended(to, reason) {
+    const year = new Date().getFullYear();
+    const supportEmail = 'soporte@market-design.com';
+
+    return await resend.emails.send({
+      from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
+      to,
+      subject: 'Tu cuenta fue suspendida - Market Design',
+      attachments: [
+        {
+          filename: 'market-design.png',
+          content: LOGO_BUFFER,
+          inlineContentId: LOGO_CID,
+        },
+      ],
+      html: `
+        <div style="display: none; max-height: 0; overflow: hidden; opacity: 0;">
+          Tu cuenta de Market Design fue suspendida.
+        </div>
+        <div style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
+          <div style="text-align: center; padding: 30px 20px 26px 20px; background: linear-gradient(135deg, #0F2A44 0%, #7f1d1d 100%); border-radius: 12px 12px 0 0;">
+            <div style="font-size: 30px; line-height: 1; margin-bottom: 12px;">⚠️</div>
+            <div style="display: inline-block; background: #ffffff; border-radius: 16px; padding: 12px 18px;">
+              <img src="cid:${LOGO_CID}" alt="Market Design" style="height: 40px; display: block; border: 0;" />
+            </div>
+            <h1 style="color: #ffffff; font-size: 22px; margin: 16px 0 0 0;">Tu cuenta fue suspendida</h1>
+          </div>
+
+          <div style="background: #ffffff; padding: 32px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 20px 0;">
+              Hola, tu cuenta de Market Design quedó <strong>suspendida</strong>. Por eso no vas a poder iniciar sesión ni operar en la plataforma por el momento.
+            </p>
+
+            <div style="background: #fef2f2; border-left: 4px solid #dc2626; padding: 14px 16px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
+              <p style="margin: 0 0 4px 0; color: #991b1b; font-weight: bold; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Motivo</p>
+              <p style="margin: 0; color: #7f1d1d; font-size: 14px; line-height: 1.5;">${reason}</p>
+            </div>
+
+            <p style="color: #374151; font-size: 14px; line-height: 1.6; margin: 0;">
+              Si creés que es un error o querés resolverlo, escribinos a
+              <a href="mailto:${supportEmail}" style="color: #00C2B8; text-decoration: none; font-weight: bold;">${supportEmail}</a>.
+            </p>
+          </div>
+
+          <div style="text-align: center; padding: 16px 0;">
+            <p style="color: #9ca3af; font-size: 11px; margin: 0;">
+              © ${year} Market Design. Todos los derechos reservados.
+            </p>
+          </div>
+        </div>
+      `,
+    });
+  }
 }
 
 export const mailService = new MailService();

@@ -154,15 +154,23 @@ export class AdminService {
     return { users: usersWithSales, total: count, page: Number(page), totalPages: Math.ceil(count / limit) };
   }
 
-  async suspendUser(userId) {
+  async suspendUser(userId, reason = '') {
     const user = await User.findByPk(userId);
     if (!user) return { user: null };
     if (user.role === 'admin') return { user, error: 'admin' };
 
-    const updated = await user.update({
-      status: user.status === 'suspended' ? 'active' : 'suspended',
-    });
-    return { user: updated };
+    const willSuspend = user.status !== 'suspended';
+    if (willSuspend && (!reason || reason.trim().length < 10)) {
+      return { user, error: 'reason' };
+    }
+
+    const updated = await user.update(
+      willSuspend
+        ? { status: 'suspended', suspensionReason: reason.trim(), suspendedAt: new Date() }
+        : { status: 'active', suspensionReason: null, suspendedAt: null }
+    );
+
+    return { user: updated, suspended: willSuspend };
   }
 
   async updateUserRank(userId, rank) {

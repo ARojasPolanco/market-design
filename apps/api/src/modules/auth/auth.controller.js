@@ -83,7 +83,8 @@ export const login = catchAsync(async (req, res, next) => {
   }
 
   if (user.status === 'suspended') {
-    return next(new AppError('Tu cuenta está suspendida. Contactá a soporte.', 403));
+    const reason = user.suspensionReason ? ` Motivo: ${user.suspensionReason}` : '';
+    return next(new AppError(`Tu cuenta está suspendida.${reason}`, 403));
   }
 
   const token = generateJWT({ id: user.id, role: user.role });

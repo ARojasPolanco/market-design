@@ -22,7 +22,8 @@ export const protect = async (req, _res, next) => {
     }
 
     if (user.status === 'suspended') {
-      return next(new AppError('Tu cuenta está suspendida. Contactá a soporte.', 403));
+      const reason = user.suspensionReason ? ` Motivo: ${user.suspensionReason}` : '';
+      return next(new AppError(`Tu cuenta está suspendida.${reason}`, 403));
     }
 
     if (user.changedPasswordAt) {

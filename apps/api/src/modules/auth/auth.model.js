@@ -99,6 +99,16 @@ User.init(
       defaultValue: 'active',
       allowNull: false,
     },
+    suspensionReason: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'suspension_reason',
+    },
+    suspendedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'suspended_at',
+    },
     changedPasswordAt: {
       type: DataTypes.DATE,
       allowNull: true,

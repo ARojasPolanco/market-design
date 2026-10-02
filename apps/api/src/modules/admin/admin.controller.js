@@ -207,10 +207,22 @@ export const getUsers = catchAsync(async (req, res) => {
 });
 
 export const suspendUser = catchAsync(async (req, res, next) => {
-  const { user, error } = await adminService.suspendUser(req.params.id);
+  const reason = (req.body?.reason || '').trim();
+  const { user, error, suspended } = await adminService.suspendUser(req.params.id, reason);
   if (!user) return next(new AppError('Usuario no encontrado.', 404));
   if (error === 'admin') {
     return next(new AppError('No se puede suspender a un administrador.', 400));
+  }
+  if (error === 'reason') {
+    return next(new AppError('Indicá el motivo de la suspensión (mínimo 10 caracteres).', 422));
+  }
+
+  if (suspended) {
+    try {
+      await mailService.sendAccountSuspended(user.email, reason);
+    } catch (mailError) {
+      console.error('Error sending suspension email:', mailError);
+    }
   }
 
   res.status(200).json({
