@@ -11,8 +11,10 @@ COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 COPY packages/shared/package*.json ./packages/shared/
 
-# Install API deps with scripts enabled so sharp (prebuilt) and bcrypt (compiled) work
-RUN npm install --workspace=apps/api
+# Install API deps without lifecycle scripts (avoids the root husky `prepare`),
+# then rebuild the native modules so sharp (prebuilt) and bcrypt (compiled) work.
+RUN npm install --workspace=apps/api --ignore-scripts
+RUN npm rebuild sharp bcrypt
 
 COPY apps/api ./apps/api
 COPY packages/shared ./packages/shared
