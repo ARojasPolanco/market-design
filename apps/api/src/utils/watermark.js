@@ -14,8 +14,8 @@ export async function generateWatermarkedPreview(fileBuffer) {
   const patternWidth = 220;
   const patternHeight = 160;
   const fontSize = 24;
-  const fontWeight = 400;
-  const opacity = 0.28;
+  const fontWeight = 600;
+  const opacity = 0.45;
   const rotation = -28;
   const textColor = '#6366F1';
 
@@ -31,7 +31,7 @@ export async function generateWatermarkedPreview(fileBuffer) {
               <rect x="0" y="0" width="16" height="14" rx="2" />
               <path d="M 2 0 A 5 5 0 0 1 14 0" />
             </g>
-            <text x="22" y="12" font-family="Arial, sans-serif" font-size="${fontSize}"
+            <text x="22" y="12" font-family="DejaVu Sans, Arial, sans-serif" font-size="${fontSize}"
                   font-weight="${fontWeight}" fill="${textColor}" fill-opacity="${opacity}"
                   dominant-baseline="middle">
               Market Design
