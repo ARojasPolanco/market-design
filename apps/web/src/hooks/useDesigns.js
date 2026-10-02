@@ -213,7 +213,27 @@ export function useSellerRatings() {
     }
   };
 
-  return { ratings, isLoading, refetch: fetchRatings };
+  const reply = async (ratingId, text) => {
+    const res = await api.post(`/v1/purchases/ratings/${ratingId}/reply`, { reply: text });
+    setRatings((prev) =>
+      prev.map((r) =>
+        r.id === ratingId
+          ? { ...r, sellerReply: res.data.rating.sellerReply, sellerReplyAt: res.data.rating.sellerReplyAt }
+          : r
+      )
+    );
+    return res.data.rating;
+  };
+
+  const removeReply = async (ratingId) => {
+    const res = await api.delete(`/v1/purchases/ratings/${ratingId}/reply`);
+    setRatings((prev) =>
+      prev.map((r) => (r.id === ratingId ? { ...r, sellerReply: null, sellerReplyAt: null } : r))
+    );
+    return res.data.rating;
+  };
+
+  return { ratings, isLoading, refetch: fetchRatings, reply, removeReply };
 }
 
 export function usePublicSellerDesigns(sellerId) {

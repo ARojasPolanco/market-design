@@ -38,6 +38,7 @@ import api from '../config/api.js';
 import logger from '../utils/logger.js';
 import RatingStars from '../components/RatingStars.jsx';
 import PreviewUnavailable from '../components/PreviewUnavailable.jsx';
+import SellerReviews from '../components/SellerReviews.jsx';
 import { RankBadge, getRankInfo } from '../components/RankBadge.jsx';
 
 export default function SellerDashboard() {
@@ -47,7 +48,7 @@ export default function SellerDashboard() {
   const [downloading, setDownloading] = useState(null);
   const { sales, stats } = useSellerSales();
   const { designs: myDesigns, refetch: refetchDesigns } = useSellerDesigns();
-  const { ratings } = useSellerRatings();
+  const { ratings, reply: replyToRating, removeReply } = useSellerRatings();
   const { purchases } = usePurchases();
   const approved = myDesigns.filter((d) => d.status === 'approved');
   const pending = myDesigns.filter((d) => d.status === 'pending');
@@ -262,6 +263,7 @@ export default function SellerDashboard() {
           { id: 'pending', label: `Pendientes (${pending.length})`, tooltip: 'Acá podés ver tus diseños que están pendientes de revisión' },
           { id: 'rejected', label: `Rechazados (${rejected.length})`, tooltip: 'Acá podés ver los diseños que fueron rechazados' },
           { id: 'sales', label: 'Ventas', tooltip: 'Acá podés ver tu historial de ventas y ganancias' },
+          { id: 'reviews', label: `Reseñas (${ratings.length})`, tooltip: 'Acá podés responder las reseñas de tus diseños' },
           { id: 'purchases', label: `Mis compras (${purchases.length})`, tooltip: 'Acá podés ver los diseños que compraste' },
           { id: 'achievements', label: `Logros (${earnedAchievements})`, tooltip: 'Acá podés ver tus logros e insignias' },
           { id: 'profile', label: 'Mi perfil', tooltip: 'Acá podés editar tu perfil de vendedor' },
@@ -292,6 +294,17 @@ export default function SellerDashboard() {
           </div>
         ))}
       </div>
+
+      {/* Reviews */}
+      {activeTab === 'reviews' && (
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-1">Reseñas de tus diseños</h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Respondé a los compradores para generar confianza.
+          </p>
+          <SellerReviews ratings={ratings} onReply={replyToRating} onRemoveReply={removeReply} />
+        </div>
+      )}
 
       {/* Achievements */}
       {activeTab === 'achievements' && (

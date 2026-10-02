@@ -364,6 +364,19 @@ export default function DesignDetailPage() {
                   </span>
                 </div>
                 {review.comment && <p className="text-gray-600">{review.comment}</p>}
+                {review.sellerReply && (
+                  <div className="mt-3 ml-4 pl-4 border-l-2 border-brand-teal/40 bg-gray-50 rounded-r-lg p-3">
+                    <p className="text-xs font-semibold text-brand-teal-dark mb-1">
+                      Respuesta del vendedor
+                    </p>
+                    <p className="text-sm text-gray-600">{review.sellerReply}</p>
+                    {review.sellerReplyAt && (
+                      <p className="text-[11px] text-gray-400 mt-1">
+                        {new Date(review.sellerReplyAt).toLocaleDateString('es-AR')}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
