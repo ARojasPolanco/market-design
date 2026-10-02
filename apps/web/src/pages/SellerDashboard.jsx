@@ -164,14 +164,14 @@ export default function SellerDashboard() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8">
+        <div className="flex items-center gap-3 min-w-0">
           <h1 className="text-2xl font-bold text-gray-900">Panel del vendedor</h1>
           <RankBadge rank={seller.rank} size={28} />
         </div>
         <Link
           to="/vendedor/panel/subir"
-          className="bg-dark text-white px-4 py-2 rounded-lg font-medium hover:bg-dark-light transition-colors flex items-center gap-2"
+          className="bg-dark text-white px-4 py-2 rounded-lg font-medium hover:bg-dark-light transition-colors flex items-center justify-center gap-2 w-full sm:w-auto shrink-0"
         >
           <Upload size={18} />
           Subir diseño
@@ -297,8 +297,9 @@ export default function SellerDashboard() {
       <CommissionInfo variant="compact" />
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b mb-6 overflow-visible">
-        {[
+      <div className="overflow-x-auto no-scrollbar mb-6">
+        <div className="flex gap-1 border-b pt-10">
+          {[
           { id: 'overview', label: 'Resumen', tooltip: 'Acá podés ver el resumen de tus ventas y estadísticas' },
           { id: 'designs', label: `Mis diseños (${approved.length})`, tooltip: 'Acá podés ver tus diseños aprobados que están a la venta' },
           { id: 'pending', label: `Pendientes (${pending.length})`, tooltip: 'Acá podés ver tus diseños que están pendientes de revisión' },
@@ -334,6 +335,7 @@ export default function SellerDashboard() {
             </div>
           </div>
         ))}
+        </div>
       </div>
 
       {/* Reviews */}

@@ -35,6 +35,15 @@ body {
   outline-offset: 2px;
 }
 
+/* Hide the scrollbar while keeping horizontal scroll (e.g. tab bars on mobile) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ---------- Legend badge animation ---------- */
 .legend-medallion {
   position: relative;
