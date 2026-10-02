@@ -10,12 +10,15 @@ const ALLOWED_MIMES = [
   'image/jpg',
   'application/zip',
   'application/x-zip-compressed',
+  'application/vnd.rar',
+  'application/x-rar-compressed',
+  'application/x-rar',
   'image/vnd.adobe.photoshop',
   'application/postscript',
   'application/illustrator',
 ];
 
-const ALLOWED_EXTENSIONS = ['.pdf', '.png', '.jpg', '.jpeg', '.zip', '.ai', '.psd', '.eps'];
+const ALLOWED_EXTENSIONS = ['.pdf', '.png', '.jpg', '.jpeg', '.zip', '.rar', '.ai', '.psd', '.eps'];
 
 const fileFilter = (_req, file, cb) => {
   const ext = '.' + file.originalname.split('.').pop().toLowerCase();
@@ -23,7 +26,7 @@ const fileFilter = (_req, file, cb) => {
   if (ALLOWED_MIMES.includes(file.mimetype) || ALLOWED_EXTENSIONS.includes(ext)) {
     cb(null, true);
   } else {
-    cb(new AppError('Formato de archivo no aceptado. Formatos permitidos: PDF, PNG, JPG, ZIP, AI, PSD, EPS', 400), false);
+    cb(new AppError('Formato de archivo no aceptado. Formatos permitidos: PDF, PNG, JPG, ZIP, RAR, AI, PSD, EPS', 400), false);
   }
 };
 

@@ -276,7 +276,7 @@ export default function UploadDesignPage() {
                         <input type="file" className="hidden" onChange={handleDesignFileDrop} />
                       </label>
                     </p>
-                    <p className="text-sm text-gray-500">PDF, PNG, ZIP, AI, PSD, EPS — Máx. 50MB</p>
+                    <p className="text-sm text-gray-500">PDF, PNG, ZIP, RAR, AI, PSD, EPS — Máx. 50MB</p>
                   </>
                 )}
               </div>
@@ -310,7 +310,7 @@ export default function UploadDesignPage() {
                     <p className="font-medium mb-1">Specs técnicas requeridas:</p>
                     <ul className="list-disc list-inside space-y-0.5">
                       <li>Resolución mínima: 150 DPI (recomendado 300 DPI)</li>
-                      <li>Formatos: PDF, PNG, ZIP, AI, PSD, EPS</li>
+                      <li>Formatos: PDF, PNG, ZIP, RAR, AI, PSD, EPS</li>
                       <li>El archivo debe contener el diseño original en alta calidad</li>
                     </ul>
                   </div>

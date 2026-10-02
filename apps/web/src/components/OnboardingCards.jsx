@@ -10,7 +10,7 @@ const cards = [
     color: 'bg-blue-100 text-blue-600',
     items: [
       'Resolución mínima: 150 DPI (recomendado 300 DPI)',
-      'Formatos aceptados: PDF, PNG, ZIP, AI, PSD, EPS',
+      'Formatos aceptados: PDF, PNG, ZIP, RAR, AI, PSD, EPS',
       'Peso mínimo: detectamos archivos vacíos o corruptos',
       'Subí el archivo original en alta calidad',
     ],
