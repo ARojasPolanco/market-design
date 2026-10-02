@@ -140,6 +140,18 @@ body {
   border-color: #4b5563;
 }
 
+/* Hover states (Tailwind hover: variants aren't covered by the overrides above) */
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-gray-100:hover {
+  background-color: #374151;
+}
+.dark .hover\:bg-gray-200:hover {
+  background-color: #4b5563;
+}
+.dark .hover\:bg-gray-300:hover {
+  background-color: #6b7280;
+}
+
 /* Form controls */
 .dark input,
 .dark textarea,
