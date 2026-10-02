@@ -1,18 +1,31 @@
 import { Resend } from 'resend';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { envs } from '../enviroments.js';
 
 const resend = new Resend(envs.RESEND_API_KEY);
 
+const LOGO_CID = 'marketdesign-logo';
+const LOGO_BUFFER = readFileSync(
+  fileURLToPath(new URL('../../../assets/brand/logo.png', import.meta.url))
+);
+
 export class MailService {
   async sendVerificationEmail(to, token) {
     const verificationUrl = `${envs.CORS_ORIGIN}/verify-email?token=${token}`;
-    const logoUrl = `${envs.CORS_ORIGIN}/marketDesignLogo.png`;
     const year = new Date().getFullYear();
 
     return await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
       to,
       subject: 'Verificá tu email - Market Design',
+      attachments: [
+        {
+          filename: 'market-design.png',
+          content: LOGO_BUFFER,
+          inlineContentId: LOGO_CID,
+        },
+      ],
       html: `
         <div style="display: none; max-height: 0; overflow: hidden; opacity: 0;">
           Verificá tu email para activar tu cuenta en Market Design.
@@ -20,7 +33,7 @@ export class MailService {
         <div style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
           <div style="text-align: center; padding: 32px 20px; background: linear-gradient(135deg, #0F2A44 0%, #1a3d5c 100%); border-radius: 12px 12px 0 0;">
             <div style="display: inline-block; background: #ffffff; border-radius: 16px; padding: 14px 20px;">
-              <img src="${logoUrl}" alt="Market Design" style="height: 44px; display: block; border: 0;" />
+              <img src="cid:${LOGO_CID}" alt="Market Design" style="height: 44px; display: block; border: 0;" />
             </div>
             <p style="color: #ffffff; margin: 16px 0 0 0; font-size: 14px;">Diseños digitales que hacen crecer tus ideas</p>
           </div>
