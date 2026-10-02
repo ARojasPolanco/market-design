@@ -30,7 +30,7 @@ Design.init(
       allowNull: false,
     },
     category: {
-      type: DataTypes.ENUM('sublimado', 'estampado', 'papeleria', 'infantil', 'deportivo', 'religioso', 'otro'),
+      type: DataTypes.STRING(100),
       allowNull: true,
     },
     categorySuggested: {
