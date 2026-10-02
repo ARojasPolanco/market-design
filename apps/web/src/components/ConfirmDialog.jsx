@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 
 export default function ConfirmDialog({
@@ -10,9 +10,17 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
   danger = false,
+  requireReason = false,
+  reasonPlaceholder = 'Escribí el motivo...',
+  minReasonLength = 10,
 }) {
+  const [reason, setReason] = useState('');
+
   useEffect(() => {
-    if (!open) return undefined;
+    if (!open) {
+      setReason('');
+      return undefined;
+    }
     const onKey = (e) => {
       if (e.key === 'Escape') onCancel?.();
     };
@@ -21,6 +29,8 @@ export default function ConfirmDialog({
   }, [open, onCancel]);
 
   if (!open) return null;
+
+  const reasonOk = !requireReason || reason.trim().length >= minReasonLength;
 
   return (
     <div
@@ -44,7 +54,23 @@ export default function ConfirmDialog({
         </div>
 
         {description && (
-          <p className="text-sm text-gray-600 mb-6 whitespace-normal break-words">{description}</p>
+          <p className="text-sm text-gray-600 mb-4 whitespace-normal break-words">{description}</p>
+        )}
+
+        {requireReason && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Motivo</label>
+            <textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              rows={3}
+              placeholder={reasonPlaceholder}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal resize-none"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              {reason.trim().length}/{minReasonLength} caracteres mínimos
+            </p>
+          </div>
         )}
 
         <div className="flex gap-3 justify-end">
@@ -55,8 +81,9 @@ export default function ConfirmDialog({
             {cancelLabel}
           </button>
           <button
-            onClick={onConfirm}
-            className={`px-4 py-2 text-white rounded-lg text-sm font-medium transition-colors ${
+            onClick={() => onConfirm(requireReason ? reason.trim() : undefined)}
+            disabled={!reasonOk}
+            className={`px-4 py-2 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               danger ? 'bg-red-600 hover:bg-red-700' : 'bg-dark hover:bg-dark-light'
             }`}
           >

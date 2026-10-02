@@ -32,6 +32,12 @@ api.interceptors.response.use(
     const suspended = status === 403 && message.toLowerCase().includes('suspendida');
 
     if ((status === 401 && !isAuthEndpoint) || suspended) {
+      if (suspended) {
+        sessionStorage.setItem(
+          'flashMessage',
+          message || 'Tu cuenta está suspendida. Contactá a soporte.'
+        );
+      }
       localStorage.removeItem('token');
       window.location.href = '/login';
     }

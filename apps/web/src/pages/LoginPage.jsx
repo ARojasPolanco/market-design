@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
@@ -13,6 +13,14 @@ export default function LoginPage() {
   const { login } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const flash = sessionStorage.getItem('flashMessage');
+    if (flash) {
+      setError(flash);
+      sessionStorage.removeItem('flashMessage');
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

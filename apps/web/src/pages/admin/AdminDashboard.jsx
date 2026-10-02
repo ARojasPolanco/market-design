@@ -604,10 +604,14 @@ function UsersSection() {
     }
   };
 
-  const handleSuspend = async () => {
+  const handleSuspend = async (reason) => {
     if (!showSuspendConfirm) return;
+    const suspending = showSuspendConfirm.status !== 'suspended';
     try {
-      const res = await api.patch(`/v1/admin/users/${showSuspendConfirm.id}/suspend`);
+      const res = await api.patch(
+        `/v1/admin/users/${showSuspendConfirm.id}/suspend`,
+        suspending ? { reason } : {}
+      );
       const updated = res.data.user;
       setLocalUsers((prev) =>
         prev.map((u) => (u.id === updated.id ? { ...u, status: updated.status } : u))
@@ -919,6 +923,8 @@ function UsersSection() {
         confirmLabel={showSuspendConfirm?.status === 'suspended' ? 'Reactivar' : 'Suspender'}
         cancelLabel="Cancelar"
         danger={showSuspendConfirm?.status !== 'suspended'}
+        requireReason={showSuspendConfirm?.status !== 'suspended'}
+        reasonPlaceholder="Motivo de la suspensión (lo recibe el usuario por mail)..."
         onConfirm={handleSuspend}
         onCancel={() => setShowSuspendConfirm(null)}
       />
