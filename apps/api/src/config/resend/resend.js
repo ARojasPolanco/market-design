@@ -96,49 +96,6 @@ export class MailService {
     });
   }
 
-  async sendDesignApproved(to, designTitle) {
-    await resend.emails.send({
-      from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
-      to,
-      subject: '¡Tu diseño fue aprobado! - Market Design',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #0F2A44;">¡Felicitaciones!</h1>
-          <p>Tu diseño <strong>"${designTitle}"</strong> fue aprobado y ya está publicado en el marketplace.</p>
-          <p>Los compradores ya pueden verlo y comprarlo.</p>
-          <a href="${envs.CORS_ORIGIN}/vendedor/panel" style="display: inline-block; background: #00C2B8; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 16px 0;">
-            Ver mi panel
-          </a>
-          <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-          <p style="color: #999; font-size: 12px;">Market Design - Diseños digitales que hacen crecer tus ideas.</p>
-        </div>
-      `,
-    });
-  }
-
-  async sendDesignRejected(to, designTitle, reason) {
-    await resend.emails.send({
-      from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
-      to,
-      subject: 'Tu diseño fue rechazado - Market Design',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #0F2A44;">Diseño rechazado</h1>
-          <p>Tu diseño <strong>"${designTitle}"</strong> fue rechazado por el siguiente motivo:</p>
-          <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 12px; margin: 16px 0;">
-            <p style="margin: 0; color: #991b1b;">${reason}</p>
-          </div>
-          <p>Podés editar tu diseño y volver a enviarlo.</p>
-          <a href="${envs.CORS_ORIGIN}/vendedor/panel" style="display: inline-block; background: #0F2A44; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 16px 0;">
-            Ver mis diseños rechazados
-          </a>
-          <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-          <p style="color: #999; font-size: 12px;">Market Design - Diseños digitales que hacen crecer tus ideas.</p>
-        </div>
-      `,
-    });
-  }
-
   async sendDesignPaused(to, designTitle, reason, ticketId) {
     await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
@@ -294,20 +251,61 @@ export class MailService {
   }
 
   async sendRankUpgrade(to, newRank, newCommission) {
-    await resend.emails.send({
+    const panelUrl = `${envs.CORS_ORIGIN}/vendedor/panel`;
+    const year = new Date().getFullYear();
+
+    return await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
       to,
-      subject: '¡Subiste de rango! - Market Design',
+      subject: `¡Subiste al rango ${newRank}! - Market Design`,
+      attachments: [
+        {
+          filename: 'market-design.png',
+          content: LOGO_BUFFER,
+          inlineContentId: LOGO_CID,
+        },
+      ],
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #0F2A44;">¡Felicitaciones!</h1>
-          <p>Subiste al rango <strong>${newRank}</strong>. Tu nueva comisión es del <strong>${newCommission}%</strong>.</p>
-          <p>Seguí vendiendo para alcanzar el siguiente nivel.</p>
-          <a href="${envs.CORS_ORIGIN}/vendedor/panel" style="display: inline-block; background: #00C2B8; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 16px 0;">
-            Ver mi panel
-          </a>
-          <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-          <p style="color: #999; font-size: 12px;">Market Design - Diseños digitales que hacen crecer tus ideas.</p>
+        <div style="display: none; max-height: 0; overflow: hidden; opacity: 0;">
+          ¡Felicitaciones! Subiste de rango en Market Design.
+        </div>
+        <div style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
+          <div style="text-align: center; padding: 32px 20px; background: linear-gradient(135deg, #0F2A44 0%, #1a3d5c 100%); border-radius: 12px 12px 0 0;">
+            <div style="display: inline-block; background: #ffffff; border-radius: 16px; padding: 14px 20px;">
+              <img src="cid:${LOGO_CID}" alt="Market Design" style="height: 44px; display: block; border: 0;" />
+            </div>
+            <p style="color: #ffffff; margin: 16px 0 0 0; font-size: 14px;">Diseños digitales que hacen crecer tus ideas</p>
+          </div>
+
+          <div style="background: #ffffff; padding: 32px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h1 style="color: #0F2A44; font-size: 24px; margin: 0 0 8px 0; text-align: center;">¡Subiste de rango!</h1>
+            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0; text-align: center;">
+              Tu esfuerzo está dando resultado. Seguí así.
+            </p>
+
+            <div style="background: #0F2A44; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
+              <p style="color: #94a3b8; margin: 0 0 4px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Tu nuevo rango</p>
+              <p style="color: #ffffff; margin: 0 0 16px 0; font-size: 30px; font-weight: bold;">${newRank}</p>
+              <p style="color: #94a3b8; margin: 0; font-size: 13px;">Nueva comisión por venta</p>
+              <p style="color: #00C2B8; margin: 4px 0 0 0; font-size: 26px; font-weight: bold;">${newCommission}%</p>
+            </div>
+
+            <p style="color: #374151; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0; text-align: center;">
+              Cuanto más vendés, más baja tu comisión. ¡Publicá diseños de calidad para llegar al siguiente nivel!
+            </p>
+
+            <div style="text-align: center;">
+              <a href="${panelUrl}" style="display: inline-block; background: #00C2B8; color: #ffffff; padding: 14px 34px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                Ver mi panel
+              </a>
+            </div>
+          </div>
+
+          <div style="text-align: center; padding: 16px 0;">
+            <p style="color: #9ca3af; font-size: 11px; margin: 0;">
+              © ${year} Market Design. Todos los derechos reservados.
+            </p>
+          </div>
         </div>
       `,
     });
