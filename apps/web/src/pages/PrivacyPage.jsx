@@ -108,7 +108,7 @@ export default function PrivacyPage() {
 
         <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">10. Derechos de los usuarios</h2>
         <p className="text-gray-600 mb-3">Los usuarios podrán solicitar información respecto del tratamiento de sus datos personales y, cuando corresponda, solicitar su actualización, rectificación o eliminación, de acuerdo con la legislación aplicable.</p>
-        <p className="text-gray-600 mb-6">Las solicitudes podrán realizances mediante correo electrónico a: advbrrop23@gmail.com</p>
+        <p className="text-gray-600 mb-6">Las solicitudes podrán realizarse mediante correo electrónico a: soporte@marketdesign.com</p>
 
         <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">11. Cookies y tecnologías similares</h2>
         <p className="text-gray-600 mb-3">Market Design podrá utilizar cookies u otras tecnologías similares necesarias para:</p>
@@ -133,7 +133,7 @@ export default function PrivacyPage() {
         <p className="text-gray-600 mb-3">Para consultas relacionadas con privacidad y datos personales:</p>
         <div className="bg-gray-50 rounded-lg p-4 text-gray-600 space-y-1">
           <p><strong>Market Design</strong></p>
-          <p>Correo: advbrrop23@gmail.com</p>
+          <p>Correo: soporte@marketdesign.com</p>
           <p>Responsable: Rojas Polanco Alan</p>
         </div>
       </article>

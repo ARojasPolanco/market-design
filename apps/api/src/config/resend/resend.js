@@ -149,7 +149,7 @@ export class MailService {
             <div style="margin-bottom: 20px;">
               <p style="color: #374151; font-weight: bold; margin: 0 0 12px 0;">¿Qué tenés que hacer?</p>
               <ul style="margin: 0; padding: 0 0 0 20px; color: #4b5563; font-size: 14px; line-height: 2;">
-                <li>Contactanos por email a <strong>soporte@market-design.com</strong></li>
+                <li>Contactanos por email a <strong>soporte@marketdesign.com</strong></li>
                 <li>Mencioná el número de ticket: <strong>${ticketId}</strong></li>
                 <li>Respondé al motivo de la pausa con tu explicación</li>
                 <li>Una vez resuelto, reactivamos tu diseño</li>
@@ -157,7 +157,7 @@ export class MailService {
             </div>
 
             <div style="text-align: center; margin-bottom: 20px;">
-              <a href="mailto:soporte@market-design.com?subject=Reactivación%20diseño%20-%20Ticket%20${ticketId}&body=Hola,%0A%0AMi%20número%20de%20ticket%20es:%20${ticketId}%0A%0A" style="display: inline-block; background: #dc2626; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+              <a href="mailto:soporte@marketdesign.com?subject=Reactivación%20diseño%20-%20Ticket%20${ticketId}&body=Hola,%0A%0AMi%20número%20de%20ticket%20es:%20${ticketId}%0A%0A" style="display: inline-block; background: #dc2626; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
                 📧 Contactar soporte ahora
               </a>
             </div>
@@ -241,7 +241,7 @@ export class MailService {
                 <a href="${envs.CORS_ORIGIN}/catalogo" style="color: #00C2B8; text-decoration: none;">Explorar más diseños</a>
               </p>
               <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                ¿Necesitás ayuda? Escribinos a soporte@market-design.com
+                ¿Necesitás ayuda? Escribinos a soporte@marketdesign.com
               </p>
             </div>
           </div>
@@ -328,7 +328,7 @@ export class MailService {
 
   async sendAccountSuspended(to, reason) {
     const year = new Date().getFullYear();
-    const supportEmail = 'soporte@market-design.com';
+    const supportEmail = 'soporte@marketdesign.com';
 
     return await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
