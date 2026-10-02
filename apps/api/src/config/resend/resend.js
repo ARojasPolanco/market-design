@@ -18,6 +18,8 @@ const RANK_COLORS = {
   diamante: '#7C3AED',
 };
 
+const SUPPORT_EMAIL = 'soporte@marketdesign.shop';
+
 export class MailService {
   async sendVerificationEmail(to, token) {
     const verificationUrl = `${envs.CORS_ORIGIN}/verify-email?token=${token}`;
@@ -26,6 +28,7 @@ export class MailService {
     return await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
       to,
+      replyTo: SUPPORT_EMAIL,
       subject: 'Verificá tu email - Market Design',
       attachments: [
         {
@@ -108,6 +111,7 @@ export class MailService {
     await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
       to,
+      replyTo: SUPPORT_EMAIL,
       subject: `🚨 Diseño pausado - ACCIÓN REQUERIDA - Ticket ${ticketId}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -184,6 +188,7 @@ export class MailService {
     const result = await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
       to,
+      replyTo: SUPPORT_EMAIL,
       subject: `¡Compra exitosa! #${orderNumber} - Market Design`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
@@ -266,6 +271,7 @@ export class MailService {
     return await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
       to,
+      replyTo: SUPPORT_EMAIL,
       subject: `🎉 ¡Subiste al rango ${newRank}! - Market Design`,
       attachments: [
         {
@@ -328,11 +334,12 @@ export class MailService {
 
   async sendAccountSuspended(to, reason) {
     const year = new Date().getFullYear();
-    const supportEmail = 'soporte@marketdesign.shop';
+    const supportEmail = SUPPORT_EMAIL;
 
     return await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
       to,
+      replyTo: SUPPORT_EMAIL,
       subject: 'Tu cuenta fue suspendida - Market Design',
       attachments: [
         {
