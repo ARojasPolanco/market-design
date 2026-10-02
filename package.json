@@ -17,7 +17,7 @@
     "seed": "npm run seed -w apps/api",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "lint-staged": {
     "*.{js,jsx,json,md,yml,yaml}": [
