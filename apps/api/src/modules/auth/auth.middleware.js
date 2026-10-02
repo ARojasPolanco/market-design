@@ -21,6 +21,10 @@ export const protect = async (req, _res, next) => {
       return next(new AppError('El usuario de este token ya no existe.', 401));
     }
 
+    if (user.status === 'suspended') {
+      return next(new AppError('Tu cuenta está suspendida. Contactá a soporte.', 403));
+    }
+
     if (user.changedPasswordAt) {
       const changedTimestamp = parseInt(user.changedPasswordAt.getTime() / 1000, 10);
       if (decoded.iat < changedTimestamp) {

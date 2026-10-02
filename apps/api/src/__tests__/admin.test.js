@@ -321,6 +321,41 @@ describe('Admin Module', () => {
       expect(res.status).toBe(200);
       expect(res.body.users).toBeDefined();
     });
+
+    it('should suspend and reactivate a user', async () => {
+      if (!dbAvailable || !adminToken || !userToken) return;
+      const userId = JSON.parse(Buffer.from(userToken.split('.')[1], 'base64').toString()).id;
+
+      const suspend = await request(server)
+        .patch(`/api/v1/admin/users/${userId}/suspend`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(suspend.status).toBe(200);
+      expect(suspend.body.user.status).toBe('suspended');
+
+      const blocked = await request(server)
+        .get('/api/v1/auth/profile')
+        .set('Authorization', `Bearer ${userToken}`);
+      expect(blocked.status).toBe(403);
+
+      const reactivate = await request(server)
+        .patch(`/api/v1/admin/users/${userId}/suspend`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(reactivate.status).toBe(200);
+      expect(reactivate.body.user.status).toBe('active');
+    });
+
+    it('should not suspend an admin', async () => {
+      if (!dbAvailable || !adminToken) return;
+      const adminId = JSON.parse(Buffer.from(adminToken.split('.')[1], 'base64').toString()).id;
+
+      const res = await request(server)
+        .patch(`/api/v1/admin/users/${adminId}/suspend`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(400);
+    });
   });
 
   describe('Stats', () => {

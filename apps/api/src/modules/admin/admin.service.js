@@ -156,10 +156,13 @@ export class AdminService {
 
   async suspendUser(userId) {
     const user = await User.findByPk(userId);
-    if (!user) return null;
-    return await user.update({
+    if (!user) return { user: null };
+    if (user.role === 'admin') return { user, error: 'admin' };
+
+    const updated = await user.update({
       status: user.status === 'suspended' ? 'active' : 'suspended',
     });
+    return { user: updated };
   }
 
   async updateUserRank(userId, rank) {

@@ -207,12 +207,16 @@ export const getUsers = catchAsync(async (req, res) => {
 });
 
 export const suspendUser = catchAsync(async (req, res, next) => {
-  const user = await adminService.suspendUser(req.params.id);
+  const { user, error } = await adminService.suspendUser(req.params.id);
   if (!user) return next(new AppError('Usuario no encontrado.', 404));
+  if (error === 'admin') {
+    return next(new AppError('No se puede suspender a un administrador.', 400));
+  }
 
   res.status(200).json({
     status: 'success',
     message: user.status === 'suspended' ? 'Usuario suspendido.' : 'Usuario reactivado.',
+    user,
   });
 });
 

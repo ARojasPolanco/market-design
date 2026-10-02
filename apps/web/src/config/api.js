@@ -27,7 +27,11 @@ api.interceptors.response.use(
                            url.includes('/auth/register') || 
                            url.includes('/auth/verify-email');
 
-    if (error.response?.status === 401 && !isAuthEndpoint) {
+    const status = error.response?.status;
+    const message = error.response?.data?.message || '';
+    const suspended = status === 403 && message.toLowerCase().includes('suspendida');
+
+    if ((status === 401 && !isAuthEndpoint) || suspended) {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }

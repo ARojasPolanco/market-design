@@ -27,6 +27,7 @@ import { useToast } from '../../context/ToastContext.jsx';
 import api from '../../config/api.js';
 import { RankBadge } from '../../components/RankBadge.jsx';
 import PreviewGallery from '../../components/PreviewGallery.jsx';
+import ConfirmDialog from '../../components/ConfirmDialog.jsx';
 
 const MANUAL_RANKS = ['platino', 'diamante'];
 
@@ -574,12 +575,14 @@ function UsersSection() {
   const [showRankModal, setShowRankModal] = useState(null);
   const [showRankConfirm, setShowRankConfirm] = useState(null);
   const [showAchvModal, setShowAchvModal] = useState(null);
+  const [showSuspendConfirm, setShowSuspendConfirm] = useState(null);
   const { users, total } = useAdminUsers({
     role: roleFilter,
     search,
     page,
   });
   const [localUsers, setLocalUsers] = useState([]);
+  const { showToast } = useToast();
   const perPage = 10;
 
   useEffect(() => {
@@ -598,6 +601,22 @@ function UsersSection() {
       setShowRankConfirm(null);
     } catch (err) {
       logger.error('Error updating rank:', err);
+    }
+  };
+
+  const handleSuspend = async () => {
+    if (!showSuspendConfirm) return;
+    try {
+      const res = await api.patch(`/v1/admin/users/${showSuspendConfirm.id}/suspend`);
+      const updated = res.data.user;
+      setLocalUsers((prev) =>
+        prev.map((u) => (u.id === updated.id ? { ...u, status: updated.status } : u))
+      );
+      showToast(res.data.message, { type: 'success' });
+    } catch (err) {
+      showToast(err.response?.data?.message || 'No se pudo actualizar el estado', { type: 'error' });
+    } finally {
+      setShowSuspendConfirm(null);
     }
   };
 
@@ -680,12 +699,12 @@ function UsersSection() {
                   <td className="px-6 py-4">
                     <span
                       className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
-                        user.isDeleted
+                        user.status === 'suspended'
                           ? 'bg-red-50 text-red-700'
                           : 'bg-green-50 text-green-700'
                       }`}
                     >
-                      {user.isDeleted ? 'Suspendido' : 'Activo'}
+                      {user.status === 'suspended' ? 'Suspendido' : 'Activo'}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -704,6 +723,18 @@ function UsersSection() {
                           className="text-xs px-2 py-1 rounded-full font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
                         >
                           Logros
+                        </button>
+                      )}
+                      {user.role !== 'admin' && (
+                        <button
+                          onClick={() => setShowSuspendConfirm(user)}
+                          className={`text-xs px-2 py-1 rounded-full font-medium transition-colors ${
+                            user.status === 'suspended'
+                              ? 'bg-green-50 text-green-700 hover:bg-green-100'
+                              : 'bg-red-50 text-red-700 hover:bg-red-100'
+                          }`}
+                        >
+                          {user.status === 'suspended' ? 'Reactivar' : 'Suspender'}
                         </button>
                       )}
                       <Link
@@ -874,6 +905,23 @@ function UsersSection() {
       {showAchvModal && (
         <AchievementGrantModal user={showAchvModal} onClose={() => setShowAchvModal(null)} />
       )}
+
+      <ConfirmDialog
+        open={Boolean(showSuspendConfirm)}
+        title={showSuspendConfirm?.status === 'suspended' ? 'Reactivar cuenta' : 'Suspender cuenta'}
+        description={
+          showSuspendConfirm
+            ? `¿Seguro que querés ${
+                showSuspendConfirm.status === 'suspended' ? 'reactivar' : 'suspender'
+              } a ${showSuspendConfirm.fullname || showSuspendConfirm.username}?`
+            : ''
+        }
+        confirmLabel={showSuspendConfirm?.status === 'suspended' ? 'Reactivar' : 'Suspender'}
+        cancelLabel="Cancelar"
+        danger={showSuspendConfirm?.status !== 'suspended'}
+        onConfirm={handleSuspend}
+        onCancel={() => setShowSuspendConfirm(null)}
+      />
     </div>
   );
 }
