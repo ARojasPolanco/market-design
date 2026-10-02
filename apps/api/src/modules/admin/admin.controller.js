@@ -166,7 +166,7 @@ export const createReport = catchAsync(async (req, res, next) => {
   const { designId, reason } = req.body;
 
   if (!designId || !reason) {
-    return next(new AppError('El ID del diseño y el motivo son requeridos.', 422));
+    return next(new AppError('Faltan el diseño o el motivo de la denuncia.', 422));
   }
 
   const report = await adminService.createReport(designId, req.sessionUser.id, reason);

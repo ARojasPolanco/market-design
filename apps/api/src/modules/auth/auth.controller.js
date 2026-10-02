@@ -133,12 +133,12 @@ export const getPublicProfile = catchAsync(async (req, res, next) => {
   // Validate UUID
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(id)) {
-    return next(new AppError('ID de usuario inválido.', 400));
+    return next(new AppError('No pudimos encontrar ese vendedor.', 400));
   }
 
   const user = await authService.findOneById(id);
   if (!user || user.isDeleted) {
-    return next(new AppError('Usuario no encontrado.', 404));
+    return next(new AppError('No pudimos encontrar ese vendedor.', 404));
   }
 
   // Only return public info
@@ -217,7 +217,12 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
 
   const user = await authService.findByVerificationToken(token);
   if (!user) {
-    return next(new AppError('Token de verificación inválido', 400));
+    return next(
+      new AppError(
+        'El enlace de verificación no es válido o ya fue usado. Pedí uno nuevo desde tu panel.',
+        400
+      )
+    );
   }
 
   await authService.update(user.id, {

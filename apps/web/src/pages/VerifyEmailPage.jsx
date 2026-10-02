@@ -15,7 +15,7 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     if (!token) {
       setStatus('error');
-      setMessage('Falta el token de verificación.');
+      setMessage('El enlace de verificación está incompleto. Pedí uno nuevo desde tu panel.');
       return;
     }
     const verify = async () => {
@@ -27,7 +27,9 @@ export default function VerifyEmailPage() {
       } catch (err) {
         logger.error('Error verifying email:', err);
         setStatus('error');
-        setMessage(err.response?.data?.message || 'El token de verificación es inválido o expiró.');
+        setMessage(
+          err.response?.data?.message || 'El enlace de verificación no es válido o ya fue usado.'
+        );
       }
     };
     verify();

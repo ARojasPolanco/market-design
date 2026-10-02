@@ -46,7 +46,7 @@ export const getDesign = catchAsync(async (req, res, next) => {
   // Validate UUID format
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(id)) {
-    return next(new AppError('ID de diseño inválido.', 400));
+    return next(new AppError('No pudimos encontrar ese diseño.', 400));
   }
 
   const design = await designService.findById(id);

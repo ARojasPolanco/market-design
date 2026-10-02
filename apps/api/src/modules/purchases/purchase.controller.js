@@ -254,11 +254,15 @@ export const downloadDesign = catchAsync(async (req, res, next) => {
 
   const purchase = await purchaseService.findByDownloadToken(token);
   if (!purchase) {
-    return next(new AppError('Link de descarga inválido o expirado.', 400));
+    return next(
+      new AppError('El enlace de descarga no es válido o ya expiró. Pedí uno nuevo desde tu panel.', 400)
+    );
   }
 
   if (purchase.downloadTokenExpires && new Date() > purchase.downloadTokenExpires) {
-    return next(new AppError('El link de descarga ha expirado. Solicitá uno nuevo desde tu panel.', 400));
+    return next(
+      new AppError('El enlace de descarga ya expiró. Pedí uno nuevo desde tu panel.', 400)
+    );
   }
 
   // Generate new signed URL

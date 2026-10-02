@@ -12,7 +12,7 @@ export const getCatalog = catchAsync(async (_req, res) => {
 export const getUserAchievements = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
   if (!uuidRegex.test(userId)) {
-    return next(new AppError('ID de usuario inválido.', 400));
+    return next(new AppError('No pudimos encontrar ese vendedor.', 400));
   }
   const achievements = await achievementService.getUserAchievements(userId);
   res.status(200).json({ status: 'success', achievements });

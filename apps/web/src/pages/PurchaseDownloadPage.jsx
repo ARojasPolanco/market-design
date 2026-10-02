@@ -21,7 +21,9 @@ export default function PurchaseDownloadPage() {
         setStatus('ready');
       } catch (err) {
         logger.error('Error fetching download:', err);
-        setError(err.response?.data?.message || 'El link de descarga no es válido o expiró.');
+        setError(
+          err.response?.data?.message || 'El enlace de descarga no es válido o ya expiró.'
+        );
         setStatus('error');
       }
     };
@@ -55,7 +57,7 @@ export default function PurchaseDownloadPage() {
               Descargar archivo
             </a>
             <p className="text-xs text-gray-400 mt-4">
-              Este link es de un solo uso. Si necesitás descargar de nuevo, podés hacerlo desde tu panel de comprador.
+              Este enlace es de un solo uso. Si necesitás descargar de nuevo, podés hacerlo desde tu panel de comprador.
             </p>
             <Link to="/comprador/panel" className="text-sm text-brand-teal hover:underline mt-3 inline-block">
               Ir a Mis compras

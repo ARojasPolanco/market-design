@@ -6,7 +6,7 @@ export const addFavorite = catchAsync(async (req, res, next) => {
   const { designId } = req.body;
 
   if (!designId) {
-    return next(new AppError('El ID del diseño es requerido.', 422));
+    return next(new AppError('No indicaste qué diseño querés guardar.', 422));
   }
 
   const favorite = await favoriteService.add(req.sessionUser.id, designId);
