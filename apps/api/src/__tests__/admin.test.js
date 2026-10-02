@@ -130,11 +130,11 @@ describe('Admin Module', () => {
       const res = await request(server)
         .patch(`/api/v1/admin/designs/${designId}/approve`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ category: 'papelería' });
+        .send({ category: 'Papelería' });
 
       expect(res.status).toBe(200);
       expect(res.body.design.status).toBe('approved');
-      expect(res.body.design.category).toBe('papelería');
+      expect(res.body.design.category).toBe('Papelería');
 
       const [logs] = await sequelize.query(
         'SELECT action FROM moderation_logs WHERE design_id = :id ORDER BY created_at DESC LIMIT 1',

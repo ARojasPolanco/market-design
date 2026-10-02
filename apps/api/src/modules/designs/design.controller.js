@@ -243,10 +243,11 @@ export const approveDesign = catchAsync(async (req, res, next) => {
     return next(new AppError('Este diseño no está pendiente de aprobación.', 400));
   }
 
-  // Assign category if provided
+  // Assign the category exactly as chosen by the admin (it comes from the
+  // managed categories list, so the spelling/case must be preserved).
   const updateData = {};
   if (req.body.category) {
-    updateData.category = req.body.category.toLowerCase();
+    updateData.category = String(req.body.category).trim();
   }
 
   const approved = await designService.approve(req.params.id, req.sessionUser.id, updateData);
