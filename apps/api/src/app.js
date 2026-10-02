@@ -17,8 +17,11 @@ app.use(helmet());
 // Body parser
 app.use(express.json());
 
-// CORS
-app.use(cors({ origin: envs.CORS_ORIGIN }));
+// CORS (CORS_ORIGIN may be a comma-separated list of allowed origins)
+const allowedOrigins = envs.CORS_ORIGIN.split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+app.use(cors({ origin: allowedOrigins }));
 
 // Rate limiting - more lenient for auth routes
 const authLimiter = rateLimit({
