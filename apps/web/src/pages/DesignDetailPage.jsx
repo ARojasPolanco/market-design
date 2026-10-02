@@ -8,6 +8,7 @@ import { useToast } from '../context/ToastContext.jsx';
 import RatingStars from '../components/RatingStars.jsx';
 import SellerBadge from '../components/SellerBadge.jsx';
 import DesignCard from '../components/DesignCard.jsx';
+import SellerReviews from '../components/SellerReviews.jsx';
 import { DetailSkeleton } from '../components/Skeletons.jsx';
 import { ErrorState } from '../components/EmptyStates.jsx';
 import api from '../config/api.js';
@@ -15,7 +16,8 @@ import logger from '../utils/logger.js';
 
 export default function DesignDetailPage() {
   const { id } = useParams();
-  const { design, related, reviews, error, isLoading, refetch } = useDesign(id);
+  const { design, related, reviews, error, isLoading, refetch, replyToRating, removeReply } =
+    useDesign(id);
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
   const { user } = useAuth();
   const { showToast } = useToast();
@@ -138,6 +140,7 @@ export default function DesignDetailPage() {
   }
 
   const fav = isFavorite(design.id);
+  const isOwner = Boolean(user && design.seller && user.id === design.seller.id);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -338,48 +341,17 @@ export default function DesignDetailPage() {
       {reviews && reviews.length > 0 && (
         <section className="mt-16">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Reviews ({reviews.length})</h2>
-          <div className="space-y-4">
-            {reviews.map((review) => (
-              <div key={review.id} className="bg-white rounded-xl shadow-sm p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  {review.buyer?.avatarUrl ? (
-                    <img
-                      src={review.buyer.avatarUrl}
-                      alt={review.buyer?.username || 'Usuario'}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-sm font-bold text-gray-500">
-                        {(review.buyer?.username || review.buyer?.fullname || '?').charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                  <div>
-                    <h4 className="font-medium text-gray-900">{review.buyer?.username || review.buyer?.fullname || 'Usuario'}</h4>
-                    <RatingStars rating={review.score} size={14} showValue={false} />
-                  </div>
-                  <span className="text-xs text-gray-400 ml-auto">
-                    {new Date(review.createdAt).toLocaleDateString('es-AR')}
-                  </span>
-                </div>
-                {review.comment && <p className="text-gray-600">{review.comment}</p>}
-                {review.sellerReply && (
-                  <div className="mt-3 ml-4 pl-4 border-l-2 border-brand-teal/40 bg-gray-50 rounded-r-lg p-3">
-                    <p className="text-xs font-semibold text-brand-teal-dark mb-1">
-                      Respuesta del vendedor
-                    </p>
-                    <p className="text-sm text-gray-600">{review.sellerReply}</p>
-                    {review.sellerReplyAt && (
-                      <p className="text-[11px] text-gray-400 mt-1">
-                        {new Date(review.sellerReplyAt).toLocaleDateString('es-AR')}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          {isOwner && (
+            <p className="text-sm text-gray-500 mb-4">
+              Podés responder a los compradores desde acá.
+            </p>
+          )}
+          <SellerReviews
+            ratings={reviews}
+            canReply={isOwner}
+            onReply={replyToRating}
+            onRemoveReply={removeReply}
+          />
         </section>
       )}
 

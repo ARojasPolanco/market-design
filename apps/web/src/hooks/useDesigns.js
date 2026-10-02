@@ -110,7 +110,27 @@ export function useDesign(id) {
     if (id) fetchDesign();
   };
 
-  return { design, related, reviews, isLoading, error, refetch };
+  const replyToRating = async (ratingId, text) => {
+    const res = await api.post(`/v1/purchases/ratings/${ratingId}/reply`, { reply: text });
+    setReviews((prev) =>
+      prev.map((r) =>
+        r.id === ratingId
+          ? { ...r, sellerReply: res.data.rating.sellerReply, sellerReplyAt: res.data.rating.sellerReplyAt }
+          : r
+      )
+    );
+    return res.data.rating;
+  };
+
+  const removeReply = async (ratingId) => {
+    const res = await api.delete(`/v1/purchases/ratings/${ratingId}/reply`);
+    setReviews((prev) =>
+      prev.map((r) => (r.id === ratingId ? { ...r, sellerReply: null, sellerReplyAt: null } : r))
+    );
+    return res.data.rating;
+  };
+
+  return { design, related, reviews, isLoading, error, refetch, replyToRating, removeReply };
 }
 
 export function useTrending() {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Upload,
@@ -48,7 +48,7 @@ export default function SellerDashboard() {
   const [downloading, setDownloading] = useState(null);
   const { sales, stats } = useSellerSales();
   const { designs: myDesigns, refetch: refetchDesigns } = useSellerDesigns();
-  const { ratings, reply: replyToRating, removeReply } = useSellerRatings();
+  const { ratings, reply: replyToRating, removeReply, refetch: refetchRatings } = useSellerRatings();
   const { purchases } = usePurchases();
   const approved = myDesigns.filter((d) => d.status === 'approved');
   const pending = myDesigns.filter((d) => d.status === 'pending');
@@ -57,6 +57,10 @@ export default function SellerDashboard() {
   const { achievements } = useUserAchievements(seller?.id);
   const earnedAchievements = achievements.filter((a) => a.earned).length;
   const { showToast } = useToast();
+
+  useEffect(() => {
+    if (activeTab === 'reviews') refetchRatings();
+  }, [activeTab]);
 
   const handleDeleteDesign = async () => {
     if (!deleteModal) return;

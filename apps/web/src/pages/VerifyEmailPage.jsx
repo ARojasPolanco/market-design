@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import api from '../config/api.js';
@@ -11,6 +11,7 @@ export default function VerifyEmailPage() {
   const { token: authToken, refreshUser } = useAuth();
   const [status, setStatus] = useState('loading');
   const [message, setMessage] = useState('');
+  const attemptedToken = useRef(null);
 
   useEffect(() => {
     if (!token) {
@@ -18,6 +19,9 @@ export default function VerifyEmailPage() {
       setMessage('El enlace de verificación está incompleto. Pedí uno nuevo desde tu panel.');
       return;
     }
+    if (attemptedToken.current === token) return;
+    attemptedToken.current = token;
+
     const verify = async () => {
       try {
         const res = await api.get(`/v1/auth/verify-email/${token}`);

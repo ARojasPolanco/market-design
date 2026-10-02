@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, CheckCircle, XCircle, Clock, AlertTriangle, X, MessageSquare } from 'lucide-react';
+import { Bell, CheckCircle, XCircle, Clock, AlertTriangle, X, MessageSquare, ShoppingBag } from 'lucide-react';
 import { useNotifications } from '../hooks/useNotifications.js';
 
 export default function NotificationBell() {
@@ -56,7 +56,9 @@ export default function NotificationBell() {
                         ? AlertTriangle
                         : notif.type === 'review_reply'
                           ? MessageSquare
-                          : Clock;
+                          : notif.type === 'sale'
+                            ? ShoppingBag
+                            : Clock;
                 const iconColor =
                   notif.type === 'approved'
                     ? 'text-green-500'
@@ -66,7 +68,9 @@ export default function NotificationBell() {
                         ? 'text-yellow-500'
                         : notif.type === 'review_reply'
                           ? 'text-brand-teal'
-                          : 'text-gray-400';
+                          : notif.type === 'sale'
+                            ? 'text-brand-orange'
+                            : 'text-gray-400';
 
                 return (
                   <div
