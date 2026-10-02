@@ -98,6 +98,18 @@ export const createPurchase = catchAsync(async (req, res, next) => {
     }
 
     try {
+      await notificationService.create({
+        userId: design.sellerId,
+        type: 'sale',
+        title: '¡Nueva venta!',
+        message: `Vendiste "${design.title}" por $${Number(design.price).toLocaleString()}.`,
+        designId: design.id,
+      });
+    } catch (notifError) {
+      console.error('Error creating sale notification:', notifError);
+    }
+
+    try {
       await achievementService.evaluateAutomatic(design.sellerId);
     } catch (achError) {
       console.error('Error evaluating achievements:', achError);
@@ -182,6 +194,18 @@ export const handleWebhook = catchAsync(async (req, res) => {
           }
 
           if (design) {
+            try {
+              await notificationService.create({
+                userId: design.sellerId,
+                type: 'sale',
+                title: '¡Nueva venta!',
+                message: `Vendiste "${design.title}" por $${Number(design.price).toLocaleString()}.`,
+                designId: design.id,
+              });
+            } catch (notifError) {
+              console.error('Error creating sale notification:', notifError);
+            }
+
             try {
               await achievementService.evaluateAutomatic(design.sellerId);
             } catch (achError) {
