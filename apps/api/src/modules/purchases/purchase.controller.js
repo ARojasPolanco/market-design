@@ -1,6 +1,7 @@
 import { purchaseService } from './purchase.service.js';
 import { designService } from '../designs/design.service.js';
 import { ratingService } from '../ratings/rating.service.js';
+import { authService } from '../auth/auth.service.js';
 import { mpService } from '../../config/mercadopago/mercadopago.js';
 import { r2Storage } from '../../config/r2/r2.js';
 import { mailService } from '../../config/resend/resend.js';
@@ -97,55 +98,101 @@ export const createPurchase = catchAsync(async (req, res, next) => {
     } catch (achError) {
       console.error('Error evaluating achievements:', achError);
     }
+
+    return res.status(201).json({
+      status: 'success',
+      purchase: { id: purchase.id, price: purchase.price },
+    });
   }
 
-  // Create MP preference
-  let preferenceData = null;
-  try {
-    const preference = await mpService.createPreference(
-      [
-        {
-          title: design.title,
-          price: Number(design.price),
-        },
-      ],
-      purchase.id,
-      design.sellerId
+  // Real payment: the seller must have connected their Mercado Pago account
+  const sellerCreds = await authService.findMpCredentials(design.sellerId);
+  if (!sellerCreds?.mpConnected || !sellerCreds.mpAccessToken) {
+    await purchase.destroy();
+    return next(
+      new AppError('El vendedor todavía no conectó su cuenta de Mercado Pago.', 409)
     );
-
-    await purchase.update({ mpPreferenceId: preference.id });
-    preferenceData = {
-      preferenceId: preference.id,
-      initPoint: preference.init_point,
-    };
-  } catch (mpError) {
-    console.error('MP preference error:', mpError.message);
-    // Purchase created but payment link failed - can be retried
   }
 
-  res.status(201).json({
+  const preferenceItems = [{ title: design.title, price: Number(design.price) }];
+
+  let preference = null;
+  try {
+    preference = await mpService.createSellerPreference(sellerCreds.mpAccessToken, {
+      items: preferenceItems,
+      externalReference: purchase.id,
+      marketplaceFee: commission,
+    });
+  } catch (_mpError) {
+    // Access token may be expired: try to refresh it once.
+    if (sellerCreds.mpRefreshToken) {
+      try {
+        const refreshed = await mpService.refreshAccessToken(sellerCreds.mpRefreshToken);
+        await authService.update(design.sellerId, {
+          mpAccessToken: refreshed.access_token,
+          mpRefreshToken: refreshed.refresh_token || sellerCreds.mpRefreshToken,
+        });
+        preference = await mpService.createSellerPreference(refreshed.access_token, {
+          items: preferenceItems,
+          externalReference: purchase.id,
+          marketplaceFee: commission,
+        });
+      } catch (refreshError) {
+        console.error('MP preference/refresh error:', refreshError.message);
+      }
+    }
+  }
+
+  if (!preference) {
+    await purchase.destroy();
+    return next(
+      new AppError('No pudimos iniciar el pago con Mercado Pago. Intentá de nuevo.', 502)
+    );
+  }
+
+  await purchase.update({ mpPreferenceId: preference.id });
+
+  return res.status(201).json({
     status: 'success',
     purchase: {
       id: purchase.id,
       price: purchase.price,
-      ...preferenceData,
+      preferenceId: preference.id,
+      initPoint: preference.init_point,
+      sandboxInitPoint: preference.sandbox_init_point,
     },
   });
 });
 
 export const handleWebhook = catchAsync(async (req, res) => {
   const { type, data } = req.body;
+  const signature = req.headers['x-signature'];
+  const requestId = req.headers['x-request-id'];
+  const dataId = data?.id || req.query?.['data.id'];
+
+  if (!mpService.verifyWebhookSignature({ dataId, signature, requestId })) {
+    return res.status(401).json({ status: 'error', message: 'Firma de webhook inválida.' });
+  }
 
   if (type === 'payment') {
     const paymentId = data.id;
 
     try {
-      const payment = await mpService.getPayment(paymentId);
+      const seller = req.body.user_id
+        ? await authService.findByMpUserId(req.body.user_id)
+        : null;
+      const payment = await mpService.getPayment(paymentId, seller?.mpAccessToken);
 
       if (payment.status === 'approved') {
-        const purchase = await purchaseService.findByMpPaymentId(paymentId);
+        let purchase = null;
+        if (payment.external_reference) {
+          purchase = await purchaseService.findById(payment.external_reference);
+        }
+        if (!purchase) {
+          purchase = await purchaseService.findByMpPaymentId(paymentId);
+        }
 
-        if (purchase && purchase.status === 'pending') {
+        if (purchase && purchase.status !== 'completed') {
           // Complete purchase
           const completed = await purchaseService.completePurchase(purchase.id, paymentId);
 

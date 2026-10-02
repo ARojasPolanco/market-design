@@ -79,6 +79,11 @@ User.init(
       defaultValue: false,
       field: 'mp_connected',
     },
+    mpUserId: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      field: 'mp_user_id',
+    },
     isVerified: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,

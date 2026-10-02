@@ -7,6 +7,7 @@ import adminRouter from '../modules/admin/admin.route.js';
 import badgesRouter from '../modules/badges/badge.route.js';
 import notificationsRouter from '../modules/notifications/notification.route.js';
 import achievementsRouter from '../modules/achievements/achievement.route.js';
+import mpRouter from '../modules/mercadopago/mp.route.js';
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/admin', adminRouter);
 router.use('/badges', badgesRouter);
 router.use('/notifications', notificationsRouter);
 router.use('/achievements', achievementsRouter);
+router.use('/mp', mpRouter);
 
 export default router;

@@ -195,7 +195,7 @@ describe('Purchases Module', () => {
       const res = await request(server)
         .post('/api/v1/purchases')
         .set('Authorization', `Bearer ${buyerToken}`)
-        .send({ designId });
+        .send({ designId, mpPaymentId: `sim_${Date.now()}` });
 
       expect(res.status).toBe(201);
       expect(res.body.status).toBe('success');
@@ -211,7 +211,7 @@ describe('Purchases Module', () => {
       const res = await request(server)
         .post('/api/v1/purchases')
         .set('Authorization', `Bearer ${buyerToken}`)
-        .send({ designId });
+        .send({ designId, mpPaymentId: `sim_${Date.now()}` });
 
       expect(res.status).toBe(400);
     });

@@ -31,6 +31,20 @@ export class AuthService {
     return await User.findOne({ where: { emailVerificationToken: token } });
   }
 
+  async findMpCredentials(userId) {
+    return await User.findOne({
+      where: { id: userId },
+      attributes: ['id', 'mpConnected', 'mpAccessToken', 'mpRefreshToken', 'mpUserId'],
+    });
+  }
+
+  async findByMpUserId(mpUserId) {
+    return await User.findOne({
+      where: { mpUserId: String(mpUserId), isDeleted: false },
+      attributes: ['id', 'mpAccessToken', 'mpRefreshToken', 'mpUserId'],
+    });
+  }
+
   async create(data) {
     return await User.create(data);
   }
