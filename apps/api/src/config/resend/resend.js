@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { envs } from '../enviroments.js';
+import { envs, appUrl } from '../enviroments.js';
 
 const resend = new Resend(envs.RESEND_API_KEY);
 
@@ -22,7 +22,7 @@ const SUPPORT_EMAIL = 'soporte@marketdesign.shop';
 
 export class MailService {
   async sendVerificationEmail(to, token) {
-    const verificationUrl = `${envs.CORS_ORIGIN}/verify-email?token=${token}`;
+    const verificationUrl = `${appUrl}/verify-email?token=${token}`;
     const year = new Date().getFullYear();
 
     return await resend.emails.send({
@@ -241,9 +241,9 @@ export class MailService {
 
             <div style="text-align: center;">
               <p style="color: #6b7280; font-size: 14px; margin: 0 0 12px 0;">
-                <a href="${envs.CORS_ORIGIN}/comprador/panel" style="color: #00C2B8; text-decoration: none;">Mis compras</a>
+                <a href="${appUrl}/comprador/panel" style="color: #00C2B8; text-decoration: none;">Mis compras</a>
                 &nbsp;&nbsp;|&nbsp;&nbsp;
-                <a href="${envs.CORS_ORIGIN}/catalogo" style="color: #00C2B8; text-decoration: none;">Explorar más diseños</a>
+                <a href="${appUrl}/catalogo" style="color: #00C2B8; text-decoration: none;">Explorar más diseños</a>
               </p>
               <p style="color: #9ca3af; font-size: 12px; margin: 0;">
                 ¿Necesitás ayuda? Escribinos a soporte@marketdesign.shop
@@ -264,7 +264,7 @@ export class MailService {
   }
 
   async sendRankUpgrade(to, newRank, newCommission) {
-    const panelUrl = `${envs.CORS_ORIGIN}/vendedor/panel`;
+    const panelUrl = `${appUrl}/vendedor/panel`;
     const year = new Date().getFullYear();
     const rankColor = RANK_COLORS[String(newRank).toLowerCase()] || '#00C2B8';
 

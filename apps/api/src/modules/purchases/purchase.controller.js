@@ -4,7 +4,7 @@ import { ratingService } from '../ratings/rating.service.js';
 import { mpService } from '../../config/mercadopago/mercadopago.js';
 import { r2Storage } from '../../config/r2/r2.js';
 import { mailService } from '../../config/resend/resend.js';
-import { envs } from '../../config/enviroments.js';
+import { appUrl } from '../../config/enviroments.js';
 import { getCommissionRate } from '../../config/ranks.js';
 import { achievementService } from '../achievements/achievement.service.js';
 import { notificationService } from '../notifications/notification.service.js';
@@ -67,7 +67,7 @@ export const createPurchase = catchAsync(async (req, res, next) => {
     // Send purchase confirmation email to buyer
     try {
       const buyer = req.sessionUser;
-      const downloadUrl = `${envs.CORS_ORIGIN}/comprador/panel`;
+      const downloadUrl = `${appUrl}/comprador/panel`;
       await mailService.sendPurchaseConfirmation(buyer.email, {
         designTitle: design.title,
         downloadUrl,
@@ -161,7 +161,7 @@ export const handleWebhook = catchAsync(async (req, res) => {
           if (design && buyer) {
             try {
               // Generate signed download URL
-              const downloadUrl = `${envs.CORS_ORIGIN}/compra/${completed.downloadToken}`;
+              const downloadUrl = `${appUrl}/compra/${completed.downloadToken}`;
 
               await mailService.sendPurchaseConfirmation(buyer.email, {
                 designTitle: design.title,

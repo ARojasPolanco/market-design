@@ -1,5 +1,5 @@
 import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
-import { envs } from '../enviroments.js';
+import { envs, appUrl } from '../enviroments.js';
 
 const client = new MercadoPagoConfig({
   accessToken: envs.MP_ACCESS_TOKEN,
@@ -20,9 +20,9 @@ export class MercadoPagoService {
         })),
         external_reference: externalReference,
         back_urls: {
-          success: `${envs.CORS_ORIGIN}/checkout/success`,
-          failure: `${envs.CORS_ORIGIN}/checkout/failure`,
-          pending: `${envs.CORS_ORIGIN}/checkout/pending`,
+          success: `${appUrl}/checkout/success`,
+          failure: `${appUrl}/checkout/failure`,
+          pending: `${appUrl}/checkout/pending`,
         },
         auto_return: 'approved',
         statement_descriptor: 'Market Design',

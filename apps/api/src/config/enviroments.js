@@ -5,6 +5,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
+  APP_URL: z.string().url().optional(),
   DB_URI: z.string().url(),
   TEST_DB_URI: z.string().url().optional(),
   SECRET_JWT_SEED: z.string().min(32),
@@ -36,3 +37,7 @@ if (!_env.success) {
 }
 
 export const envs = _env.data;
+
+// Canonical public URL of the web app, used to build links in emails and redirects.
+// Falls back to the first allowed CORS origin if APP_URL is not set.
+export const appUrl = envs.APP_URL || envs.CORS_ORIGIN.split(',')[0].trim();
