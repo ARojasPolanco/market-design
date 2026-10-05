@@ -20,6 +20,7 @@ import {
   Package,
   AlertTriangle,
   X,
+  Info,
 } from 'lucide-react';
 import BackButton from '../components/BackButton.jsx';
 import CommissionInfo from '../components/CommissionInfo.jsx';
@@ -49,7 +50,12 @@ export default function SellerDashboard() {
   const [downloading, setDownloading] = useState(null);
   const { sales, stats } = useSellerSales();
   const { designs: myDesigns, refetch: refetchDesigns } = useSellerDesigns();
-  const { ratings, reply: replyToRating, removeReply, refetch: refetchRatings } = useSellerRatings();
+  const {
+    ratings,
+    reply: replyToRating,
+    removeReply,
+    refetch: refetchRatings,
+  } = useSellerRatings();
   const { purchases } = usePurchases();
   const approved = myDesigns.filter((d) => d.status === 'approved');
   const pending = myDesigns.filter((d) => d.status === 'pending');
@@ -260,10 +266,7 @@ export default function SellerDashboard() {
               { icon: '🏆', title: 'Top Seller', desc: 'Máxima reputación' },
               { icon: '✅', title: 'Verificado', desc: 'Identidad confirmada' },
             ].map((logro) => (
-              <div
-                key={logro.title}
-                className="text-center p-3 bg-gray-50 rounded-lg"
-              >
+              <div key={logro.title} className="text-center p-3 bg-gray-50 rounded-lg">
                 <span className="text-2xl">{logro.icon}</span>
                 <p className="text-sm font-medium text-gray-900 mt-1">{logro.title}</p>
                 <p className="text-xs text-gray-500">{logro.desc}</p>
@@ -282,7 +285,8 @@ export default function SellerDashboard() {
           <div className="flex-1 text-center sm:text-left">
             <h3 className="font-semibold text-gray-900">Conectá tu Mercado Pago</h3>
             <p className="text-sm text-gray-600">
-              Es necesario para recibir el dinero de tus ventas. La comisión se descuenta automáticamente.
+              Es necesario para recibir el dinero de tus ventas. La comisión se descuenta
+              automáticamente.
             </p>
           </div>
           <button
@@ -301,41 +305,77 @@ export default function SellerDashboard() {
       <div className="overflow-x-auto no-scrollbar mb-6">
         <div className="flex gap-1 border-b pt-10">
           {[
-          { id: 'overview', label: 'Resumen', tooltip: 'Acá podés ver el resumen de tus ventas y estadísticas' },
-          { id: 'designs', label: `Mis diseños (${approved.length})`, tooltip: 'Acá podés ver tus diseños aprobados que están a la venta' },
-          { id: 'pending', label: `Pendientes (${pending.length})`, tooltip: 'Acá podés ver tus diseños que están pendientes de revisión' },
-          { id: 'rejected', label: `Rechazados (${rejected.length})`, tooltip: 'Acá podés ver los diseños que fueron rechazados' },
-          { id: 'sales', label: 'Ventas', tooltip: 'Acá podés ver tu historial de ventas y ganancias' },
-          { id: 'reviews', label: `Reseñas (${ratings.length})`, tooltip: 'Acá podés responder las reseñas de tus diseños' },
-          { id: 'purchases', label: `Mis compras (${purchases.length})`, tooltip: 'Acá podés ver los diseños que compraste' },
-          { id: 'achievements', label: `Logros (${earnedAchievements})`, tooltip: 'Acá podés ver tus logros e insignias' },
-          { id: 'profile', label: 'Mi perfil', tooltip: 'Acá podés editar tu perfil de vendedor' },
-        ].map((tab) => (
-          <div key={tab.id} className="relative flex">
-            <button
-              onClick={() => setActiveTab(tab.id)}
-              onMouseEnter={(e) => {
-                const tooltip = e.currentTarget.nextElementSibling;
-                if (tooltip) tooltip.style.opacity = '1';
-              }}
-              onMouseLeave={(e) => {
-                const tooltip = e.currentTarget.nextElementSibling;
-                if (tooltip) tooltip.style.opacity = '0';
-              }}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === tab.id
-                  ? 'border-brand-teal text-brand-teal'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              {tab.label}
-            </button>
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 transition-opacity pointer-events-none whitespace-nowrap z-50">
-              {tab.tooltip}
-              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+            {
+              id: 'overview',
+              label: 'Resumen',
+              tooltip: 'Acá podés ver el resumen de tus ventas y estadísticas',
+            },
+            {
+              id: 'designs',
+              label: `Mis diseños (${approved.length})`,
+              tooltip: 'Acá podés ver tus diseños aprobados que están a la venta',
+            },
+            {
+              id: 'pending',
+              label: `Pendientes (${pending.length})`,
+              tooltip: 'Acá podés ver tus diseños que están pendientes de revisión',
+            },
+            {
+              id: 'rejected',
+              label: `Rechazados (${rejected.length})`,
+              tooltip: 'Acá podés ver los diseños que fueron rechazados',
+            },
+            {
+              id: 'sales',
+              label: 'Ventas',
+              tooltip: 'Acá podés ver tu historial de ventas y ganancias',
+            },
+            {
+              id: 'reviews',
+              label: `Reseñas (${ratings.length})`,
+              tooltip: 'Acá podés responder las reseñas de tus diseños',
+            },
+            {
+              id: 'purchases',
+              label: `Mis compras (${purchases.length})`,
+              tooltip: 'Acá podés ver los diseños que compraste',
+            },
+            {
+              id: 'achievements',
+              label: `Logros (${earnedAchievements})`,
+              tooltip: 'Acá podés ver tus logros e insignias',
+            },
+            {
+              id: 'profile',
+              label: 'Mi perfil',
+              tooltip: 'Acá podés editar tu perfil de vendedor',
+            },
+          ].map((tab) => (
+            <div key={tab.id} className="relative flex">
+              <button
+                onClick={() => setActiveTab(tab.id)}
+                onMouseEnter={(e) => {
+                  const tooltip = e.currentTarget.nextElementSibling;
+                  if (tooltip) tooltip.style.opacity = '1';
+                }}
+                onMouseLeave={(e) => {
+                  const tooltip = e.currentTarget.nextElementSibling;
+                  if (tooltip) tooltip.style.opacity = '0';
+                }}
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? 'border-brand-teal text-brand-teal'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {tab.label}
+              </button>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                {tab.tooltip}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
         </div>
       </div>
 
@@ -378,13 +418,22 @@ export default function SellerDashboard() {
             </div>
             <div className="space-y-3">
               {sales.slice(0, 5).map((sale) => (
-                <div key={sale.id} className="flex items-center justify-between py-2 border-b last:border-0">
+                <div
+                  key={sale.id}
+                  className="flex items-center justify-between py-2 border-b last:border-0"
+                >
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{sale.design?.title || 'Diseño'}</p>
-                    <p className="text-xs text-gray-500">{sale.buyer?.fullname || sale.buyer?.username || 'Comprador'}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {sale.design?.title || 'Diseño'}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {sale.buyer?.fullname || sale.buyer?.username || 'Comprador'}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium text-green-600">+${Number(sale.sellerEarnings || 0).toLocaleString()}</p>
+                    <p className="text-sm font-medium text-green-600">
+                      +${Number(sale.sellerEarnings || 0).toLocaleString()}
+                    </p>
                     <p className="text-xs text-gray-400">
                       {new Date(sale.createdAt).toLocaleDateString('es-AR')}
                     </p>
@@ -411,19 +460,28 @@ export default function SellerDashboard() {
                 <div className="mb-4">
                   <div className="flex items-center justify-between text-sm mb-2">
                     <span className="text-gray-500">Progreso al siguiente nivel</span>
-                    <span className="text-gray-700">{stats.totalSales}/{rankInfo.nextLevel?.salesNeeded || 50} ventas</span>
+                    <span className="text-gray-700">
+                      {stats.totalSales}/{rankInfo.nextLevel?.salesNeeded || 50} ventas
+                    </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-brand-teal h-2 rounded-full transition-all"
-                      style={{ width: `${Math.min((stats.totalSales / (rankInfo.nextLevel?.salesNeeded || 50)) * 100, 100)}%` }}
+                      style={{
+                        width: `${Math.min((stats.totalSales / (rankInfo.nextLevel?.salesNeeded || 50)) * 100, 100)}%`,
+                      }}
                     />
                   </div>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-4">
                   <p className="text-sm text-gray-600">
-                    Te faltan <span className="font-medium text-brand-teal">{Math.max(0, (rankInfo.nextLevel?.salesNeeded || 50) - stats.totalSales)} ventas</span> para
-                    bajar tu comisión a <span className="font-medium">{rankInfo.nextLevel?.rate || 18}%</span>
+                    Te faltan{' '}
+                    <span className="font-medium text-brand-teal">
+                      {Math.max(0, (rankInfo.nextLevel?.salesNeeded || 50) - stats.totalSales)}{' '}
+                      ventas
+                    </span>{' '}
+                    para bajar tu comisión a{' '}
+                    <span className="font-medium">{rankInfo.nextLevel?.rate || 18}%</span>
                   </p>
                 </div>
               </>
@@ -433,10 +491,12 @@ export default function SellerDashboard() {
             {seller.rank === 'oro' && (
               <div className="bg-yellow-50 rounded-lg p-4">
                 <p className="text-sm text-gray-700 font-medium">
-                  ¡Felicitaciones! Llegaste al rango Oro, el máximo nivel automático. Tu comisión es del 15%.
+                  ¡Felicitaciones! Llegaste al rango Oro, el máximo nivel automático. Tu comisión es
+                  del 15%.
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Los rangos Platino y Diamante son otorgados por la administración por rendimiento destacado.
+                  Los rangos Platino y Diamante son otorgados por la administración por rendimiento
+                  destacado.
                 </p>
               </div>
             )}
@@ -480,7 +540,8 @@ export default function SellerDashboard() {
                   <p className="text-sm text-gray-600 line-clamp-2">{rating.comment}</p>
                 )}
                 <p className="text-xs text-gray-400 mt-2">
-                  {rating.buyer?.username || rating.buyer?.fullname || 'Usuario'} · {new Date(rating.createdAt).toLocaleDateString('es-AR')}
+                  {rating.buyer?.username || rating.buyer?.fullname || 'Usuario'} ·{' '}
+                  {new Date(rating.createdAt).toLocaleDateString('es-AR')}
                 </p>
               </div>
             ))}
@@ -490,47 +551,49 @@ export default function SellerDashboard() {
 
       {activeTab === 'designs' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {myDesigns.filter(d => d.status === 'approved').map((design) => (
-            <div
-              key={design.id}
-              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
-            >
-              <Link to={`/diseno/${design.id}`}>
-                <div className="aspect-video relative">
-                  <img
-                    src={design.previewUrl}
-                    alt={design.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <span className="absolute top-2 right-2 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
-                    Publicado
-                  </span>
-                </div>
-              </Link>
-              <div className="p-4">
-                <h3 className="font-medium text-gray-900 mb-1">{design.title}</h3>
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
-                  <span>${Number(design.price).toLocaleString()}</span>
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1">
-                      <ShoppingCart size={14} /> {design.salesCount || 0}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Eye size={14} /> {design.viewCount || 0}
+          {myDesigns
+            .filter((d) => d.status === 'approved')
+            .map((design) => (
+              <div
+                key={design.id}
+                className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+              >
+                <Link to={`/diseno/${design.id}`}>
+                  <div className="aspect-video relative">
+                    <img
+                      src={design.previewUrl}
+                      alt={design.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <span className="absolute top-2 right-2 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
+                      Publicado
                     </span>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  <Link
-                    to={`/vendedor/panel/editar/${design.id}`}
-                    className="flex-1 text-center text-xs px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-                  >
-                    Editar
-                  </Link>
+                </Link>
+                <div className="p-4">
+                  <h3 className="font-medium text-gray-900 mb-1">{design.title}</h3>
+                  <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+                    <span>${Number(design.price).toLocaleString()}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1">
+                        <ShoppingCart size={14} /> {design.salesCount || 0}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Eye size={14} /> {design.viewCount || 0}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Link
+                      to={`/vendedor/panel/editar/${design.id}`}
+                      className="flex-1 text-center text-xs px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                    >
+                      Editar
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
 
@@ -538,7 +601,10 @@ export default function SellerDashboard() {
         <div className="space-y-4">
           {pending.length > 0 ? (
             pending.map((design) => (
-              <div key={design.id} className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-4">
+              <div
+                key={design.id}
+                className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-4"
+              >
                 <img
                   src={design.previewUrl}
                   alt={design.title}
@@ -546,7 +612,9 @@ export default function SellerDashboard() {
                 />
                 <div className="flex-1">
                   <h3 className="font-medium text-gray-900">{design.title}</h3>
-                  <p className="text-sm text-gray-500">{design.category} · ${design.price.toLocaleString()}</p>
+                  <p className="text-sm text-gray-500">
+                    {design.category} · ${design.price.toLocaleString()}
+                  </p>
                 </div>
                 <span className="flex items-center gap-1 text-yellow-600 bg-yellow-50 text-sm px-3 py-1 rounded-full shrink-0">
                   <Clock size={14} /> Pendiente
@@ -582,7 +650,9 @@ export default function SellerDashboard() {
                   />
                   <div className="flex-1">
                     <h3 className="font-medium text-gray-900">{design.title}</h3>
-                    <p className="text-sm text-gray-500">{design.category} · ${design.price.toLocaleString()}</p>
+                    <p className="text-sm text-gray-500">
+                      {design.category} · ${design.price.toLocaleString()}
+                    </p>
                   </div>
                   <span className="flex items-center gap-1 text-red-600 bg-red-50 text-sm px-3 py-1 rounded-full">
                     <XCircle size={14} /> Rechazado
@@ -602,7 +672,10 @@ export default function SellerDashboard() {
                   </Link>
                   <span className="text-gray-300">|</span>
                   <button
-                    onClick={() => { setDeleteModal(design.id); setDeleteConfirmText(''); }}
+                    onClick={() => {
+                      setDeleteModal(design.id);
+                      setDeleteConfirmText('');
+                    }}
                     className="text-sm text-red-600 hover:text-red-700 font-medium"
                   >
                     Eliminar
@@ -621,44 +694,74 @@ export default function SellerDashboard() {
       )}
 
       {activeTab === 'sales' && (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b bg-gray-50">
-                  <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">Diseño</th>
-                  <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">Comprador</th>
-                  <th className="text-right text-sm font-medium text-gray-500 px-6 py-3">Precio</th>
-                  <th className="text-right text-sm font-medium text-gray-500 px-6 py-3 whitespace-nowrap">Comisión MD</th>
-                  <th className="text-right text-sm font-medium text-gray-500 px-6 py-3 whitespace-nowrap">Comisión MP</th>
-                  <th className="text-right text-sm font-medium text-gray-500 px-6 py-3 whitespace-nowrap">Ganancia neta</th>
-                  <th className="text-right text-sm font-medium text-gray-500 px-6 py-3">Fecha</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sales.map((sale) => (
-                  <tr key={sale.id} className="border-b last:border-0 hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{sale.design?.title || 'Diseño'}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{sale.buyer?.fullname || sale.buyer?.username || 'Comprador'}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                      ${Number(sale.price || 0).toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-red-600 text-right whitespace-nowrap">
-                      -${Number(sale.commission || 0).toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-red-600 text-right whitespace-nowrap">
-                      -${Number(sale.mpFee || 0).toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-green-600 text-right whitespace-nowrap">
-                      +${(Number(sale.sellerEarnings || 0) - Number(sale.mpFee || 0)).toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 text-right">
-                      {new Date(sale.createdAt).toLocaleDateString('es-AR')}
-                    </td>
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-xl p-4">
+            <Info size={18} className="text-blue-500 shrink-0 mt-0.5" />
+            <p className="text-sm text-blue-800">
+              El costo de Mercado Pago depende del plazo de acreditación que elijas en tu cuenta de
+              Mercado Pago. La comisión de Market Design es independiente.
+            </p>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b bg-gray-50">
+                    <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">
+                      Diseño
+                    </th>
+                    <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">
+                      Comprador
+                    </th>
+                    <th className="text-right text-sm font-medium text-gray-500 px-6 py-3">
+                      Precio
+                    </th>
+                    <th className="text-right text-sm font-medium text-gray-500 px-6 py-3 whitespace-nowrap">
+                      Comisión MD
+                    </th>
+                    <th className="text-right text-sm font-medium text-gray-500 px-6 py-3 whitespace-nowrap">
+                      Comisión MP
+                    </th>
+                    <th className="text-right text-sm font-medium text-gray-500 px-6 py-3 whitespace-nowrap">
+                      Ganancia neta
+                    </th>
+                    <th className="text-right text-sm font-medium text-gray-500 px-6 py-3">
+                      Fecha
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {sales.map((sale) => (
+                    <tr key={sale.id} className="border-b last:border-0 hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                        {sale.design?.title || 'Diseño'}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {sale.buyer?.fullname || sale.buyer?.username || 'Comprador'}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900 text-right">
+                        ${Number(sale.price || 0).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-red-600 text-right whitespace-nowrap">
+                        -${Number(sale.commission || 0).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-red-600 text-right whitespace-nowrap">
+                        -${Number(sale.mpFee || 0).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-green-600 text-right whitespace-nowrap">
+                        +$
+                        {(
+                          Number(sale.sellerEarnings || 0) - Number(sale.mpFee || 0)
+                        ).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500 text-right">
+                        {new Date(sale.createdAt).toLocaleDateString('es-AR')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -707,8 +810,7 @@ export default function SellerDashboard() {
                       </div>
                       <div className="flex items-center gap-4 text-sm text-gray-500">
                         <span>
-                          Comprado el{' '}
-                          {new Date(purchase.createdAt).toLocaleDateString('es-AR')}
+                          Comprado el {new Date(purchase.createdAt).toLocaleDateString('es-AR')}
                         </span>
                         <span>·</span>
                         <span>{purchase.downloadCount || 0} descargas</span>
@@ -740,7 +842,9 @@ export default function SellerDashboard() {
             <div className="text-center py-12">
               <Package size={48} className="mx-auto text-gray-300 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No tenés compras</h3>
-              <p className="text-gray-500 mb-4">Explorá el catálogo y encontrá diseños increíbles.</p>
+              <p className="text-gray-500 mb-4">
+                Explorá el catálogo y encontrá diseños increíbles.
+              </p>
               <Link
                 to="/catalogo"
                 className="inline-flex items-center gap-2 bg-dark text-white px-6 py-3 rounded-lg font-medium hover:bg-dark-light transition-colors"
@@ -767,7 +871,10 @@ export default function SellerDashboard() {
                 <h3 className="text-lg font-semibold text-gray-900">Eliminar diseño</h3>
               </div>
               <button
-                onClick={() => { setDeleteModal(null); setDeleteConfirmText(''); }}
+                onClick={() => {
+                  setDeleteModal(null);
+                  setDeleteConfirmText('');
+                }}
                 className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <X size={20} className="text-gray-500" />
@@ -776,13 +883,16 @@ export default function SellerDashboard() {
 
             <div className="mb-6 space-y-3">
               <p className="text-sm text-gray-600">
-                Si eliminás este diseño, vas a tener que cargarlo nuevamente desde cero (archivos, imágenes, descripción, etc.).
+                Si eliminás este diseño, vas a tener que cargarlo nuevamente desde cero (archivos,
+                imágenes, descripción, etc.).
               </p>
               <p className="text-sm text-gray-600">
-                Si lo que querés es corregirlo, podés usar <span className="font-medium">"Editar y reenviar"</span> en su lugar.
+                Si lo que querés es corregirlo, podés usar{' '}
+                <span className="font-medium">"Editar y reenviar"</span> en su lugar.
               </p>
               <p className="text-sm text-gray-600">
-                Para confirmar la eliminación, escribí <span className="font-bold text-red-600">Eliminar</span> abajo:
+                Para confirmar la eliminación, escribí{' '}
+                <span className="font-bold text-red-600">Eliminar</span> abajo:
               </p>
               <input
                 type="text"
@@ -795,7 +905,10 @@ export default function SellerDashboard() {
 
             <div className="flex gap-3">
               <button
-                onClick={() => { setDeleteModal(null); setDeleteConfirmText(''); }}
+                onClick={() => {
+                  setDeleteModal(null);
+                  setDeleteConfirmText('');
+                }}
                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
               >
                 Cancelar
@@ -885,7 +998,9 @@ function ProfileSection({ seller }) {
             ) : (
               <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
                 <span className="text-3xl font-bold text-gray-500">
-                  {seller.storeName?.charAt(0)?.toUpperCase() || seller.username?.charAt(0)?.toUpperCase() || '?'}
+                  {seller.storeName?.charAt(0)?.toUpperCase() ||
+                    seller.username?.charAt(0)?.toUpperCase() ||
+                    '?'}
                 </span>
               </div>
             )}
@@ -903,17 +1018,13 @@ function ProfileSection({ seller }) {
             <p className="font-medium text-gray-900">{seller.name}</p>
             <p className="text-sm text-gray-500">@{seller.username}</p>
             <RankBadge rank={seller.rank} size={20} />
-            {avatarFile && (
-              <p className="text-xs text-brand-teal mt-1">Nueva foto seleccionada</p>
-            )}
+            {avatarFile && <p className="text-xs text-brand-teal mt-1">Nueva foto seleccionada</p>}
           </div>
         </div>
 
         {/* Store name */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nombre de tienda
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Nombre de tienda</label>
           <input
             type="text"
             value={storeName}
@@ -937,9 +1048,7 @@ function ProfileSection({ seller }) {
             rows={3}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal resize-none"
           />
-          <p className="text-xs text-gray-500 mt-1">
-            {description.length}/200 caracteres
-          </p>
+          <p className="text-xs text-gray-500 mt-1">{description.length}/200 caracteres</p>
         </div>
 
         {/* Save */}

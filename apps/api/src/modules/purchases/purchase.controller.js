@@ -193,9 +193,12 @@ export const handleWebhook = catchAsync(async (req, res) => {
         }
 
         if (purchase && purchase.status !== 'completed') {
-          // Mercado Pago processing fee (borne by the seller)
+          // Mercado Pago processing fee (borne by the seller).
+          // Exclude our own marketplace fee (application_fee) so we only store MP's cost.
           const mpFee = Array.isArray(payment.fee_details)
-            ? payment.fee_details.reduce((sum, fee) => sum + Number(fee.amount || 0), 0)
+            ? payment.fee_details
+                .filter((fee) => fee.type !== 'application_fee' && fee.type !== 'marketplace_fee')
+                .reduce((sum, fee) => sum + Number(fee.amount || 0), 0)
             : null;
 
           // Complete purchase
