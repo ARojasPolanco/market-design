@@ -83,7 +83,7 @@ Orden en `app.ts`:
 - **AppError**: Clase con `statusCode`, `status` ("fail" 4xx / "error" 5xx), `isOperational: true`
 - **catchAsync**: Wrapper que captura errores de handlers async y los pasa a `next()`
 - **errorMatchers**: Array que convierte errores técnicos (Sequelize, JWT, Zod, Multer, PG) en AppErrors amigables
-- **globalErrorHandler**: Dev vs Prod. En prod guarda en tabla `errors` de la DB
+- **globalErrorHandler**: Dev expone el stack en la respuesta; Prod responde amigable. Persiste en la tabla `errors` (vía `modules/logs`) **solo los errores inesperados**: los 5xx y cualquier error no operativo (con stack, método, ruta, `user_id`, IP y user-agent; email/tokens se redactan antes de guardar). Los 4xx esperados (AppErrors con mensaje claro al cliente: 400/401/404/422, incluidos los que los controllers devuelven con `res.status(422)` directo) **no** se persisten para no generar ruido.
 
 ## Variables de entorno
 
