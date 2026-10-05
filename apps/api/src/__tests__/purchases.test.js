@@ -3,6 +3,7 @@ import request from 'supertest';
 import app from '../app.js';
 import sequelize from '../config/database/database.js';
 import { runMigrations } from '../config/database/migrator.js';
+import { validateCreateRating } from '../modules/purchases/purchase.schema.js';
 
 let server;
 let buyerToken;
@@ -139,9 +140,7 @@ describe('Purchases Module', () => {
     it('should fail without authentication', async () => {
       if (!dbAvailable) return;
 
-      const res = await request(server)
-        .post('/api/v1/purchases')
-        .send({ designId });
+      const res = await request(server).post('/api/v1/purchases').send({ designId });
 
       expect(res.status).toBe(401);
     });
@@ -233,8 +232,7 @@ describe('Purchases Module', () => {
     it('should fail without authentication', async () => {
       if (!dbAvailable) return;
 
-      const res = await request(server)
-        .get('/api/v1/purchases/my');
+      const res = await request(server).get('/api/v1/purchases/my');
 
       expect(res.status).toBe(401);
     });
@@ -277,8 +275,7 @@ describe('Purchases Module', () => {
     it('should return ratings for a design', async () => {
       if (!dbAvailable || !designId) return;
 
-      const res = await request(server)
-        .get(`/api/v1/purchases/ratings/${designId}`);
+      const res = await request(server).get(`/api/v1/purchases/ratings/${designId}`);
 
       expect(res.status).toBe(200);
       expect(res.body.status).toBe('success');
@@ -349,10 +346,46 @@ describe('Purchases Module', () => {
     it('should fail with invalid token', async () => {
       if (!dbAvailable) return;
 
-      const res = await request(server)
-        .get('/api/v1/purchases/download/invalid-token');
+      const res = await request(server).get('/api/v1/purchases/download/invalid-token');
 
       expect(res.status).toBe(400);
     });
+  });
+});
+
+describe('createRatingSchema', () => {
+  const base = {
+    designId: '00000000-0000-0000-0000-000000000000',
+    purchaseId: '00000000-0000-0000-0000-000000000000',
+    score: 5,
+  };
+
+  it('accepts a null comment (comment is optional)', () => {
+    const { hasError, data } = validateCreateRating({ ...base, comment: null });
+    expect(hasError).toBe(false);
+    expect(data.comment).toBeNull();
+  });
+
+  it('accepts a missing comment', () => {
+    const { hasError, data } = validateCreateRating(base);
+    expect(hasError).toBe(false);
+    expect(data.comment).toBeNull();
+  });
+
+  it('normalizes a blank comment to null', () => {
+    const { hasError, data } = validateCreateRating({ ...base, comment: '   ' });
+    expect(hasError).toBe(false);
+    expect(data.comment).toBeNull();
+  });
+
+  it('trims and keeps a real comment', () => {
+    const { hasError, data } = validateCreateRating({ ...base, comment: '  Excelente  ' });
+    expect(hasError).toBe(false);
+    expect(data.comment).toBe('Excelente');
+  });
+
+  it('rejects a comment over 500 characters', () => {
+    const { hasError } = validateCreateRating({ ...base, comment: 'a'.repeat(501) });
+    expect(hasError).toBe(true);
   });
 });

@@ -108,7 +108,7 @@ export default function DesignDetailPage() {
         designId: id,
         purchaseId,
         score: ratingScore,
-        comment: ratingComment.trim() || null,
+        comment: ratingComment.trim() || undefined,
       });
       showToast('¡Gracias por tu valoración!', { type: 'success' });
       setShowRatingForm(false);

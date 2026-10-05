@@ -10,7 +10,14 @@ export const createRatingSchema = z.object({
   designId: z.string().uuid('El diseño indicado no es válido.'),
   purchaseId: z.string().uuid('La compra indicada no es válida.'),
   score: z.number().int().min(1, 'El puntaje mínimo es 1').max(5, 'El puntaje máximo es 5'),
-  comment: z.string().max(500, 'El comentario no puede exceder 500 caracteres').optional(),
+  comment: z
+    .string()
+    .max(500, 'El comentario no puede exceder 500 caracteres')
+    .nullish()
+    .transform((value) => {
+      const trimmed = value?.trim();
+      return trimmed ? trimmed : null;
+    }),
 });
 
 export function validateCreatePurchase(data) {
