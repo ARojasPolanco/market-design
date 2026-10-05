@@ -69,7 +69,7 @@ describe('Admin Module', () => {
 
       const loginRes = await request(server)
         .post('/api/v1/auth/login')
-        .send({ email, password: 'password123' });
+        .send({ identifier: email, password: 'password123' });
 
       adminToken = loginRes.body.token;
     });

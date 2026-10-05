@@ -59,7 +59,7 @@ describe('Designs Module', () => {
       // Re-login to get token with correct role
       const loginRes = await request(server)
         .post('/api/v1/auth/login')
-        .send({ email, password: 'password123' });
+        .send({ identifier: email, password: 'password123' });
 
       sellerToken = loginRes.body.token;
     });
@@ -87,7 +87,7 @@ describe('Designs Module', () => {
       // Login with admin role
       const loginRes = await request(server)
         .post('/api/v1/auth/login')
-        .send({ email, password: 'password123' });
+        .send({ identifier: email, password: 'password123' });
 
       adminToken = loginRes.body.token;
     });

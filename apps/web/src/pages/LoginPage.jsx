@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext.jsx';
 import { Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -27,11 +27,11 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
-      await login(email, password);
+      await login(identifier, password);
       showToast('Sesión iniciada correctamente', { type: 'success' });
       navigate('/');
     } catch (err) {
-      const message = err.response?.data?.message || 'Email o contraseña incorrectos';
+      const message = err.response?.data?.message || 'Email/usuario o contraseña incorrectos';
       setError(message);
     } finally {
       setLoading(false);
@@ -53,11 +53,13 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email o nombre de usuario
+              </label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
                 required
               />

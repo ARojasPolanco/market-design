@@ -133,7 +133,7 @@ describe('Auth Module', () => {
       // Login
       const res = await request(server)
         .post('/api/v1/auth/login')
-        .send({ email, password });
+        .send({ identifier: email, password });
 
       expect(res.status).toBe(200);
       expect(res.body.status).toBe('success');
@@ -155,16 +155,34 @@ describe('Auth Module', () => {
 
       const res = await request(server)
         .post('/api/v1/auth/login')
-        .send({ email, password: 'wrongpassword' });
+        .send({ identifier: email, password: 'wrongpassword' });
 
       expect(res.status).toBe(401);
+    });
+
+    it('should login successfully with username', async () => {
+      const email = `byname_${Date.now()}@example.com`;
+      const username = 'byname_' + Date.now();
+      const password = 'password123';
+
+      await request(server)
+        .post('/api/v1/auth/register')
+        .send({ fullname: 'By Name User', username, email, password });
+
+      const res = await request(server)
+        .post('/api/v1/auth/login')
+        .send({ identifier: username, password });
+
+      expect(res.status).toBe(200);
+      expect(res.body.token).toBeDefined();
+      expect(res.body.user.username).toBe(username);
     });
 
     it('should fail with non-existent email', async () => {
       const res = await request(server)
         .post('/api/v1/auth/login')
         .send({
-          email: 'nonexistent@example.com',
+          identifier: 'nonexistent@example.com',
           password: 'password123',
         });
 
@@ -258,7 +276,7 @@ describe('Auth Module', () => {
       // Login with new password
       const loginRes = await request(server)
         .post('/api/v1/auth/login')
-        .send({ email, password: 'newpassword123' });
+        .send({ identifier: email, password: 'newpassword123' });
 
       expect(loginRes.status).toBe(200);
     });

@@ -25,7 +25,7 @@ export const register = catchAsync(async (req, res, next) => {
     return next(new AppError('Captcha inválido. Intentá de nuevo.', 422));
   }
 
-  const existingEmail = await authService.findOneByEmail(data.email);
+  const existingEmail = await authService.findOneByEmail(data.email.toLowerCase());
   if (existingEmail) {
     return next(new AppError('El email ya está registrado', 400));
   }
@@ -39,6 +39,7 @@ export const register = catchAsync(async (req, res, next) => {
 
   const user = await authService.create({
     ...data,
+    email: data.email.toLowerCase(),
     emailVerificationToken: verificationToken,
   });
 
@@ -72,14 +73,18 @@ export const login = catchAsync(async (req, res, next) => {
     return res.status(422).json({ status: 'error', message: errorMessages.join(', ') });
   }
 
-  const user = await authService.findOneByEmail(data.email);
+  const identifier = data.identifier.trim();
+  const user = identifier.includes('@')
+    ? await authService.findOneByEmail(identifier.toLowerCase())
+    : await authService.findOneByUsername(identifier);
+
   if (!user) {
-    return next(new AppError('El email o la contraseña son incorrectos', 401));
+    return next(new AppError('El email/nombre de usuario o la contraseña son incorrectos', 401));
   }
 
   const isPasswordValid = await comparePassword(data.password, user.password);
   if (!isPasswordValid) {
-    return next(new AppError('El email o la contraseña son incorrectos', 401));
+    return next(new AppError('El email/nombre de usuario o la contraseña son incorrectos', 401));
   }
 
   if (user.status === 'suspended') {

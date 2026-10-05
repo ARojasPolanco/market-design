@@ -16,11 +16,11 @@ export class AuthService {
   }
 
   async findOneByEmail(email) {
-    return await User.findOne({ where: { email, isDeleted: false } });
+    return await User.findOne({ where: { email: { [Op.iLike]: email }, isDeleted: false } });
   }
 
   async findOneByUsername(username) {
-    return await User.findOne({ where: { username, isDeleted: false } });
+    return await User.findOne({ where: { username: { [Op.iLike]: username }, isDeleted: false } });
   }
 
   async findOneById(id) {
