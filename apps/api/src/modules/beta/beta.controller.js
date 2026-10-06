@@ -9,7 +9,10 @@ import { catchAsync } from '../../errors/catchAsync.js';
 const sendBetaMail = async (to, fullname, slot) => {
   if (envs.NODE_ENV === 'test') return;
   try {
-    await mailService.sendBetaConfirmation(to, { fullname, slot });
+    const result = await mailService.sendBetaConfirmation(to, { fullname, slot });
+    if (result?.error) {
+      console.error('Resend beta confirmation error:', result.error);
+    }
   } catch (error) {
     console.error('Error sending beta confirmation email:', error);
   }

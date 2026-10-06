@@ -1,12 +1,14 @@
 const pad = (value) => String(value).padStart(2, '0');
 
-const toIcsDate = (dateInput) => {
+export const toUtcStamp = (dateInput) => {
   const date = new Date(dateInput);
   return (
     `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}` +
     `T${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}${pad(date.getUTCSeconds())}Z`
   );
 };
+
+const toIcsDate = toUtcStamp;
 
 const escapeIcs = (text = '') =>
   String(text)

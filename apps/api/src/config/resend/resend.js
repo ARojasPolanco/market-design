@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { envs, appUrl } from '../enviroments.js';
-import { buildIcs } from '../../utils/ics.js';
+import { toUtcStamp } from '../../utils/ics.js';
 
 const resend = new Resend(envs.RESEND_API_KEY);
 
@@ -181,31 +181,39 @@ export class MailService {
     const firstName = (fullname || '').split(' ')[0] || 'hola';
     const year = new Date().getFullYear();
 
-    const ics = buildIcs({
-      uid: `beta-${slot.key}-${to}@marketdesign.shop`,
-      title: 'Market Design — Reunión de vendedores fundadores (Beta)',
-      description:
-        'Onboarding de vendedores: cómo funciona Market Design, cómo se cobra por Mercado Pago y subida del primer diseño.',
-      start: slot.start,
-      end: slot.end,
-      url: slot.meetUrl,
-      organizerEmail: SUPPORT_EMAIL,
-    });
+    const eventTitle = 'Market Design — Reunión de vendedores fundadores (Beta)';
+    const eventDetails =
+      'Onboarding de vendedores: cómo funciona Market Design, cómo se cobra por Mercado Pago y subida del primer diseño.';
+    const gcalUrl =
+      'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+      `&text=${encodeURIComponent(eventTitle)}` +
+      `&dates=${toUtcStamp(slot.start)}/${toUtcStamp(slot.end)}` +
+      `&details=${encodeURIComponent(`${eventDetails} Link: ${slot.meetUrl}`)}` +
+      `&location=${encodeURIComponent(slot.meetUrl)}`;
 
     return await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
       to,
       replyTo: SUPPORT_EMAIL,
       subject: `Confirmación — Reunión beta Market Design (${slot.shortLabel})`,
+      text: [
+        `Hola ${firstName}, te guardamos el lugar para la reunión de Market Design.`,
+        '',
+        `Fecha: ${slot.label}`,
+        `Link de Google Meet: ${slot.meetUrl}`,
+        `Agregar a tu calendario: ${gcalUrl}`,
+        '',
+        'Qué traer:',
+        '- 1 o 2 diseños listos para subir (imagen en alta calidad)',
+        '- Tu cuenta de Mercado Pago (para conectarla)',
+        '',
+        `¿Dudas? Escribinos a ${SUPPORT_EMAIL}.`,
+      ].join('\n'),
       attachments: [
         {
           filename: 'market-design.png',
           content: LOGO_BUFFER,
           inlineContentId: LOGO_CID,
-        },
-        {
-          filename: 'reunion-market-design.ics',
-          content: Buffer.from(ics),
         },
       ],
       html: `
@@ -231,11 +239,15 @@ export class MailService {
               <p style="color: #0F2A44; margin: 0; font-size: 20px; font-weight: bold;">${slot.label}</p>
             </div>
 
-            <div style="text-align: center; margin: 0 0 24px 0;">
+            <div style="text-align: center; margin: 0 0 12px 0;">
               <a href="${slot.meetUrl}" style="display: inline-block; background: #00C2B8; color: #ffffff; padding: 14px 34px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
                 Entrar a la reunión (Google Meet)
               </a>
             </div>
+
+            <p style="text-align: center; margin: 0 0 24px 0;">
+              <a href="${gcalUrl}" style="color: #00C2B8; font-size: 14px; text-decoration: underline;">Agregar a mi calendario</a>
+            </p>
 
             <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin: 0 0 4px 0; text-align: center;">
               ¿El botón no funciona? Copiá y pegá este enlace:
@@ -263,7 +275,7 @@ export class MailService {
             </div>
 
             <p style="color: #6b7280; font-size: 13px; line-height: 1.6; margin: 0 0 24px 0;">
-              Adjuntamos un archivo de calendario para que lo agregues a Google Calendar con un clic. Si necesitás cambiar de fecha, entrá a la página de la beta y anotate en otra reunión.
+              Si necesitás cambiar de fecha, entrá a la página de la beta y anotate en otra reunión.
             </p>
 
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0 0 16px 0;" />
