@@ -51,35 +51,48 @@ export default async function middleware(request) {
   }
 
   const id = url.pathname.split('/').filter(Boolean).pop();
-  const pageUrl = `${SITE_URL}/diseno/${id}`;
+  const isBetaLanding = url.pathname.startsWith('/beta-vendedores');
 
   let pageTitle = 'Market Design — Marketplace de diseños';
-  let metaTags = genericMeta(pageUrl);
+  let metaTags = genericMeta(`${SITE_URL}${url.pathname}`);
 
-  try {
-    const res = await fetch(`${API_BASE}/v1/designs/${id}`, {
-      headers: { accept: 'application/json', 'x-prerender': '1' },
+  if (isBetaLanding) {
+    pageTitle = 'Vendé tus diseños — Beta de vendedores | Market Design';
+    metaTags = buildMetaTags({
+      title: pageTitle,
+      description:
+        'Sumate a los primeros 10 vendedores de Market Design. Subís tus diseños, cobrás por Mercado Pago y entregás al instante. Beta cerrada, cupos limitados.',
+      image: `${SITE_URL}/marketDesignLogo.png`,
+      url: `${SITE_URL}/beta-vendedores`,
     });
+  } else {
+    const pageUrl = `${SITE_URL}/diseno/${id}`;
 
-    if (res.ok) {
-      const { design } = await res.json();
+    try {
+      const res = await fetch(`${API_BASE}/v1/designs/${id}`, {
+        headers: { accept: 'application/json', 'x-prerender': '1' },
+      });
 
-      if (design && !design.isDeleted) {
-        const seller = design.seller?.storeName || design.seller?.username || 'un vendedor';
-        const category = design.category || 'diseño';
-        const price = Number(design.price || 0).toLocaleString('es-AR');
+      if (res.ok) {
+        const { design } = await res.json();
 
-        pageTitle = `${design.title} — Market Design`;
-        metaTags = buildMetaTags({
-          title: pageTitle,
-          description: `Diseño de ${category} por ${seller} — $${price}`,
-          image: withOgSize(design.previewUrl),
-          url: pageUrl,
-        });
+        if (design && !design.isDeleted) {
+          const seller = design.seller?.storeName || design.seller?.username || 'un vendedor';
+          const category = design.category || 'diseño';
+          const price = Number(design.price || 0).toLocaleString('es-AR');
+
+          pageTitle = `${design.title} — Market Design`;
+          metaTags = buildMetaTags({
+            title: pageTitle,
+            description: `Diseño de ${category} por ${seller} — $${price}`,
+            image: withOgSize(design.previewUrl),
+            url: pageUrl,
+          });
+        }
       }
+    } catch {
+      // Network/API failure → keep the generic site meta tags.
     }
-  } catch {
-    // Network/API failure → keep the generic site meta tags.
   }
 
   try {
@@ -108,5 +121,5 @@ export default async function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/diseno/:path*'],
+  matcher: ['/diseno/:path*', '/beta-vendedores'],
 };

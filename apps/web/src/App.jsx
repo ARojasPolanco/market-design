@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer.jsx';
 import EmailVerificationBanner from './components/EmailVerificationBanner.jsx';
@@ -24,19 +24,25 @@ import FavoritesPage from './pages/FavoritesPage.jsx';
 import VerifyEmailPage from './pages/VerifyEmailPage.jsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
+import BetaLandingPage from './pages/BetaLandingPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 
 function App() {
+  const location = useLocation();
+  const isLanding = location.pathname === '/beta-vendedores';
+
   return (
     <div className="min-h-screen flex flex-col">
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:bg-dark focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
-      >
-        Saltar al contenido
-      </a>
-      <Navbar />
-      <EmailVerificationBanner />
+      {!isLanding && (
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:bg-dark focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
+        >
+          Saltar al contenido
+        </a>
+      )}
+      {!isLanding && <Navbar />}
+      {!isLanding && <EmailVerificationBanner />}
       <main id="main-content" className="flex-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -52,6 +58,7 @@ function App() {
           <Route path="/registro" element={<RegisterPage />} />
           <Route path="/recuperar" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/beta-vendedores" element={<BetaLandingPage />} />
           <Route
             path="/vendedor/panel"
             element={
@@ -100,7 +107,7 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
-      <Footer />
+      {!isLanding && <Footer />}
     </div>
   );
 }

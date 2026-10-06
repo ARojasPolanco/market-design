@@ -19,10 +19,19 @@ import {
   Trash2,
   Wrench,
   Download,
+  UserPlus,
 } from 'lucide-react';
-import { useAdminStats, usePendingDesigns, useAdminReports, useAdminUsers, usePreviewRequests, useDeleteRequests } from '../../hooks/useDesigns.js';
+import {
+  useAdminStats,
+  usePendingDesigns,
+  useAdminReports,
+  useAdminUsers,
+  usePreviewRequests,
+  useDeleteRequests,
+} from '../../hooks/useDesigns.js';
 import { useCategories } from '../../hooks/useCategories.js';
 import { useTechniques } from '../../hooks/useTechniques.js';
+import { useBetaSignups } from '../../hooks/useBeta.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import api from '../../config/api.js';
 import { RankBadge } from '../../components/RankBadge.jsx';
@@ -95,6 +104,7 @@ export default function AdminDashboard() {
           },
           { id: 'categories', label: 'Categorías', icon: Tag },
           { id: 'techniques', label: 'Técnicas', icon: Wrench },
+          { id: 'beta', label: 'Beta vendedores', icon: UserPlus },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -128,6 +138,9 @@ export default function AdminDashboard() {
 
       {/* Techniques */}
       {activeTab === 'techniques' && <TechniquesSection />}
+
+      {/* Beta signups */}
+      {activeTab === 'beta' && <BetaSection />}
     </div>
   );
 }
@@ -282,14 +295,14 @@ function ModerationCard({ design, onAction }) {
       setShowCategoryWarning(true);
       return;
     }
-    
+
     try {
       // Send category with approve call
       const approveData = {};
       if (assignedCategory) {
         approveData.category = assignedCategory;
       }
-      
+
       await api.patch(`/v1/designs/${design.id}/approve`, approveData);
       setShowSuccess('approved');
       setTimeout(() => {
@@ -382,7 +395,8 @@ function ModerationCard({ design, onAction }) {
                   </Link>
                 </div>
                 <p className="text-sm text-gray-500">
-                  {design.seller.name} · {design.categorySuggested || 'Sin categoría'} · ${design.price.toLocaleString()}
+                  {design.seller.name} · {design.categorySuggested || 'Sin categoría'} · $
+                  {design.price.toLocaleString()}
                 </p>
               </div>
               <span className="flex items-center gap-1 text-yellow-600 bg-yellow-50 text-xs px-2 py-1 rounded-full">
@@ -403,7 +417,9 @@ function ModerationCard({ design, onAction }) {
                 onChange={(e) => setAssignedCategory(e.target.value)}
                 className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal bg-white"
               >
-                <option value="" disabled>Asignar categoría</option>
+                <option value="" disabled>
+                  Asignar categoría
+                </option>
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
                     {cat}
@@ -470,7 +486,8 @@ function ModerationCard({ design, onAction }) {
                   disabled={downloading}
                   className="flex items-center gap-1 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors disabled:opacity-50"
                 >
-                  <Download size={16} /> {downloading ? 'Descargando...' : 'Descargar archivo original'}
+                  <Download size={16} />{' '}
+                  {downloading ? 'Descargando...' : 'Descargar archivo original'}
                 </button>
               )}
             </div>
@@ -545,7 +562,8 @@ function ModerationCard({ design, onAction }) {
               <h3 className="text-lg font-semibold text-gray-900">Sin categoría asignada</h3>
             </div>
             <p className="text-sm text-gray-600 mb-6">
-              Este diseño no tiene una categoría asignada. ¿Estás seguro de que querés aprobarlo sin categoría?
+              Este diseño no tiene una categoría asignada. ¿Estás seguro de que querés aprobarlo sin
+              categoría?
             </p>
             <div className="flex gap-3">
               <button
@@ -595,8 +613,14 @@ function UsersSection() {
   const handleRankChange = async () => {
     if (!showRankConfirm) return;
     try {
-      await api.patch(`/v1/admin/users/${showRankConfirm.userId}/rank`, { rank: showRankConfirm.newRank });
-      setLocalUsers((prev) => prev.map((u) => (u.id === showRankConfirm.userId ? { ...u, rank: showRankConfirm.newRank } : u)));
+      await api.patch(`/v1/admin/users/${showRankConfirm.userId}/rank`, {
+        rank: showRankConfirm.newRank,
+      });
+      setLocalUsers((prev) =>
+        prev.map((u) =>
+          u.id === showRankConfirm.userId ? { ...u, rank: showRankConfirm.newRank } : u
+        )
+      );
       setShowRankModal(null);
       setShowRankConfirm(null);
     } catch (err) {
@@ -618,7 +642,9 @@ function UsersSection() {
       );
       showToast(res.data.message, { type: 'success' });
     } catch (err) {
-      showToast(err.response?.data?.message || 'No se pudo actualizar el estado', { type: 'error' });
+      showToast(err.response?.data?.message || 'No se pudo actualizar el estado', {
+        type: 'error',
+      });
     } finally {
       setShowSuspendConfirm(null);
     }
@@ -680,7 +706,9 @@ function UsersSection() {
               {filtered.map((user) => (
                 <tr key={user.id} className="border-b last:border-0 hover:bg-gray-50">
                   <td className="px-6 py-4">
-                    <p className="text-sm font-medium text-gray-900">{user.fullname || user.username}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {user.fullname || user.username}
+                    </p>
                     <p className="text-xs text-gray-500">{user.email}</p>
                   </td>
                   <td className="px-6 py-4">
@@ -691,7 +719,11 @@ function UsersSection() {
                           : 'bg-gray-100 text-gray-700'
                       }`}
                     >
-                      {user.role === 'seller' ? 'Vendedor' : user.role === 'admin' ? 'Admin' : 'Comprador'}
+                      {user.role === 'seller'
+                        ? 'Vendedor'
+                        : user.role === 'admin'
+                          ? 'Admin'
+                          : 'Comprador'}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -774,9 +806,7 @@ function UsersSection() {
                   key={p}
                   onClick={() => setPage(p)}
                   className={`w-8 h-8 rounded-lg text-sm font-medium ${
-                    p === page
-                      ? 'bg-brand-teal text-white'
-                      : 'hover:bg-gray-200 text-gray-700'
+                    p === page ? 'bg-brand-teal text-white' : 'hover:bg-gray-200 text-gray-700'
                   }`}
                 >
                   {p}
@@ -800,7 +830,10 @@ function UsersSection() {
           <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Cambiar rango</h3>
             <p className="text-sm text-gray-600 mb-4">
-              Vendedor: <span className="font-medium">{showRankModal.fullname || showRankModal.username}</span>
+              Vendedor:{' '}
+              <span className="font-medium">
+                {showRankModal.fullname || showRankModal.username}
+              </span>
             </p>
             <p className="text-xs text-gray-500 mb-4">
               Rango actual: <RankBadge rank={showRankModal.rank} size={18} />
@@ -813,7 +846,14 @@ function UsersSection() {
               {MANUAL_RANKS.map((rank) => (
                 <button
                   key={rank}
-                  onClick={() => setShowRankConfirm({ userId: showRankModal.id, newRank: rank, userName: showRankModal.fullname || showRankModal.username, currentRank: showRankModal.rank })}
+                  onClick={() =>
+                    setShowRankConfirm({
+                      userId: showRankModal.id,
+                      newRank: rank,
+                      userName: showRankModal.fullname || showRankModal.username,
+                      currentRank: showRankModal.rank,
+                    })
+                  }
                   className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
                     showRankModal.rank === rank
                       ? 'border-brand-teal bg-brand-teal/5'
@@ -834,7 +874,14 @@ function UsersSection() {
                 {['oro', 'plata', 'bronce'].map((rank) => (
                   <button
                     key={rank}
-                    onClick={() => setShowRankConfirm({ userId: showRankModal.id, newRank: rank, userName: showRankModal.fullname || showRankModal.username, currentRank: showRankModal.rank })}
+                    onClick={() =>
+                      setShowRankConfirm({
+                        userId: showRankModal.id,
+                        newRank: rank,
+                        userName: showRankModal.fullname || showRankModal.username,
+                        currentRank: showRankModal.rank,
+                      })
+                    }
                     className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
                       showRankModal.rank === rank
                         ? 'border-brand-teal bg-brand-teal/5'
@@ -873,7 +920,8 @@ function UsersSection() {
 
             <div className="mb-6 space-y-3">
               <p className="text-sm text-gray-600">
-                ¿Confirmás cambiar el rango de <span className="font-medium">{showRankConfirm.userName}</span>?
+                ¿Confirmás cambiar el rango de{' '}
+                <span className="font-medium">{showRankConfirm.userName}</span>?
               </p>
               <div className="flex items-center justify-center gap-4 p-3 bg-gray-50 rounded-lg">
                 <div className="text-center">
@@ -949,7 +997,9 @@ function ReportsSection() {
 
   const handleWithdrawDesign = async (designId, reportId) => {
     try {
-      await api.patch(`/v1/designs/${designId}/reject`, { reason: 'Retirado por denuncia verificada' });
+      await api.patch(`/v1/designs/${designId}/reject`, {
+        reason: 'Retirado por denuncia verificada',
+      });
       await handleReviewReport(reportId, 'reviewed');
     } catch (err) {
       logger.error('Error withdrawing design:', err);
@@ -968,9 +1018,7 @@ function ReportsSection() {
             key={f.id}
             onClick={() => setFilter(f.id)}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-              filter === f.id
-                ? 'bg-dark text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              filter === f.id ? 'bg-dark text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
             {f.label}
@@ -1000,7 +1048,9 @@ function ReportsSection() {
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-medium text-gray-900">{report.design?.title || 'Diseño'}</h3>
+                      <h3 className="font-medium text-gray-900">
+                        {report.design?.title || 'Diseño'}
+                      </h3>
                       <Link
                         to={`/diseno/${report.designId}`}
                         className="text-coral-400 hover:text-coral-500"
@@ -1010,7 +1060,8 @@ function ReportsSection() {
                       </Link>
                     </div>
                     <p className="text-sm text-gray-500">
-                      Reportado por: {report.reporter?.fullname || report.reporter?.username || 'Usuario'} ·{' '}
+                      Reportado por:{' '}
+                      {report.reporter?.fullname || report.reporter?.username || 'Usuario'} ·{' '}
                       {new Date(report.createdAt).toLocaleDateString('es-AR')}
                     </p>
                   </div>
@@ -1179,8 +1230,8 @@ function CategoriesSection() {
           <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Eliminar categoría</h3>
             <p className="text-sm text-gray-600 mb-4">
-              ¿Seguro que querés eliminar <span className="font-medium">"{showDeleteConfirm}"</span>?
-              Los diseños que la usen no se verán afectados.
+              ¿Seguro que querés eliminar <span className="font-medium">"{showDeleteConfirm}"</span>
+              ? Los diseños que la usen no se verán afectados.
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -1336,8 +1387,8 @@ function TechniquesSection() {
           <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Eliminar técnica</h3>
             <p className="text-sm text-gray-600 mb-4">
-              ¿Seguro que querés eliminar <span className="font-medium">"{showDeleteConfirm}"</span>?
-              Los diseños que la usen no se verán afectados.
+              ¿Seguro que querés eliminar <span className="font-medium">"{showDeleteConfirm}"</span>
+              ? Los diseños que la usen no se verán afectados.
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -1375,10 +1426,9 @@ function SolicitudesSection() {
   const handlePreviewAction = async (designId, action) => {
     try {
       await api.patch(`/v1/designs/${designId}/${action}-preview`);
-      showToast(
-        action === 'approve' ? 'Preview aprobado y publicado' : 'Preview rechazado',
-        { type: 'success' }
-      );
+      showToast(action === 'approve' ? 'Preview aprobado y publicado' : 'Preview rechazado', {
+        type: 'success',
+      });
       refetchPreview();
     } catch (err) {
       showToast(err.response?.data?.message || 'Error al procesar la solicitud', { type: 'error' });
@@ -1392,10 +1442,9 @@ function SolicitudesSection() {
       } else {
         await api.patch(`/v1/admin/designs/${designId}/reject-delete`);
       }
-      showToast(
-        action === 'approve' ? 'Diseño eliminado del marketplace' : 'Solicitud rechazada',
-        { type: 'success' }
-      );
+      showToast(action === 'approve' ? 'Diseño eliminado del marketplace' : 'Solicitud rechazada', {
+        type: 'success',
+      });
       refetchDelete();
     } catch (err) {
       showToast(err.response?.data?.message || 'Error al procesar la solicitud', { type: 'error' });
@@ -1417,7 +1466,9 @@ function SolicitudesSection() {
             key={st.id}
             onClick={() => setSubTab(st.id)}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-              subTab === st.id ? 'bg-dark text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              subTab === st.id
+                ? 'bg-dark text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
             {st.label}
@@ -1506,7 +1557,10 @@ function SolicitudesSection() {
         <div className="space-y-4">
           {deleteReqs.length > 0 ? (
             deleteReqs.map((design) => (
-              <div key={design.id} className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-4">
+              <div
+                key={design.id}
+                className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-4"
+              >
                 <img
                   src={design.previewUrl}
                   alt={design.title}
@@ -1518,7 +1572,10 @@ function SolicitudesSection() {
                     {design.seller?.storeName || design.seller?.username}
                   </p>
                   <p className="text-xs text-red-500 mt-1">
-                    Solicitó eliminar el {design.deleteRequestedAt ? new Date(design.deleteRequestedAt).toLocaleDateString('es-AR') : ''}
+                    Solicitó eliminar el{' '}
+                    {design.deleteRequestedAt
+                      ? new Date(design.deleteRequestedAt).toLocaleDateString('es-AR')
+                      : ''}
                   </p>
                 </div>
                 <div className="flex gap-2 shrink-0">
@@ -1618,9 +1675,7 @@ function DesignsSection() {
             key={f.id}
             onClick={() => setFilter(f.id)}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-              filter === f.id
-                ? 'bg-dark text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              filter === f.id ? 'bg-dark text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
             {f.label}
@@ -1635,7 +1690,10 @@ function DesignsSection() {
       ) : designs.length > 0 ? (
         <div className="space-y-3">
           {designs.map((design) => (
-            <div key={design.id} className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-4">
+            <div
+              key={design.id}
+              className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-4"
+            >
               <Link to={`/diseno/${design.id}`} className="shrink-0">
                 <img
                   src={design.previewUrl}
@@ -1646,21 +1704,29 @@ function DesignsSection() {
               <div className="flex-1 min-w-0">
                 <h3 className="font-medium text-gray-900 truncate">{design.title}</h3>
                 <p className="text-sm text-gray-500">
-                  {design.seller?.storeName || design.seller?.username} · ${Number(design.price).toLocaleString()}
+                  {design.seller?.storeName || design.seller?.username} · $
+                  {Number(design.price).toLocaleString()}
                 </p>
                 <p className="text-xs text-gray-400">
-                  {design.category || design.categorySuggested || 'Sin categoría'} · {design.technique}
+                  {design.category || design.categorySuggested || 'Sin categoría'} ·{' '}
+                  {design.technique}
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`text-xs px-2 py-1 rounded-full ${
-                  design.status === 'approved'
-                    ? 'bg-green-50 text-green-700'
+                <span
+                  className={`text-xs px-2 py-1 rounded-full ${
+                    design.status === 'approved'
+                      ? 'bg-green-50 text-green-700'
+                      : design.status === 'paused'
+                        ? 'bg-yellow-50 text-yellow-700'
+                        : 'bg-gray-50 text-gray-700'
+                  }`}
+                >
+                  {design.status === 'approved'
+                    ? 'Aprobado'
                     : design.status === 'paused'
-                    ? 'bg-yellow-50 text-yellow-700'
-                    : 'bg-gray-50 text-gray-700'
-                }`}>
-                  {design.status === 'approved' ? 'Aprobado' : design.status === 'paused' ? 'Pausado' : design.status}
+                      ? 'Pausado'
+                      : design.status}
                 </span>
                 {design.status === 'approved' && (
                   <button
@@ -1720,12 +1786,16 @@ function DesignsSection() {
                 rows={3}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Mínimo 10 caracteres. El vendedor recibirá un email con el motivo y un número de ticket.
+                Mínimo 10 caracteres. El vendedor recibirá un email con el motivo y un número de
+                ticket.
               </p>
             </div>
             <div className="flex gap-3 justify-end">
               <button
-                onClick={() => { setPauseModal(null); setPauseReason(''); }}
+                onClick={() => {
+                  setPauseModal(null);
+                  setPauseReason('');
+                }}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Cancelar
@@ -1741,6 +1811,74 @@ function DesignsSection() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function BetaSection() {
+  const { signups, slots, isLoading, error } = useBetaSignups();
+
+  if (isLoading) {
+    return <div className="text-center py-12 text-gray-500">Cargando anotados...</div>;
+  }
+  if (error) {
+    return <div className="text-center py-12 text-red-500">{error}</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {slots.map((slot) => (
+          <div key={slot.key} className="bg-white rounded-xl shadow-sm p-6">
+            <p className="text-sm text-gray-500 mb-1">{slot.label}</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {slot.count}{' '}
+              <span className="text-sm font-normal text-gray-400">/ {slot.capacity}</span>
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b bg-gray-50">
+                <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">Nombre</th>
+                <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">Email</th>
+                <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">WhatsApp</th>
+                <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">Fecha</th>
+                <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">Origen</th>
+                <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">Alta</th>
+              </tr>
+            </thead>
+            <tbody>
+              {signups.map((signup) => (
+                <tr key={signup.id} className="border-b last:border-0 hover:bg-gray-50">
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{signup.fullname}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{signup.email}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{signup.whatsapp || '—'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {slots.find((slot) => slot.key === signup.slotKey)?.shortLabel ||
+                      signup.slotKey}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{signup.utmSource || '—'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {new Date(signup.createdAt).toLocaleDateString('es-AR')}
+                  </td>
+                </tr>
+              ))}
+              {signups.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                    Todavía no hay anotados.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
