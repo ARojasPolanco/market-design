@@ -1,4 +1,4 @@
-import { next } from '@vercel/edge';
+import { next } from '@vercel/functions';
 
 const SITE_URL = 'https://marketdesign.shop';
 const API_BASE = 'https://market-design.onrender.com/api';
@@ -108,5 +108,5 @@ export default async function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/diseno/:id'],
+  matcher: ['/diseno/:path*'],
 };
