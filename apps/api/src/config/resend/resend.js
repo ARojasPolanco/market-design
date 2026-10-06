@@ -207,6 +207,8 @@ export class MailService {
         '- 1 o 2 diseños listos para subir (imagen en alta calidad)',
         '- Tu cuenta de Mercado Pago (para conectarla)',
         '',
+        'Tip: si no ves este mail en tu bandeja principal, revisá la pestaña Promociones (o "Todos los mensajes").',
+        '',
         `¿Dudas? Escribinos a ${SUPPORT_EMAIL}.`,
       ].join('\n'),
       attachments: [
@@ -276,6 +278,10 @@ export class MailService {
 
             <p style="color: #6b7280; font-size: 13px; line-height: 1.6; margin: 0 0 24px 0;">
               Si necesitás cambiar de fecha, entrá a la página de la beta y anotate en otra reunión.
+            </p>
+
+            <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin: 0 0 24px 0; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 0 8px 8px 0; padding: 12px 16px;">
+              Tip: si no ves este mail en tu bandeja principal, revisá la pestaña <strong>Promociones</strong> (o "Todos los mensajes").
             </p>
 
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0 0 16px 0;" />
