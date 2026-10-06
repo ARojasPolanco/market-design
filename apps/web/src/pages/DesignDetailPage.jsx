@@ -1,6 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Heart, ShoppingCart, Eye, ArrowLeft, X, ChevronLeft, ChevronRight, Flag, Star, Send } from 'lucide-react';
+import {
+  Heart,
+  ShoppingCart,
+  Eye,
+  ArrowLeft,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Flag,
+  Star,
+  Send,
+  Share2,
+  Facebook,
+  Twitter,
+  Link2,
+  MessageCircle,
+} from 'lucide-react';
 import { useDesign } from '../hooks/useDesigns.js';
 import { useFavorites } from '../context/FavoritesContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -33,13 +49,15 @@ export default function DesignDetailPage() {
   const [hasPurchased, setHasPurchased] = useState(false);
   const [purchaseId, setPurchaseId] = useState(null);
   const [hasRated, setHasRated] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
 
   // Get all preview URLs (support both single and multiple)
-  const previewUrls = design?.previewUrls?.length > 0
-    ? design.previewUrls
-    : design?.previewUrl
-      ? [design.previewUrl]
-      : [];
+  const previewUrls =
+    design?.previewUrls?.length > 0
+      ? design.previewUrls
+      : design?.previewUrl
+        ? [design.previewUrl]
+        : [];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -68,14 +86,14 @@ export default function DesignDetailPage() {
       try {
         const res = await api.get('/v1/purchases/my');
         const purchases = res.data.purchases || [];
-        const purchase = purchases.find(p => p.designId === id && p.status === 'completed');
+        const purchase = purchases.find((p) => p.designId === id && p.status === 'completed');
         if (purchase) {
           setHasPurchased(true);
           setPurchaseId(purchase.id);
           // Check if already rated
           const ratingsRes = await api.get(`/v1/purchases/ratings/${id}`);
           const ratings = ratingsRes.data.ratings || [];
-          const alreadyRated = ratings.some(r => r.buyerId === user.id);
+          const alreadyRated = ratings.some((r) => r.buyerId === user.id);
           setHasRated(alreadyRated);
         }
       } catch (err) {
@@ -124,6 +142,40 @@ export default function DesignDetailPage() {
     }
   };
 
+  const buildShareData = () => {
+    const url = `${window.location.origin}/diseno/${design.id}`;
+    const owner = Boolean(user && design?.seller?.id && user.id === design.seller.id);
+    const text = owner
+      ? '¡Mirá mi nuevo diseño en Market Design!'
+      : 'Encontré este diseño en Market Design, ¡me encantó!';
+    return { url, text };
+  };
+
+  const handleShare = async () => {
+    const { url, text } = buildShareData();
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: design.title, text, url });
+      } catch (err) {
+        if (err?.name !== 'AbortError') {
+          showToast('No se pudo compartir el diseño', { type: 'error' });
+        }
+      }
+      return;
+    }
+    setShowShareMenu(true);
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(buildShareData().url);
+      showToast('Link copiado al portapapeles', { type: 'success' });
+    } catch {
+      showToast('No se pudo copiar el link', { type: 'error' });
+    }
+    setShowShareMenu(false);
+  };
+
   if (isLoading) return <DetailSkeleton />;
 
   if (error || !design) {
@@ -141,6 +193,10 @@ export default function DesignDetailPage() {
 
   const fav = isFavorite(design.id);
   const isOwner = Boolean(user && design.seller && user.id === design.seller.id);
+  const shareUrl = `${window.location.origin}/diseno/${design.id}`;
+  const shareText = isOwner
+    ? '¡Mirá mi nuevo diseño en Market Design!'
+    : 'Encontré este diseño en Market Design, ¡me encantó!';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -208,7 +264,9 @@ export default function DesignDetailPage() {
                   onClick={() => setCurrentPreview(index)}
                   aria-label={`Ver imagen ${index + 1}`}
                   className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                    currentPreview === index ? 'border-brand-teal' : 'border-transparent hover:border-gray-300'
+                    currentPreview === index
+                      ? 'border-brand-teal'
+                      : 'border-transparent hover:border-gray-300'
                   }`}
                 >
                   <img
@@ -288,11 +346,66 @@ export default function DesignDetailPage() {
             >
               <Heart size={20} className={fav ? 'fill-red-500 text-red-500' : 'text-gray-600'} />
             </button>
+            <div className="relative">
+              <button
+                onClick={handleShare}
+                aria-label="Compartir diseño"
+                className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <Share2 size={20} className="text-gray-600" />
+              </button>
+              {showShareMenu && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setShowShareMenu(false)} />
+                  <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-lg z-20 py-1 overflow-hidden">
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setShowShareMenu(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      <MessageCircle size={16} className="text-green-600" /> WhatsApp
+                    </a>
+                    <a
+                      href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setShowShareMenu(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      <Facebook size={16} className="text-blue-600" /> Facebook
+                    </a>
+                    <a
+                      href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setShowShareMenu(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      <Twitter size={16} className="text-gray-900" /> Twitter / X
+                    </a>
+                    <button
+                      onClick={handleCopyLink}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 text-left"
+                    >
+                      <Link2 size={16} className="text-gray-500" /> Copiar link
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
           {!user && (
             <p className="text-xs text-gray-500 mb-8">
-              <Link to="/login" className="text-brand-teal hover:underline">Iniciá sesión</Link> o{' '}
-              <Link to="/registro" className="text-brand-teal hover:underline">regístrate</Link> para comprar y dejar tu review.
+              <Link to="/login" className="text-brand-teal hover:underline">
+                Iniciá sesión
+              </Link>{' '}
+              o{' '}
+              <Link to="/registro" className="text-brand-teal hover:underline">
+                regístrate
+              </Link>{' '}
+              para comprar y dejar tu review.
             </p>
           )}
 
@@ -311,13 +424,17 @@ export default function DesignDetailPage() {
               ) : (
                 <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
                   <span className="text-lg font-bold text-gray-500">
-                    {(design.seller.storeName || design.seller.username || '?').charAt(0).toUpperCase()}
+                    {(design.seller.storeName || design.seller.username || '?')
+                      .charAt(0)
+                      .toUpperCase()}
                   </span>
                 </div>
               )}
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-gray-900">{design.seller.storeName || design.seller.username}</h3>
+                  <h3 className="font-semibold text-gray-900">
+                    {design.seller.storeName || design.seller.username}
+                  </h3>
                   <SellerBadge seller={design.seller} />
                 </div>
               </div>
@@ -379,9 +496,7 @@ export default function DesignDetailPage() {
                       <Star
                         size={32}
                         className={`${
-                          star <= ratingScore
-                            ? 'fill-yellow-400 text-yellow-400'
-                            : 'text-gray-300'
+                          star <= ratingScore ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
                         } transition-colors`}
                       />
                     </button>
@@ -396,7 +511,11 @@ export default function DesignDetailPage() {
                 />
                 <div className="flex gap-3 justify-center">
                   <button
-                    onClick={() => { setShowRatingForm(false); setRatingScore(0); setRatingComment(''); }}
+                    onClick={() => {
+                      setShowRatingForm(false);
+                      setRatingScore(0);
+                      setRatingComment('');
+                    }}
                     className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
                   >
                     Cancelar
@@ -426,13 +545,14 @@ export default function DesignDetailPage() {
               </div>
             )
           ) : (
-            <p className="text-sm text-gray-500">
-              Comprá este diseño para poder valorarlo.
-            </p>
+            <p className="text-sm text-gray-500">Comprá este diseño para poder valorarlo.</p>
           )
         ) : (
           <p className="text-sm text-gray-500">
-            <Link to="/login" className="text-brand-teal hover:underline">Iniciá sesión</Link> para dejar tu review y ayudar a otros compradores.
+            <Link to="/login" className="text-brand-teal hover:underline">
+              Iniciá sesión
+            </Link>{' '}
+            para dejar tu review y ayudar a otros compradores.
           </p>
         )}
       </section>
@@ -512,7 +632,9 @@ export default function DesignDetailPage() {
                   }}
                   aria-label={`Ver imagen ${index + 1}`}
                   className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-colors ${
-                    currentPreview === index ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'
+                    currentPreview === index
+                      ? 'border-white'
+                      : 'border-transparent opacity-60 hover:opacity-100'
                   }`}
                 >
                   <img src={url} alt="" className="w-full h-full object-cover" />
@@ -540,7 +662,10 @@ export default function DesignDetailPage() {
                 <h3 className="text-lg font-semibold text-gray-900">Reportar diseño</h3>
               </div>
               <button
-                onClick={() => { setShowReportModal(false); setReportReason(''); }}
+                onClick={() => {
+                  setShowReportModal(false);
+                  setReportReason('');
+                }}
                 aria-label="Cerrar"
                 className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
               >
@@ -550,7 +675,8 @@ export default function DesignDetailPage() {
 
             <div className="mb-6">
               <p className="text-sm text-gray-600 mb-4">
-                Si este diseño infringe derechos de autor, contiene contenido inapropiado o viola nuestras reglas, contanos abajo.
+                Si este diseño infringe derechos de autor, contiene contenido inapropiado o viola
+                nuestras reglas, contanos abajo.
               </p>
               <textarea
                 value={reportReason}
@@ -566,7 +692,10 @@ export default function DesignDetailPage() {
 
             <div className="flex gap-3">
               <button
-                onClick={() => { setShowReportModal(false); setReportReason(''); }}
+                onClick={() => {
+                  setShowReportModal(false);
+                  setReportReason('');
+                }}
                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
               >
                 Cancelar
