@@ -24,6 +24,7 @@ import {
 import { createReport } from './admin.controller.js';
 // Reuse the single moderation implementation (also writes ModerationLog).
 import { approveDesign, rejectDesign } from '../designs/design.controller.js';
+import { getBetaSignups } from '../beta/beta.controller.js';
 import {
   grantAchievement,
   revokeAchievement,
@@ -84,5 +85,8 @@ router.post('/achievements/recalculate', recalculateAllAchievements);
 
 // Rank calculation
 router.post('/ranks/calculate', calculateRanks);
+
+// Beta (seller meetings) signups
+router.get('/beta', getBetaSignups);
 
 export default router;

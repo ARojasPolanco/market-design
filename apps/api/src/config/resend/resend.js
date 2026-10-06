@@ -2,6 +2,7 @@ import { Resend } from 'resend';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { envs, appUrl } from '../enviroments.js';
+import { buildIcs } from '../../utils/ics.js';
 
 const resend = new Resend(envs.RESEND_API_KEY);
 
@@ -163,6 +164,111 @@ export class MailService {
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0 0 16px 0;" />
             <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin: 0;">
               Si no pediste restablecer tu contraseña, podés ignorar este mensaje: tu contraseña actual sigue funcionando.
+            </p>
+          </div>
+
+          <div style="text-align: center; padding: 16px 0;">
+            <p style="color: #9ca3af; font-size: 11px; margin: 0;">
+              © ${year} Market Design. Todos los derechos reservados.
+            </p>
+          </div>
+        </div>
+      `,
+    });
+  }
+
+  async sendBetaConfirmation(to, { fullname, slot }) {
+    const firstName = (fullname || '').split(' ')[0] || 'hola';
+    const year = new Date().getFullYear();
+
+    const ics = buildIcs({
+      uid: `beta-${slot.key}-${to}@marketdesign.shop`,
+      title: 'Market Design — Reunión de vendedores fundadores (Beta)',
+      description:
+        'Onboarding de vendedores: cómo funciona Market Design, cómo se cobra por Mercado Pago y subida del primer diseño.',
+      start: slot.start,
+      end: slot.end,
+      url: slot.meetUrl,
+      organizerEmail: SUPPORT_EMAIL,
+    });
+
+    return await resend.emails.send({
+      from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
+      to,
+      replyTo: SUPPORT_EMAIL,
+      subject: `Confirmación — Reunión beta Market Design (${slot.shortLabel})`,
+      attachments: [
+        {
+          filename: 'market-design.png',
+          content: LOGO_BUFFER,
+          inlineContentId: LOGO_CID,
+        },
+        {
+          filename: 'reunion-market-design.ics',
+          content: Buffer.from(ics),
+        },
+      ],
+      html: `
+        <div style="display: none; max-height: 0; overflow: hidden; opacity: 0;">
+          Confirmamos tu lugar en la reunión de vendedores de Market Design.
+        </div>
+        <div style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
+          <div style="text-align: center; padding: 32px 20px; background: linear-gradient(135deg, #0F2A44 0%, #1a3d5c 100%); border-radius: 12px 12px 0 0;">
+            <div style="display: inline-block; background: #ffffff; border-radius: 16px; padding: 14px 20px;">
+              <img src="cid:${LOGO_CID}" alt="Market Design" style="height: 44px; display: block; border: 0;" />
+            </div>
+            <p style="color: #ffffff; margin: 16px 0 0 0; font-size: 14px;">Diseños digitales que hacen crecer tus ideas</p>
+          </div>
+
+          <div style="background: #ffffff; padding: 32px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h1 style="color: #0F2A44; font-size: 24px; margin: 0 0 12px 0;">¡${firstName}, te guardamos el lugar!</h1>
+            <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+              Sos parte de la <strong>beta cerrada de vendedores</strong> de Market Design. En la reunión te mostramos cómo funciona la plataforma y subís tu primer diseño con nosotros.
+            </p>
+
+            <div style="background: #f0fdfa; border: 2px solid #00C2B8; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px;">
+              <p style="color: #0f766e; margin: 0 0 4px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Tu reunión</p>
+              <p style="color: #0F2A44; margin: 0; font-size: 20px; font-weight: bold;">${slot.label}</p>
+            </div>
+
+            <div style="text-align: center; margin: 0 0 24px 0;">
+              <a href="${slot.meetUrl}" style="display: inline-block; background: #00C2B8; color: #ffffff; padding: 14px 34px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                Entrar a la reunión (Google Meet)
+              </a>
+            </div>
+
+            <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin: 0 0 4px 0; text-align: center;">
+              ¿El botón no funciona? Copiá y pegá este enlace:
+            </p>
+            <p style="color: #00C2B8; font-size: 12px; word-break: break-all; text-align: center; margin: 0 0 24px 0;">
+              ${slot.meetUrl}
+            </p>
+
+            <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+              <p style="color: #0F2A44; font-size: 14px; font-weight: bold; margin: 0 0 12px 0;">Qué traer a la reunión</p>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%;">
+                <tr>
+                  <td style="padding: 4px 8px 4px 0; color: #00C2B8; font-size: 15px; width: 22px; vertical-align: top;">&#10003;</td>
+                  <td style="padding: 4px 0; color: #4b5563; font-size: 14px; line-height: 1.5;">1 o 2 diseños listos para subir (imagen en alta calidad)</td>
+                </tr>
+                <tr>
+                  <td style="padding: 4px 8px 4px 0; color: #00C2B8; font-size: 15px; width: 22px; vertical-align: top;">&#10003;</td>
+                  <td style="padding: 4px 0; color: #4b5563; font-size: 14px; line-height: 1.5;">Tu cuenta de Mercado Pago (para conectarla)</td>
+                </tr>
+                <tr>
+                  <td style="padding: 4px 8px 4px 0; color: #00C2B8; font-size: 15px; width: 22px; vertical-align: top;">&#10003;</td>
+                  <td style="padding: 4px 0; color: #4b5563; font-size: 14px; line-height: 1.5;">Ganas de dejar tu primer diseño publicado</td>
+                </tr>
+              </table>
+            </div>
+
+            <p style="color: #6b7280; font-size: 13px; line-height: 1.6; margin: 0 0 24px 0;">
+              Adjuntamos un archivo de calendario para que lo agregues a Google Calendar con un clic. Si necesitás cambiar de fecha, entrá a la página de la beta y anotate en otra reunión.
+            </p>
+
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0 0 16px 0;" />
+            <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin: 0;">
+              ¿Dudas? Escribinos a <a href="mailto:${SUPPORT_EMAIL}" style="color: #00C2B8; text-decoration: none;">${SUPPORT_EMAIL}</a>.
             </p>
           </div>
 

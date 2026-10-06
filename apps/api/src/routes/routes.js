@@ -8,6 +8,7 @@ import badgesRouter from '../modules/badges/badge.route.js';
 import notificationsRouter from '../modules/notifications/notification.route.js';
 import achievementsRouter from '../modules/achievements/achievement.route.js';
 import mpRouter from '../modules/mercadopago/mp.route.js';
+import betaRouter from '../modules/beta/beta.route.js';
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use('/badges', badgesRouter);
 router.use('/notifications', notificationsRouter);
 router.use('/achievements', achievementsRouter);
 router.use('/mp', mpRouter);
+router.use('/beta', betaRouter);
 
 export default router;
