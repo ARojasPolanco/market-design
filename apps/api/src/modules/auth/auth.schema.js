@@ -25,7 +25,12 @@ export const loginSchema = z.object({
 
 export const updateProfileSchema = z.object({
   fullname: z.string().min(2).max(100).optional(),
-  username: z.string().min(3).max(50).regex(/^[a-zA-Z0-9_]+$/).optional(),
+  username: z
+    .string()
+    .min(3)
+    .max(50)
+    .regex(/^[a-zA-Z0-9_]+$/)
+    .optional(),
   storeName: z.string().max(100).optional(),
   description: z.string().max(500).optional(),
   avatarUrl: z.string().url().optional(),
@@ -33,10 +38,19 @@ export const updateProfileSchema = z.object({
 
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'La contraseña actual es requerida'),
-  newPassword: z
+  newPassword: z.string().min(8, 'La nueva contraseña debe tener al menos 8 caracteres').max(128),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email('Email inválido'),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'El token es requerido'),
+  password: z
     .string()
-    .min(8, 'La nueva contraseña debe tener al menos 8 caracteres')
-    .max(128),
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
+    .max(128, 'La contraseña no puede exceder 128 caracteres'),
 });
 
 export function validateRegister(data) {
@@ -78,6 +92,24 @@ export function validateUpdateProfile(data) {
 
 export function validateChangePassword(data) {
   const result = changePasswordSchema.safeParse(data);
+  if (!result.success) {
+    const errors = result.error.errors.map((e) => e.message);
+    return { hasError: true, errorMessages: errors, data: null };
+  }
+  return { hasError: false, errorMessages: [], data: result.data };
+}
+
+export function validateForgotPassword(data) {
+  const result = forgotPasswordSchema.safeParse(data);
+  if (!result.success) {
+    const errors = result.error.errors.map((e) => e.message);
+    return { hasError: true, errorMessages: errors, data: null };
+  }
+  return { hasError: false, errorMessages: [], data: result.data };
+}
+
+export function validateResetPassword(data) {
+  const result = resetPasswordSchema.safeParse(data);
   if (!result.success) {
     const errors = result.error.errors.map((e) => e.message);
     return { hasError: true, errorMessages: errors, data: null };

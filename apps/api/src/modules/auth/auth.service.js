@@ -31,6 +31,10 @@ export class AuthService {
     return await User.findOne({ where: { emailVerificationToken: token } });
   }
 
+  async findByResetToken(token) {
+    return await User.findOne({ where: { passwordResetToken: token, isDeleted: false } });
+  }
+
   async findMpCredentials(userId) {
     return await User.findOne({
       where: { id: userId },

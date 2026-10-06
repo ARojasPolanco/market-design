@@ -107,6 +107,75 @@ export class MailService {
     });
   }
 
+  async sendPasswordResetEmail(to, token) {
+    const resetUrl = `${appUrl}/reset-password?token=${token}`;
+    const year = new Date().getFullYear();
+
+    return await resend.emails.send({
+      from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
+      to,
+      replyTo: SUPPORT_EMAIL,
+      subject: 'Restablecé tu contraseña - Market Design',
+      attachments: [
+        {
+          filename: 'market-design.png',
+          content: LOGO_BUFFER,
+          inlineContentId: LOGO_CID,
+        },
+      ],
+      html: `
+        <div style="display: none; max-height: 0; overflow: hidden; opacity: 0;">
+          Restablecé tu contraseña de Market Design.
+        </div>
+        <div style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
+          <div style="text-align: center; padding: 32px 20px; background: linear-gradient(135deg, #0F2A44 0%, #1a3d5c 100%); border-radius: 12px 12px 0 0;">
+            <div style="display: inline-block; background: #ffffff; border-radius: 16px; padding: 14px 20px;">
+              <img src="cid:${LOGO_CID}" alt="Market Design" style="height: 44px; display: block; border: 0;" />
+            </div>
+            <p style="color: #ffffff; margin: 16px 0 0 0; font-size: 14px;">Diseños digitales que hacen crecer tus ideas</p>
+          </div>
+
+          <div style="background: #ffffff; padding: 32px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h1 style="color: #0F2A44; font-size: 24px; margin: 0 0 12px 0;">Restablecer contraseña</h1>
+            <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+              Recibimos un pedido para restablecer la contraseña de tu cuenta. Hacé click en el botón para elegir una nueva.
+            </p>
+
+            <div style="text-align: center; margin: 0 0 24px 0;">
+              <a href="${resetUrl}" style="display: inline-block; background: #00C2B8; color: #ffffff; padding: 14px 34px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                Restablecer mi contraseña
+              </a>
+            </div>
+
+            <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin: 0 0 4px 0; text-align: center;">
+              ¿El botón no funciona? Copiá y pegá este enlace en tu navegador:
+            </p>
+            <p style="color: #00C2B8; font-size: 12px; word-break: break-all; text-align: center; margin: 0 0 24px 0;">
+              ${resetUrl}
+            </p>
+
+            <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
+              <p style="margin: 0; color: #92400e; font-size: 13px; line-height: 1.5;">
+                Este enlace vence en <strong>1 hora</strong> y solo puede usarse una vez.
+              </p>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0 0 16px 0;" />
+            <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin: 0;">
+              Si no pediste restablecer tu contraseña, podés ignorar este mensaje: tu contraseña actual sigue funcionando.
+            </p>
+          </div>
+
+          <div style="text-align: center; padding: 16px 0;">
+            <p style="color: #9ca3af; font-size: 11px; margin: 0;">
+              © ${year} Market Design. Todos los derechos reservados.
+            </p>
+          </div>
+        </div>
+      `,
+    });
+  }
+
   async sendDesignPaused(to, designTitle, reason, ticketId) {
     await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
@@ -184,7 +253,7 @@ export class MailService {
 
   async sendPurchaseConfirmation(to, data) {
     const { designTitle, downloadUrl, orderNumber, purchaseDate, previewUrl, sellerName } = data;
-    
+
     const result = await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
       to,
@@ -216,11 +285,15 @@ export class MailService {
               </div>
             </div>
 
-            ${previewUrl ? `
+            ${
+              previewUrl
+                ? `
             <div style="text-align: center; margin-bottom: 24px;">
               <img src="${previewUrl}" alt="${designTitle}" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" />
             </div>
-            ` : ''}
+            `
+                : ''
+            }
 
             <h3 style="color: #0F2A44; font-size: 18px; text-align: center; margin: 0 0 24px 0;">${designTitle}</h3>
 
@@ -259,7 +332,7 @@ export class MailService {
         </div>
       `,
     });
-    
+
     return result;
   }
 

@@ -137,6 +137,7 @@ Orden en `app.ts`:
 - Rate limiting en registro y login
 - Captcha en formulario de registro
 - Contraseñas hasheadas con bcrypt (salt rounds 12)
+- Recuperación de contraseña con token de un solo uso (hash SHA-256 en DB, vence en 1 h) y respuesta genérica en `forgot-password` para no filtrar emails registrados
 - JWT de corta duración + refresh token
 - HTTPS obligatorio en producción
 - URLs firmadas con expiración para descarga de archivos originales

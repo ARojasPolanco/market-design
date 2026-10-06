@@ -11,6 +11,8 @@ import {
   validateLogin,
   validateUpdateProfile,
   validateChangePassword,
+  validateForgotPassword,
+  validateResetPassword,
 } from './auth.schema.js';
 import crypto from 'crypto';
 
@@ -215,6 +217,72 @@ export const changePassword = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     message: 'Contraseña actualizada correctamente',
+  });
+});
+
+export const forgotPassword = catchAsync(async (req, res) => {
+  const { hasError, errorMessages, data } = validateForgotPassword(req.body);
+  if (hasError) {
+    return res.status(422).json({ status: 'error', message: errorMessages.join(', ') });
+  }
+
+  // Always respond the same, whether or not the email exists (avoid user enumeration).
+  const genericResponse = {
+    status: 'success',
+    message: 'Si el email está registrado, te enviamos un enlace para restablecer tu contraseña.',
+  };
+
+  const user = await authService.findOneByEmail(data.email);
+  if (!user) {
+    return res.status(200).json(genericResponse);
+  }
+
+  const token = crypto.randomBytes(32).toString('hex');
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+  await authService.update(user.id, {
+    passwordResetToken: tokenHash,
+    passwordResetExpires: expires,
+  });
+
+  try {
+    await mailService.sendPasswordResetEmail(user.email, token);
+  } catch (mailError) {
+    console.error('Error sending password reset email:', mailError);
+  }
+
+  res.status(200).json(genericResponse);
+});
+
+export const resetPassword = catchAsync(async (req, res, next) => {
+  const { hasError, errorMessages, data } = validateResetPassword(req.body);
+  if (hasError) {
+    return res.status(422).json({ status: 'error', message: errorMessages.join(', ') });
+  }
+
+  const tokenHash = crypto.createHash('sha256').update(data.token).digest('hex');
+  const user = await authService.findByResetToken(tokenHash);
+
+  if (!user || !user.passwordResetExpires || new Date(user.passwordResetExpires) < new Date()) {
+    return next(
+      new AppError(
+        'El enlace para restablecer la contraseña no es válido o expiró. Pedí uno nuevo.',
+        400
+      )
+    );
+  }
+
+  await authService.update(user.id, {
+    password: data.password,
+    passwordResetToken: null,
+    passwordResetExpires: null,
+    changedPasswordAt: new Date(),
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Contraseña restablecida correctamente. Ya podés iniciar sesión.',
   });
 });
 

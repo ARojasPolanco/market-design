@@ -64,6 +64,16 @@ User.init(
       allowNull: true,
       field: 'email_verification_token',
     },
+    passwordResetToken: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      field: 'password_reset_token',
+    },
+    passwordResetExpires: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'password_reset_expires',
+    },
     mpAccessToken: {
       type: DataTypes.STRING(500),
       allowNull: true,

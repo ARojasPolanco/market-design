@@ -10,6 +10,8 @@ import {
   resendVerification,
   activateSeller,
   uploadAvatar,
+  forgotPassword,
+  resetPassword,
 } from './auth.controller.js';
 import { protect } from './auth.middleware.js';
 import { uploadSingle } from '../../middlewares/upload.js';
@@ -18,6 +20,8 @@ const router = Router();
 
 router.post('/register', register);
 router.post('/login', login);
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
 router.get('/verify-email/:token', verifyEmail);
 router.get('/profile/:id', getPublicProfile);
 

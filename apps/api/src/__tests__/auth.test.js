@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
+import crypto from 'crypto';
 import app from '../app.js';
 import sequelize from '../config/database/database.js';
 import { runMigrations } from '../config/database/migrator.js';
+import User from '../modules/auth/auth.model.js';
 
 let server;
 let authToken;
@@ -79,14 +81,12 @@ describe('Auth Module', () => {
     });
 
     it('should fail with invalid email', async () => {
-      const res = await request(server)
-        .post('/api/v1/auth/register')
-        .send({
-          fullname: 'Test User',
-          username: 'testuser_invalid',
-          email: 'not-an-email',
-          password: 'password123',
-        });
+      const res = await request(server).post('/api/v1/auth/register').send({
+        fullname: 'Test User',
+        username: 'testuser_invalid',
+        email: 'not-an-email',
+        password: 'password123',
+      });
 
       expect(res.status).toBe(422);
     });
@@ -179,12 +179,10 @@ describe('Auth Module', () => {
     });
 
     it('should fail with non-existent email', async () => {
-      const res = await request(server)
-        .post('/api/v1/auth/login')
-        .send({
-          identifier: 'nonexistent@example.com',
-          password: 'password123',
-        });
+      const res = await request(server).post('/api/v1/auth/login').send({
+        identifier: 'nonexistent@example.com',
+        password: 'password123',
+      });
 
       expect(res.status).toBe(401);
     });
@@ -208,8 +206,7 @@ describe('Auth Module', () => {
     });
 
     it('should fail without token', async () => {
-      const res = await request(server)
-        .get('/api/v1/auth/profile');
+      const res = await request(server).get('/api/v1/auth/profile');
 
       expect(res.status).toBe(401);
     });
@@ -306,5 +303,88 @@ describe('Auth Module', () => {
       expect(res.status).toBe(200);
       expect(res.body.status).toBe('ok');
     });
+  });
+});
+
+describe('Password reset', () => {
+  it('POST /forgot-password always responds 200 (no user enumeration)', async () => {
+    const res = await request(server)
+      .post('/api/v1/auth/forgot-password')
+      .send({ email: 'does-not-exist@example.com' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('success');
+  });
+
+  it('resets the password with a valid token and allows login', async () => {
+    const email = `reset_${Date.now()}@example.com`;
+    const password = 'password123';
+
+    await request(server)
+      .post('/api/v1/auth/register')
+      .send({ fullname: 'Reset User', username: 'reset_' + Date.now(), email, password });
+
+    const user = await User.findOne({ where: { email } });
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+
+    await user.update({
+      passwordResetToken: tokenHash,
+      passwordResetExpires: new Date(Date.now() + 60 * 60 * 1000),
+    });
+
+    const res = await request(server)
+      .post('/api/v1/auth/reset-password')
+      .send({ token: rawToken, password: 'brandnewpass123' });
+
+    expect(res.status).toBe(200);
+
+    const loginRes = await request(server)
+      .post('/api/v1/auth/login')
+      .send({ identifier: email, password: 'brandnewpass123' });
+
+    expect(loginRes.status).toBe(200);
+
+    const oldLogin = await request(server)
+      .post('/api/v1/auth/login')
+      .send({ identifier: email, password });
+
+    expect(oldLogin.status).toBe(401);
+  });
+
+  it('rejects an invalid token', async () => {
+    const res = await request(server)
+      .post('/api/v1/auth/reset-password')
+      .send({ token: 'invalid-token', password: 'brandnewpass123' });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects an expired token', async () => {
+    const email = `expired_${Date.now()}@example.com`;
+
+    await request(server)
+      .post('/api/v1/auth/register')
+      .send({
+        fullname: 'Expired User',
+        username: 'expired_' + Date.now(),
+        email,
+        password: 'password123',
+      });
+
+    const user = await User.findOne({ where: { email } });
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+
+    await user.update({
+      passwordResetToken: tokenHash,
+      passwordResetExpires: new Date(Date.now() - 1000),
+    });
+
+    const res = await request(server)
+      .post('/api/v1/auth/reset-password')
+      .send({ token: rawToken, password: 'brandnewpass123' });
+
+    expect(res.status).toBe(400);
   });
 });
