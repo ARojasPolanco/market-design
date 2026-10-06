@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import {
   Sparkles,
   Users,
@@ -442,11 +441,7 @@ export default function BetaLandingPage() {
           >
             <Sparkles size={18} /> Reservar mi lugar
           </button>
-          <div className="mt-6 flex items-center justify-center gap-4 text-white/90 text-sm">
-            <Link to="/" className="hover:underline">
-              Ir al catálogo
-            </Link>
-            <span>·</span>
+          <div className="mt-6 flex items-center justify-center text-white/90 text-sm">
             <a
               href="mailto:soporte@marketdesign.shop"
               className="hover:underline flex items-center gap-1"
