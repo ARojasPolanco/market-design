@@ -55,8 +55,10 @@ export const getDesign = catchAsync(async (req, res, next) => {
     return next(new AppError('Diseño no encontrado.', 404));
   }
 
-  // Increment view count
-  await designService.incrementViewCount(design.id);
+  // Increment view count (skip for prerender/bot requests)
+  if (req.get('x-prerender') !== '1') {
+    await designService.incrementViewCount(design.id);
+  }
 
   res.status(200).json({
     status: 'success',
