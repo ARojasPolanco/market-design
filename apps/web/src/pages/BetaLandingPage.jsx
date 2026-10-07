@@ -142,7 +142,7 @@ export default function BetaLandingPage() {
   return (
     <div className="bg-white">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-dark via-dark to-[#12395c] text-white">
+      <section className="relative overflow-hidden bg-dark text-white">
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-brand-teal/20 rounded-full blur-3xl" />
         <div className="absolute -bottom-32 -left-24 w-96 h-96 bg-coral-400/20 rounded-full blur-3xl" />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 grid lg:grid-cols-2 gap-12 items-center">
@@ -234,7 +234,7 @@ export default function BetaLandingPage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {BENEFITS.map((benefit) => (
             <div key={benefit.title} className="text-center">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-teal to-coral-400 flex items-center justify-center mx-auto mb-4">
+              <div className="w-14 h-14 rounded-full bg-brand-teal flex items-center justify-center mx-auto mb-4">
                 <benefit.icon size={26} className="text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">{benefit.title}</h3>
@@ -430,7 +430,7 @@ export default function BetaLandingPage() {
       </section>
 
       {/* CTA final */}
-      <section className="bg-gradient-to-r from-brand-teal to-coral-400 py-14">
+      <section className="bg-brand-teal py-14">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
             Quedan pocos lugares para la beta
