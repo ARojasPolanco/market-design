@@ -25,15 +25,23 @@ import VerifyEmailPage from './pages/VerifyEmailPage.jsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import BetaLandingPage from './pages/BetaLandingPage.jsx';
+import ComingSoonPage from './pages/ComingSoonPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
+
+// Temporarily mask the storefront while we prepare the launch.
+// To go live: set COMING_SOON = false (the real pages are untouched below).
+const COMING_SOON = true;
 
 function App() {
   const location = useLocation();
-  const isLanding = location.pathname === '/beta-vendedores';
+  const path = location.pathname;
+  const masked =
+    COMING_SOON && (path === '/' || path === '/catalogo' || path.startsWith('/diseno/'));
+  const hideChrome = masked || path === '/beta-vendedores';
 
   return (
     <div className="min-h-screen flex flex-col">
-      {!isLanding && (
+      {!hideChrome && (
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:bg-dark focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
@@ -41,13 +49,16 @@ function App() {
           Saltar al contenido
         </a>
       )}
-      {!isLanding && <Navbar />}
-      {!isLanding && <EmailVerificationBanner />}
+      {!hideChrome && <Navbar />}
+      {!hideChrome && <EmailVerificationBanner />}
       <main id="main-content" className="flex-1">
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/catalogo" element={<CatalogPage />} />
-          <Route path="/diseno/:id" element={<DesignDetailPage />} />
+          <Route path="/" element={COMING_SOON ? <ComingSoonPage /> : <HomePage />} />
+          <Route path="/catalogo" element={COMING_SOON ? <ComingSoonPage /> : <CatalogPage />} />
+          <Route
+            path="/diseno/:id"
+            element={COMING_SOON ? <ComingSoonPage /> : <DesignDetailPage />}
+          />
           <Route path="/vendedor/:id" element={<SellerPage />} />
           <Route path="/checkout/success" element={<CheckoutResultPage status="success" />} />
           <Route path="/checkout/failure" element={<CheckoutResultPage status="failure" />} />
@@ -107,7 +118,7 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
-      {!isLanding && <Footer />}
+      {!hideChrome && <Footer />}
     </div>
   );
 }
