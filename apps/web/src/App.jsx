@@ -29,8 +29,8 @@ import ComingSoonPage from './pages/ComingSoonPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 
 // Temporarily mask the storefront while we prepare the launch.
-// To go live: set COMING_SOON = false (the real pages are untouched below).
-const COMING_SOON = true;
+// To mask again: set COMING_SOON = true (the real pages are untouched below).
+const COMING_SOON = false;
 
 function App() {
   const location = useLocation();
