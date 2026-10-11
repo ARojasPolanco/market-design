@@ -30,7 +30,7 @@ import NotFoundPage from './pages/NotFoundPage.jsx';
 
 // Temporarily mask the storefront while we prepare the launch.
 // To mask again: set COMING_SOON = true (the real pages are untouched below).
-const COMING_SOON = false;
+const COMING_SOON = true;
 
 function App() {
   const location = useLocation();
