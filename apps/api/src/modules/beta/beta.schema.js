@@ -12,6 +12,12 @@ export const createBetaSignupSchema = z.object({
     .nullish()
     .transform((value) => value?.trim() || null),
   slotKey: z.string().min(1, 'Elegí una fecha para la reunión'),
+  // Honeypot: hidden field real users never fill. Bots that autofill it get flagged.
+  website: z
+    .string()
+    .max(200)
+    .nullish()
+    .transform((value) => value?.trim() || null),
   utmSource: z
     .string()
     .max(120)

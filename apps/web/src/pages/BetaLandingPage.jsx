@@ -89,7 +89,13 @@ export default function BetaLandingPage() {
   const { slots, isLoading: slotsLoading } = useBetaSlots();
   const formRef = useRef(null);
 
-  const [form, setForm] = useState({ fullname: '', email: '', whatsapp: '', slotKey: '' });
+  const [form, setForm] = useState({
+    fullname: '',
+    email: '',
+    whatsapp: '',
+    slotKey: '',
+    website: '',
+  });
   const [utm, setUtm] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(null);
@@ -319,6 +325,16 @@ export default function BetaLandingPage() {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="hidden" aria-hidden="true">
+                    <label>No completar este campo</label>
+                    <input
+                      type="text"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={form.website}
+                      onChange={(e) => updateField('website', e.target.value)}
+                    />
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Nombre y apellido

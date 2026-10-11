@@ -1,5 +1,6 @@
 import { betaService } from './beta.service.js';
 import { validateCreateBetaSignup } from './beta.schema.js';
+import { isLikelyBot } from './beta.utils.js';
 import { BETA_SLOTS, getBetaSlot } from '../../config/beta.js';
 import { mailService } from '../../config/resend/resend.js';
 import { envs } from '../../config/enviroments.js';
@@ -49,6 +50,16 @@ export const createSignup = catchAsync(async (req, res, next) => {
   }
 
   const email = data.email.toLowerCase();
+
+  // Anti-bot: pretend success (so bots don't retry) but never store the signup.
+  if (isLikelyBot({ fullname: data.fullname, email, website: data.website })) {
+    return res.status(201).json({
+      status: 'success',
+      message: '¡Listo! Te enviamos la confirmación por email.',
+      slot: { key: slot.key, label: slot.label },
+    });
+  }
+
   const existing = await betaService.findByEmail(email);
   const taken = await betaService.countBySlot(slot.key);
   const isFull = taken >= slot.capacity;
