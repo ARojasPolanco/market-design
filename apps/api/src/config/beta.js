@@ -10,6 +10,7 @@ export const BETA_SLOTS = [
     end: '2026-10-11T19:00:00-03:00',
     meetUrl: 'https://meet.google.com/ccq-fkjj-vfp',
     capacity: 10,
+    closed: true,
   },
   {
     key: '2026-10-14',

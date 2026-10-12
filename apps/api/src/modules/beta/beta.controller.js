@@ -21,7 +21,7 @@ const sendBetaMail = async (to, fullname, slot) => {
 
 export const getSlots = catchAsync(async (_req, res) => {
   const slots = await Promise.all(
-    BETA_SLOTS.map(async (slot) => {
+    BETA_SLOTS.filter((slot) => !slot.closed).map(async (slot) => {
       const taken = await betaService.countBySlot(slot.key);
       const remaining = Math.max(slot.capacity - taken, 0);
       return {
@@ -47,6 +47,10 @@ export const createSignup = catchAsync(async (req, res, next) => {
   const slot = getBetaSlot(data.slotKey);
   if (!slot) {
     return next(new AppError('La fecha elegida no es válida.', 422));
+  }
+
+  if (slot.closed) {
+    return next(new AppError('Esa fecha ya no está disponible. Elegí otra, por favor.', 422));
   }
 
   const email = data.email.toLowerCase();
@@ -125,6 +129,7 @@ export const getBetaSignups = catchAsync(async (_req, res) => {
     label: slot.label,
     shortLabel: slot.shortLabel,
     capacity: slot.capacity,
+    closed: Boolean(slot.closed),
     count: signups.filter((signup) => signup.slotKey === slot.key).length,
   }));
 

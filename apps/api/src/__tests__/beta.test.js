@@ -5,6 +5,9 @@ import sequelize from '../config/database/database.js';
 import { runMigrations } from '../config/database/migrator.js';
 import { BETA_SLOTS } from '../config/beta.js';
 
+const OPEN_SLOTS = BETA_SLOTS.filter((slot) => !slot.closed);
+const CLOSED_SLOT = BETA_SLOTS.find((slot) => slot.closed);
+
 let server;
 let adminToken;
 let dbAvailable = false;
@@ -29,12 +32,14 @@ beforeAll(async () => {
 
   // Register an admin and promote it
   const email = `beta_admin_${Date.now()}@test.com`;
-  const res = await request(server).post('/api/v1/auth/register').send({
-    fullname: 'Beta Admin',
-    username: 'betaadmin_' + Date.now(),
-    email,
-    password: 'password123',
-  });
+  const res = await request(server)
+    .post('/api/v1/auth/register')
+    .send({
+      fullname: 'Beta Admin',
+      username: 'betaadmin_' + Date.now(),
+      email,
+      password: 'password123',
+    });
   await sequelize.query(`UPDATE users SET role = 'admin' WHERE users_id = '${res.body.user.id}'`);
   const loginRes = await request(server)
     .post('/api/v1/auth/login')
@@ -44,13 +49,13 @@ beforeAll(async () => {
 
 describe('Beta Module', () => {
   describe('GET /api/v1/beta/slots', () => {
-    it('returns the three meeting slots without exposing meet links', async () => {
+    it('returns the open meeting slots without exposing meet links', async () => {
       if (!dbAvailable) return;
 
       const res = await request(server).get('/api/v1/beta/slots');
 
       expect(res.status).toBe(200);
-      expect(res.body.slots).toHaveLength(BETA_SLOTS.length);
+      expect(res.body.slots).toHaveLength(OPEN_SLOTS.length);
       expect(res.body.slots[0]).toHaveProperty('label');
       expect(res.body.slots[0]).toHaveProperty('remaining');
       expect(JSON.stringify(res.body)).not.toContain('meet.google.com');
@@ -67,7 +72,7 @@ describe('Beta Module', () => {
           fullname: 'Vendedora Test',
           email: `vendedora_${Date.now()}@test.com`,
           whatsapp: '+54 9 11 1234-5678',
-          slotKey: BETA_SLOTS[0].key,
+          slotKey: OPEN_SLOTS[0].key,
           utmSource: 'facebook',
         });
 
@@ -80,7 +85,21 @@ describe('Beta Module', () => {
 
       const res = await request(server)
         .post('/api/v1/beta')
-        .send({ fullname: 'Test', email: 'not-an-email', slotKey: BETA_SLOTS[0].key });
+        .send({ fullname: 'Test', email: 'not-an-email', slotKey: OPEN_SLOTS[0].key });
+
+      expect(res.status).toBe(422);
+    });
+
+    it('rejects a closed slot', async () => {
+      if (!dbAvailable || !CLOSED_SLOT) return;
+
+      const res = await request(server)
+        .post('/api/v1/beta')
+        .send({
+          fullname: 'Test Cerrado',
+          email: `closed_${Date.now()}@test.com`,
+          slotKey: CLOSED_SLOT.key,
+        });
 
       expect(res.status).toBe(422);
     });
@@ -102,14 +121,14 @@ describe('Beta Module', () => {
 
       await request(server)
         .post('/api/v1/beta')
-        .send({ fullname: 'Cambia Fecha', email, slotKey: BETA_SLOTS[0].key });
+        .send({ fullname: 'Cambia Fecha', email, slotKey: OPEN_SLOTS[0].key });
 
       const res = await request(server)
         .post('/api/v1/beta')
-        .send({ fullname: 'Cambia Fecha', email, slotKey: BETA_SLOTS[1].key });
+        .send({ fullname: 'Cambia Fecha', email, slotKey: OPEN_SLOTS[1].key });
 
       expect(res.status).toBe(200);
-      expect(res.body.slot.key).toBe(BETA_SLOTS[1].key);
+      expect(res.body.slot.key).toBe(OPEN_SLOTS[1].key);
     });
   });
 

@@ -1830,7 +1830,10 @@ function BetaSection() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {slots.map((slot) => (
           <div key={slot.key} className="bg-white rounded-xl shadow-sm p-6">
-            <p className="text-sm text-gray-500 mb-1">{slot.label}</p>
+            <p className="text-sm text-gray-500 mb-1">
+              {slot.label}
+              {slot.closed && <span className="text-gray-400"> · completada</span>}
+            </p>
             <p className="text-2xl font-bold text-gray-900">
               {slot.count}{' '}
               <span className="text-sm font-normal text-gray-400">/ {slot.capacity}</span>
