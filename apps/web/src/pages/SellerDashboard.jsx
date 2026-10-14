@@ -302,8 +302,8 @@ export default function SellerDashboard() {
       <CommissionInfo variant="compact" />
 
       {/* Tabs */}
-      <div className="overflow-x-auto no-scrollbar mb-6">
-        <div className="flex gap-1 border-b pt-10">
+      <div className="mb-6">
+        <div className="flex flex-wrap gap-1 border-b pt-10">
           {[
             {
               id: 'overview',

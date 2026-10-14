@@ -92,7 +92,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b mb-6 overflow-x-auto">
+      <div className="flex flex-wrap gap-1 border-b mb-6">
         {[
           { id: 'requests', label: 'Solicitudes', icon: Clock },
           { id: 'designs', label: 'Diseños', icon: Eye },
