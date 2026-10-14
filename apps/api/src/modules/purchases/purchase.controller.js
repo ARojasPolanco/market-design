@@ -12,6 +12,7 @@ import { notificationService } from '../notifications/notification.service.js';
 import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
 import { validateCreatePurchase, validateCreateRating } from './purchase.schema.js';
+import { formatArDate } from '../../utils/date.js';
 
 export const createPurchase = catchAsync(async (req, res, next) => {
   const { hasError, errorMessages, data } = validateCreatePurchase(req.body);
@@ -73,7 +74,7 @@ export const createPurchase = catchAsync(async (req, res, next) => {
         designTitle: design.title,
         downloadUrl,
         orderNumber: purchase.id.substring(0, 8).toUpperCase(),
-        purchaseDate: new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        purchaseDate: formatArDate(),
         previewUrl: design.previewUrl,
         sellerName: design.seller?.storeName || design.seller?.username || 'Vendedor',
       });
@@ -109,9 +110,7 @@ export const createPurchase = catchAsync(async (req, res, next) => {
   const sellerCreds = await authService.findMpCredentials(design.sellerId);
   if (!sellerCreds?.mpConnected || !sellerCreds.mpAccessToken) {
     await purchase.destroy();
-    return next(
-      new AppError('El vendedor todavía no conectó su cuenta de Mercado Pago.', 409)
-    );
+    return next(new AppError('El vendedor todavía no conectó su cuenta de Mercado Pago.', 409));
   }
 
   const preferenceItems = [{ title: design.title, price: Number(design.price) }];
@@ -178,9 +177,7 @@ export const handleWebhook = catchAsync(async (req, res) => {
     const paymentId = data.id;
 
     try {
-      const seller = req.body.user_id
-        ? await authService.findByMpUserId(req.body.user_id)
-        : null;
+      const seller = req.body.user_id ? await authService.findByMpUserId(req.body.user_id) : null;
       const payment = await mpService.getPayment(paymentId, seller?.mpAccessToken);
 
       if (payment.status === 'approved') {
@@ -222,7 +219,7 @@ export const handleWebhook = catchAsync(async (req, res) => {
                 designTitle: design.title,
                 downloadUrl,
                 orderNumber: purchase.id.substring(0, 8).toUpperCase(),
-                purchaseDate: new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                purchaseDate: formatArDate(),
                 previewUrl: design.previewUrl,
                 sellerName: design.seller?.storeName || design.seller?.username || 'Vendedor',
               });
@@ -321,7 +318,10 @@ export const downloadDesign = catchAsync(async (req, res, next) => {
   const purchase = await purchaseService.findByDownloadToken(token);
   if (!purchase) {
     return next(
-      new AppError('El enlace de descarga no es válido o ya expiró. Pedí uno nuevo desde tu panel.', 400)
+      new AppError(
+        'El enlace de descarga no es válido o ya expiró. Pedí uno nuevo desde tu panel.',
+        400
+      )
     );
   }
 
