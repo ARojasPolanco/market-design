@@ -129,6 +129,11 @@ User.init(
       allowNull: true,
       field: 'changed_password_at',
     },
+    lastLoginAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'last_login_at',
+    },
   },
   {
     sequelize,

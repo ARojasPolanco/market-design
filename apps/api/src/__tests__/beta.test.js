@@ -30,6 +30,13 @@ beforeAll(async () => {
     // Migrations might already be applied
   }
 
+  // Start from a clean slate so slot capacity isn't affected by previous runs.
+  try {
+    await sequelize.query('DELETE FROM beta_signups');
+  } catch (_error) {
+    // Table might not exist yet
+  }
+
   // Register an admin and promote it
   const email = `beta_admin_${Date.now()}@test.com`;
   const res = await request(server)

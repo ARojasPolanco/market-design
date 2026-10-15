@@ -94,6 +94,11 @@ export const login = catchAsync(async (req, res, next) => {
     return next(new AppError(`Tu cuenta está suspendida.${reason}`, 403));
   }
 
+  // Track last connection (sellers only).
+  if (user.role === 'seller') {
+    await user.update({ lastLoginAt: new Date() });
+  }
+
   const token = generateJWT({ id: user.id, role: user.role });
 
   res.status(200).json({

@@ -194,6 +194,33 @@ describe('Auth Module', () => {
       expect(res.body.user.username).toBe(username);
     });
 
+    it('records lastLoginAt for sellers on login', async () => {
+      const email = `lastlogin_${Date.now()}@example.com`;
+      const password = 'password123';
+
+      const reg = await request(server)
+        .post('/api/v1/auth/register')
+        .send({
+          fullname: 'Last Login Seller',
+          username: 'lastlogin_' + Date.now(),
+          email,
+          password,
+        });
+
+      await sequelize.query(
+        `UPDATE users SET role = 'seller' WHERE users_id = '${reg.body.user.id}'`
+      );
+
+      const res = await request(server)
+        .post('/api/v1/auth/login')
+        .send({ identifier: email, password });
+
+      expect(res.status).toBe(200);
+
+      const user = await User.findOne({ where: { email } });
+      expect(user.lastLoginAt).not.toBeNull();
+    });
+
     it('should fail with non-existent email', async () => {
       const res = await request(server).post('/api/v1/auth/login').send({
         identifier: 'nonexistent@example.com',

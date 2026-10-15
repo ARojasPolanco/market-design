@@ -698,6 +698,9 @@ function UsersSection() {
                 <th className="text-left text-sm font-medium text-gray-500 px-6 py-3 hidden sm:table-cell">
                   Ventas
                 </th>
+                <th className="text-left text-sm font-medium text-gray-500 px-6 py-3 hidden md:table-cell whitespace-nowrap">
+                  Última conexión
+                </th>
                 <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">Estado</th>
                 <th className="text-right text-sm font-medium text-gray-500 px-6 py-3">Acciones</th>
               </tr>
@@ -731,6 +734,18 @@ function UsersSection() {
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600 hidden sm:table-cell">
                     {user.sales || 0}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600 hidden md:table-cell whitespace-nowrap">
+                    {user.lastLoginAt
+                      ? new Date(user.lastLoginAt).toLocaleString('es-AR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          timeZone: 'America/Argentina/Buenos_Aires',
+                        })
+                      : '—'}
                   </td>
                   <td className="px-6 py-4">
                     <span
