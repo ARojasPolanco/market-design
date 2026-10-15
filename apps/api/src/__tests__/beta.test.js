@@ -123,12 +123,15 @@ describe('Beta Module', () => {
         .post('/api/v1/beta')
         .send({ fullname: 'Cambia Fecha', email, slotKey: OPEN_SLOTS[0].key });
 
+      // If there's a second open slot, change to it; otherwise re-sign to the same one.
+      const target = OPEN_SLOTS[1] || OPEN_SLOTS[0];
+
       const res = await request(server)
         .post('/api/v1/beta')
-        .send({ fullname: 'Cambia Fecha', email, slotKey: OPEN_SLOTS[1].key });
+        .send({ fullname: 'Cambia Fecha', email, slotKey: target.key });
 
       expect(res.status).toBe(200);
-      expect(res.body.slot.key).toBe(OPEN_SLOTS[1].key);
+      expect(res.body.slot.key).toBe(target.key);
     });
   });
 

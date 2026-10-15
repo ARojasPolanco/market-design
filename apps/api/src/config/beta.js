@@ -20,6 +20,7 @@ export const BETA_SLOTS = [
     end: '2026-10-14T19:00:00-03:00',
     meetUrl: 'https://meet.google.com/vgc-bshm-paa',
     capacity: 10,
+    closed: true,
   },
   {
     key: '2026-10-16',
@@ -28,7 +29,7 @@ export const BETA_SLOTS = [
     start: '2026-10-16T18:00:00-03:00',
     end: '2026-10-16T19:00:00-03:00',
     meetUrl: 'https://meet.google.com/aaw-ijko-ojv',
-    capacity: 10,
+    capacity: 5,
   },
 ];
 
