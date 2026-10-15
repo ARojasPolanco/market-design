@@ -54,6 +54,22 @@ describe('Auth Module', () => {
       userId = res.body.user.id;
     });
 
+    it('accepts a username with Ñ', async () => {
+      if (!dbAvailable) return;
+
+      const res = await request(server)
+        .post('/api/v1/auth/register')
+        .send({
+          fullname: 'Efra Diseños',
+          username: `efraDISEÑOS${Date.now()}`,
+          email: `enye_${Date.now()}@example.com`,
+          password: 'password123',
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.user.username).toContain('Ñ');
+    });
+
     it('should fail with duplicate email', async () => {
       const email = `duplicate_${Date.now()}@example.com`;
 

@@ -9,7 +9,10 @@ export const registerSchema = z.object({
     .string()
     .min(3, 'El nombre de usuario debe tener al menos 3 caracteres')
     .max(50, 'El nombre de usuario no puede exceder 50 caracteres')
-    .regex(/^[a-zA-Z0-9_]+$/, 'Solo letras, números y guión bajo'),
+    .regex(
+      /^[\p{L}\p{N}_]+$/u,
+      'Solo letras (incluida la Ñ y acentos), números y guión bajo (sin espacios ni símbolos)'
+    ),
   email: z.string().email('Email inválido'),
   password: z
     .string()
