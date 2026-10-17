@@ -87,6 +87,22 @@ describe('Beta Module', () => {
       expect(res.body.status).toBe('success');
     });
 
+    it('registers a signup without a date', async () => {
+      if (!dbAvailable) return;
+
+      const res = await request(server)
+        .post('/api/v1/beta')
+        .send({
+          fullname: 'Sin Fecha',
+          email: `sinfecha_${Date.now()}@test.com`,
+          whatsapp: '+54 9 11 1234-5678',
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.status).toBe('success');
+      expect(res.body.slot).toBeNull();
+    });
+
     it('fails with an invalid email', async () => {
       if (!dbAvailable) return;
 

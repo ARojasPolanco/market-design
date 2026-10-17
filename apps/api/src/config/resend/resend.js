@@ -300,6 +300,69 @@ export class MailService {
     });
   }
 
+  async sendBetaReceived(to, { fullname }) {
+    const firstName = (fullname || '').split(' ')[0] || 'hola';
+    const year = new Date().getFullYear();
+
+    return await resend.emails.send({
+      from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
+      to,
+      replyTo: SUPPORT_EMAIL,
+      subject: 'Recibimos tus datos — Market Design',
+      attachments: [
+        {
+          filename: 'market-design.png',
+          content: LOGO_BUFFER,
+          inlineContentId: LOGO_CID,
+        },
+      ],
+      text: [
+        `Hola ${firstName}, recibimos tus datos.`,
+        '',
+        'Te vamos a contactar para coordinar una reunión y mostrarte cómo funciona Market Design.',
+        '',
+        `¿Dudas? Escribinos a ${SUPPORT_EMAIL}.`,
+      ].join('\n'),
+      html: `
+        <div style="display: none; max-height: 0; overflow: hidden; opacity: 0;">
+          Recibimos tus datos. Te contactamos para coordinar.
+        </div>
+        <div style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
+          <div style="text-align: center; padding: 32px 20px; background: linear-gradient(135deg, #0F2A44 0%, #1a3d5c 100%); border-radius: 12px 12px 0 0;">
+            <div style="display: inline-block; background: #ffffff; border-radius: 16px; padding: 14px 20px;">
+              <img src="cid:${LOGO_CID}" alt="Market Design" style="height: 44px; display: block; border: 0;" />
+            </div>
+            <p style="color: #ffffff; margin: 16px 0 0 0; font-size: 14px;">Diseños digitales que hacen crecer tus ideas</p>
+          </div>
+
+          <div style="background: #ffffff; padding: 32px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h1 style="color: #0F2A44; font-size: 24px; margin: 0 0 12px 0;">¡${firstName}, recibimos tus datos!</h1>
+            <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+              Gracias por tu interés en <strong>Market Design</strong>. Te vamos a contactar para coordinar una reunión corta y mostrarte cómo funciona la plataforma.
+            </p>
+
+            <div style="background: #f0fdfa; border: 2px solid #00C2B8; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+              <p style="color: #0f766e; margin: 0; font-size: 14px; line-height: 1.5;">
+                Pronto vas a poder vender tus diseños digitales con pago por Mercado Pago y entrega automática al comprador.
+              </p>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0 0 16px 0;" />
+            <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin: 0;">
+              ¿Dudas? Escribinos a <a href="mailto:${SUPPORT_EMAIL}" style="color: #00C2B8; text-decoration: none;">${SUPPORT_EMAIL}</a>.
+            </p>
+          </div>
+
+          <div style="text-align: center; padding: 16px 0;">
+            <p style="color: #9ca3af; font-size: 11px; margin: 0;">
+              © ${year} Market Design. Todos los derechos reservados.
+            </p>
+          </div>
+        </div>
+      `,
+    });
+  }
+
   async sendDesignPaused(to, designTitle, reason, ticketId) {
     await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',

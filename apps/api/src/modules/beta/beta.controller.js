@@ -10,12 +10,14 @@ import { catchAsync } from '../../errors/catchAsync.js';
 const sendBetaMail = async (to, fullname, slot) => {
   if (envs.NODE_ENV === 'test') return;
   try {
-    const result = await mailService.sendBetaConfirmation(to, { fullname, slot });
+    const result = slot
+      ? await mailService.sendBetaConfirmation(to, { fullname, slot })
+      : await mailService.sendBetaReceived(to, { fullname });
     if (result?.error) {
-      console.error('Resend beta confirmation error:', result.error);
+      console.error('Resend beta email error:', result.error);
     }
   } catch (error) {
-    console.error('Error sending beta confirmation email:', error);
+    console.error('Error sending beta email:', error);
   }
 };
 
@@ -44,12 +46,11 @@ export const createSignup = catchAsync(async (req, res, next) => {
     return res.status(422).json({ status: 'error', message: errorMessages.join(', ') });
   }
 
-  const slot = getBetaSlot(data.slotKey);
-  if (!slot) {
+  const slot = data.slotKey ? getBetaSlot(data.slotKey) : null;
+  if (data.slotKey && !slot) {
     return next(new AppError('La fecha elegida no es válida.', 422));
   }
-
-  if (slot.closed) {
+  if (slot && slot.closed) {
     return next(new AppError('Esa fecha ya no está disponible. Elegí otra, por favor.', 422));
   }
 
@@ -59,64 +60,45 @@ export const createSignup = catchAsync(async (req, res, next) => {
   if (isLikelyBot({ fullname: data.fullname, email, website: data.website })) {
     return res.status(201).json({
       status: 'success',
-      message: '¡Listo! Te enviamos la confirmación por email.',
-      slot: { key: slot.key, label: slot.label },
+      message: '¡Listo! Recibimos tus datos.',
     });
   }
 
-  const existing = await betaService.findByEmail(email);
-  const taken = await betaService.countBySlot(slot.key);
-  const isFull = taken >= slot.capacity;
-  const slotInfo = { key: slot.key, label: slot.label };
-
-  if (existing) {
-    if (existing.slotKey === slot.key) {
-      return res.status(200).json({
-        status: 'success',
-        message: 'Ya estabas anotado en esa fecha. ¡Nos vemos en la reunión!',
-        slot: slotInfo,
-      });
-    }
-
-    if (isFull) {
+  // If a slot was chosen, enforce its capacity.
+  if (slot) {
+    const taken = await betaService.countBySlot(slot.key);
+    if (taken >= slot.capacity) {
       return next(new AppError('Esa fecha ya está completa. Elegí otra, por favor.', 422));
     }
+  }
 
-    await existing.update({
-      fullname: data.fullname,
-      whatsapp: data.whatsapp,
-      slotKey: slot.key,
-      utmSource: data.utmSource,
-      utmMedium: data.utmMedium,
-      utmCampaign: data.utmCampaign,
-    });
+  const payload = {
+    fullname: data.fullname,
+    whatsapp: data.whatsapp,
+    slotKey: slot ? slot.key : null,
+    utmSource: data.utmSource,
+    utmMedium: data.utmMedium,
+    utmCampaign: data.utmCampaign,
+  };
+  const slotInfo = slot ? { key: slot.key, label: slot.label } : null;
+
+  const existing = await betaService.findByEmail(email);
+  if (existing) {
+    await existing.update(payload);
     await sendBetaMail(email, data.fullname, slot);
-
     return res.status(200).json({
       status: 'success',
-      message: '¡Listo! Actualizamos tu fecha y te enviamos la confirmación.',
+      message: '¡Listo! Actualizamos tus datos.',
       slot: slotInfo,
     });
   }
 
-  if (isFull) {
-    return next(new AppError('Esa fecha ya está completa. Elegí otra, por favor.', 422));
-  }
-
-  await betaService.create({
-    fullname: data.fullname,
-    email,
-    whatsapp: data.whatsapp,
-    slotKey: slot.key,
-    utmSource: data.utmSource,
-    utmMedium: data.utmMedium,
-    utmCampaign: data.utmCampaign,
-  });
+  await betaService.create({ email, ...payload });
   await sendBetaMail(email, data.fullname, slot);
 
   res.status(201).json({
     status: 'success',
-    message: '¡Listo! Te enviamos la confirmación por email.',
+    message: '¡Listo! Recibimos tus datos.',
     slot: slotInfo,
   });
 });
@@ -133,5 +115,7 @@ export const getBetaSignups = catchAsync(async (_req, res) => {
     count: signups.filter((signup) => signup.slotKey === slot.key).length,
   }));
 
-  res.status(200).json({ status: 'success', signups, slots });
+  const unassigned = signups.filter((signup) => !signup.slotKey).length;
+
+  res.status(200).json({ status: 'success', signups, slots, unassigned });
 });

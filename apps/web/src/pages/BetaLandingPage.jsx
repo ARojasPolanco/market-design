@@ -14,10 +14,8 @@ import {
   Palette,
   CreditCard,
   Download,
-  Loader2,
 } from 'lucide-react';
 import api from '../config/api.js';
-import { useBetaSlots } from '../hooks/useBeta.js';
 import logger from '../utils/logger.js';
 
 const VIDEO_URL = 'https://res.cloudinary.com/ir5xkfth/video/upload/v1791308154/IMG_8625.mp4';
@@ -86,14 +84,12 @@ const FAQ = [
 ];
 
 export default function BetaLandingPage() {
-  const { slots, isLoading: slotsLoading } = useBetaSlots();
   const formRef = useRef(null);
 
   const [form, setForm] = useState({
     fullname: '',
     email: '',
     whatsapp: '',
-    slotKey: '',
     website: '',
   });
   const [utm, setUtm] = useState({});
@@ -111,13 +107,6 @@ export default function BetaLandingPage() {
     });
   }, []);
 
-  useEffect(() => {
-    if (!form.slotKey && slots.length) {
-      const firstAvailable = slots.find((slot) => !slot.full);
-      if (firstAvailable) setForm((prev) => ({ ...prev, slotKey: firstAvailable.key }));
-    }
-  }, [slots, form.slotKey]);
-
   const scrollToForm = () =>
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -126,18 +115,14 @@ export default function BetaLandingPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (!form.slotKey) {
-      setError('Elegí una fecha para la reunión.');
-      return;
-    }
     setSubmitting(true);
     try {
       const res = await api.post('/v1/beta', { ...form, ...utm });
-      setSubmitted({ label: res.data.slot?.label || '', message: res.data.message });
+      setSubmitted({ message: res.data.message });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       const message =
-        err.response?.data?.message || 'No pudimos registrar tu lugar. Probá de nuevo.';
+        err.response?.data?.message || 'No pudimos registrar tus datos. Probá de nuevo.';
       setError(message);
       logger.error('Error en beta signup:', err);
     } finally {
@@ -169,7 +154,7 @@ export default function BetaLandingPage() {
                 onClick={scrollToForm}
                 className="inline-flex items-center justify-center gap-2 bg-brand-teal text-dark font-bold px-7 py-3.5 rounded-xl hover:bg-brand-teal-dark transition-colors"
               >
-                Reservar mi lugar <ArrowRight size={18} />
+                Dejanos tus datos <ArrowRight size={18} />
               </button>
               <a
                 href="#como-funciona"
@@ -293,29 +278,25 @@ export default function BetaLandingPage() {
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-5">
                   <CheckCircle size={32} className="text-green-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">¡Te guardamos el lugar!</h3>
-                <p className="text-gray-600 mb-2">{submitted.message}</p>
-                {submitted.label && (
-                  <p className="inline-block bg-brand-teal/10 text-brand-teal font-semibold px-4 py-2 rounded-lg mb-6">
-                    {submitted.label}
-                  </p>
-                )}
+                <h3 className="text-xl font-bold text-gray-900 mb-2">¡Recibimos tus datos!</h3>
+                <p className="text-gray-600 mb-4">{submitted.message}</p>
                 <p className="text-sm text-gray-500 mb-6">
-                  Revisá tu email (y la carpeta de spam): te enviamos la confirmación con el link de
-                  la reunión.
+                  Te vamos a contactar para coordinar una reunión y mostrarte cómo funciona Market
+                  Design.
                 </p>
                 <button
                   onClick={() => setSubmitted(null)}
                   className="text-sm text-brand-teal hover:underline"
                 >
-                  Quiero cambiar de fecha
+                  Volver
                 </button>
               </div>
             ) : (
               <>
-                <h3 className="text-xl font-bold text-gray-900 mb-1">Reservá tu lugar</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-1">Dejanos tus datos</h3>
                 <p className="text-sm text-gray-500 mb-6">
-                  Elegí una de las fechas. Te enviamos la confirmación y el link de Meet por email.
+                  Completá tus datos y te contactamos para mostrarte cómo funciona y sumarte a la
+                  beta.
                 </p>
 
                 {error && (
@@ -370,60 +351,15 @@ export default function BetaLandingPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Elegí la fecha de la reunión
-                    </label>
-                    <div className="space-y-2">
-                      {slotsLoading && (
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <Loader2 size={16} className="animate-spin" /> Cargando fechas...
-                        </div>
-                      )}
-                      {slots.map((slot) => (
-                        <label
-                          key={slot.key}
-                          className={`flex items-center justify-between gap-3 border rounded-lg px-4 py-3 transition-colors ${
-                            slot.full
-                              ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60'
-                              : form.slotKey === slot.key
-                                ? 'border-brand-teal bg-brand-teal/5 cursor-pointer'
-                                : 'border-gray-300 hover:border-brand-teal cursor-pointer'
-                          }`}
-                        >
-                          <span className="flex items-center gap-3">
-                            <input
-                              type="radio"
-                              name="slotKey"
-                              value={slot.key}
-                              disabled={slot.full}
-                              checked={form.slotKey === slot.key}
-                              onChange={(e) => updateField('slotKey', e.target.value)}
-                              className="accent-brand-teal"
-                            />
-                            <span className="text-sm font-medium text-gray-900">{slot.label}</span>
-                          </span>
-                          <span
-                            className={`text-xs whitespace-nowrap ${
-                              slot.full ? 'text-red-500' : 'text-gray-500'
-                            }`}
-                          >
-                            {slot.full ? 'Completo' : `Quedan ${slot.remaining} lugares`}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
                   <button
                     type="submit"
                     disabled={submitting}
                     className="w-full bg-brand-teal text-dark font-bold py-3.5 rounded-xl hover:bg-brand-teal-dark transition-colors disabled:opacity-60"
                   >
-                    {submitting ? 'Reservando...' : 'Reservar mi lugar'}
+                    {submitting ? 'Enviando...' : 'Enviar mis datos'}
                   </button>
                   <p className="text-xs text-gray-400 text-center">
-                    Te contactamos solo para la reunión. Sin spam.
+                    Te contactamos para coordinar. Sin spam.
                   </p>
                 </form>
               </>
@@ -449,13 +385,13 @@ export default function BetaLandingPage() {
       <section className="bg-brand-teal py-14">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
-            Quedan pocos lugares para la beta
+            Sumate a la beta de vendedores
           </h2>
           <button
             onClick={scrollToForm}
             className="inline-flex items-center gap-2 bg-white text-dark font-bold px-8 py-3.5 rounded-xl hover:bg-gray-100 transition-colors"
           >
-            <Sparkles size={18} /> Reservar mi lugar
+            <Sparkles size={18} /> Dejanos tus datos
           </button>
           <div className="mt-6 flex items-center justify-center text-white/90 text-sm">
             <a

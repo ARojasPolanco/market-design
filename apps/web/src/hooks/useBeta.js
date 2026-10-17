@@ -30,6 +30,7 @@ export function useBetaSlots() {
 export function useBetaSignups() {
   const [signups, setSignups] = useState([]);
   const [slots, setSlots] = useState([]);
+  const [unassigned, setUnassigned] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -41,6 +42,7 @@ export function useBetaSignups() {
         if (active) {
           setSignups(res.data.signups || []);
           setSlots(res.data.slots || []);
+          setUnassigned(res.data.unassigned || 0);
         }
       } catch (_err) {
         if (active) setError('No pudimos cargar los anotados.');
@@ -54,5 +56,5 @@ export function useBetaSignups() {
     };
   }, []);
 
-  return { signups, slots, isLoading, error };
+  return { signups, slots, unassigned, isLoading, error };
 }

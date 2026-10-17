@@ -1831,7 +1831,7 @@ function DesignsSection() {
 }
 
 function BetaSection() {
-  const { signups, slots, isLoading, error } = useBetaSignups();
+  const { signups, slots, unassigned, isLoading, error } = useBetaSignups();
 
   if (isLoading) {
     return <div className="text-center py-12 text-gray-500">Cargando anotados...</div>;
@@ -1842,7 +1842,11 @@ function BetaSection() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-brand-teal">
+          <p className="text-sm text-gray-500 mb-1">Sin fecha (nuevos)</p>
+          <p className="text-2xl font-bold text-gray-900">{unassigned}</p>
+        </div>
         {slots.map((slot) => (
           <div key={slot.key} className="bg-white rounded-xl shadow-sm p-6">
             <p className="text-sm text-gray-500 mb-1">
@@ -1877,8 +1881,10 @@ function BetaSection() {
                   <td className="px-6 py-4 text-sm text-gray-600">{signup.email}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{signup.whatsapp || '—'}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {slots.find((slot) => slot.key === signup.slotKey)?.shortLabel ||
-                      signup.slotKey}
+                    {signup.slotKey
+                      ? slots.find((slot) => slot.key === signup.slotKey)?.shortLabel ||
+                        signup.slotKey
+                      : 'Sin fecha'}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">{signup.utmSource || '—'}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">

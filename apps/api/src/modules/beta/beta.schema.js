@@ -11,7 +11,10 @@ export const createBetaSignupSchema = z.object({
     .max(30, 'El WhatsApp no puede exceder 30 caracteres')
     .nullish()
     .transform((value) => value?.trim() || null),
-  slotKey: z.string().min(1, 'Elegí una fecha para la reunión'),
+  slotKey: z
+    .string()
+    .nullish()
+    .transform((value) => value?.trim() || null),
   // Honeypot: hidden field real users never fill. Bots that autofill it get flagged.
   website: z
     .string()
