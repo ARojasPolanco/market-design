@@ -10,7 +10,7 @@ import {
   downloadOrderByToken,
 } from './customOrder.controller.js';
 import { protect } from '../auth/auth.middleware.js';
-import { uploadSingle } from '../../middlewares/upload.js';
+import { uploadAnySingle } from '../../middlewares/upload.js';
 
 const router = Router();
 
@@ -24,7 +24,7 @@ router.get('/', listMyOrders);
 router.get('/:id', getOrder);
 router.post('/:id/quote', quoteOrder);
 router.post('/:id/pay', payOrder);
-router.post('/:id/deliver', uploadSingle, deliverOrder);
+router.post('/:id/deliver', uploadAnySingle, deliverOrder);
 router.get('/:id/download', downloadOrder);
 
 export default router;

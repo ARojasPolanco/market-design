@@ -26,7 +26,13 @@ const fileFilter = (_req, file, cb) => {
   if (ALLOWED_MIMES.includes(file.mimetype) || ALLOWED_EXTENSIONS.includes(ext)) {
     cb(null, true);
   } else {
-    cb(new AppError('Formato de archivo no aceptado. Formatos permitidos: PDF, PNG, JPG, ZIP, RAR, AI, PSD, EPS', 400), false);
+    cb(
+      new AppError(
+        'Formato de archivo no aceptado. Formatos permitidos: PDF, PNG, JPG, ZIP, RAR, AI, PSD, EPS',
+        400
+      ),
+      false
+    );
   }
 };
 
@@ -44,3 +50,13 @@ export const uploadDesignFiles = uploadDesign.fields([
   { name: 'file', maxCount: 1 },
   { name: 'previews', maxCount: 5 },
 ]);
+
+// Custom order delivery: the seller sends the final file. It is stored in a
+// private bucket and only delivered to the buyer who paid, so we accept any
+// format (still bounded by size) to avoid rejecting valid archives like .rar/.7z.
+export const uploadAnySingle = multer({
+  storage,
+  limits: {
+    fileSize: 50 * 1024 * 1024,
+  },
+}).single('file');
