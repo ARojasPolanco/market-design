@@ -1919,6 +1919,8 @@ function ChatAuditSection() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [replyText, setReplyText] = useState('');
+  const [sendingReply, setSendingReply] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -1957,6 +1959,23 @@ function ChatAuditSection() {
       setReports((prev) => prev.filter((report) => report.id !== id));
     } catch (_err) {
       // ignore
+    }
+  };
+
+  const sendReply = async (event) => {
+    event.preventDefault();
+    if (!replyText.trim() || !selected) return;
+    setSendingReply(true);
+    try {
+      const res = await api.post(`/v1/admin/chat/conversations/${selected.id}/messages`, {
+        body: replyText.trim(),
+      });
+      setMessages((prev) => [...prev, res.data.message]);
+      setReplyText('');
+    } catch (_err) {
+      // ignore
+    } finally {
+      setSendingReply(false);
     }
   };
 
@@ -2003,7 +2022,7 @@ function ChatAuditSection() {
           <h3 className="font-semibold text-gray-900">{selected ? 'Mensajes' : 'Reportes'}</h3>
         </div>
         {selected ? (
-          <div className="p-4 space-y-2 max-h-[520px] overflow-y-auto">
+          <div className="p-4">
             <button
               onClick={() => {
                 setSelected(null);
@@ -2013,15 +2032,35 @@ function ChatAuditSection() {
             >
               ← Volver a reportes
             </button>
-            {loadingMessages && <p className="text-sm text-gray-500">Cargando mensajes...</p>}
-            {messages.map((message) => (
-              <div key={message.id} className="text-sm">
-                <span className="font-medium text-gray-700">
-                  {message.sender?.username || 'Usuario'}:{' '}
-                </span>
-                <span className="text-gray-600">{message.body}</span>
-              </div>
-            ))}
+            <div className="space-y-2 max-h-[420px] overflow-y-auto mt-2">
+              {loadingMessages && <p className="text-sm text-gray-500">Cargando mensajes...</p>}
+              {messages.map((message) => (
+                <div key={message.id} className="text-sm">
+                  <span className="font-medium text-gray-700">
+                    {message.sender?.username || 'Usuario'}:{' '}
+                  </span>
+                  <span className="text-gray-600">{message.body}</span>
+                </div>
+              ))}
+            </div>
+            {selected.type === 'support' && (
+              <form onSubmit={sendReply} className="flex gap-2 mt-3 border-t pt-3">
+                <input
+                  value={replyText}
+                  onChange={(event) => setReplyText(event.target.value)}
+                  placeholder="Responder a soporte..."
+                  maxLength={2000}
+                  className="flex-1 px-3 py-2 border rounded-lg text-sm"
+                />
+                <button
+                  type="submit"
+                  disabled={sendingReply || !replyText.trim()}
+                  className="bg-dark text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+                >
+                  Enviar
+                </button>
+              </form>
+            )}
           </div>
         ) : (
           <div className="divide-y max-h-[520px] overflow-y-auto">

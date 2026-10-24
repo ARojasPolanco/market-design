@@ -17,6 +17,12 @@ export const createConversation = catchAsync(async (req, res, next) => {
   const userId = req.sessionUser.id;
 
   if (data.type === 'support') {
+    if (req.sessionUser.role === 'admin') {
+      return next(
+        new AppError('El soporte lo responden los admins desde el panel de administración.', 400)
+      );
+    }
+
     const conversation = await chatService.findOrCreateConversation({
       type: 'support',
       buyerId: userId,
@@ -189,4 +195,29 @@ export const adminListReports = catchAsync(async (req, res) => {
 export const adminResolveReport = catchAsync(async (req, res) => {
   const report = await chatService.resolveReport(req.params.id);
   res.status(200).json({ status: 'success', report });
+});
+
+export const adminReply = catchAsync(async (req, res, next) => {
+  const { hasError, errorMessages, data } = validateSendMessage(req.body);
+  if (hasError) {
+    return res.status(422).json({ status: 'error', message: errorMessages.join(', ') });
+  }
+
+  const conversation = await chatService.findConversation(req.params.id);
+  if (!conversation) {
+    return next(new AppError('Conversación no encontrada.', 404));
+  }
+  if (conversation.type !== 'support') {
+    return next(new AppError('Los admins solo pueden responder conversaciones de soporte.', 403));
+  }
+
+  await chatService.logAccess(conversation.id, req.sessionUser.id);
+
+  const message = await chatService.addMessage({
+    conversationId: conversation.id,
+    senderId: req.sessionUser.id,
+    body: data.body,
+  });
+
+  res.status(201).json({ status: 'success', message });
 });

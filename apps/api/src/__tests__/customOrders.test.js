@@ -94,7 +94,11 @@ describe('Custom Orders Module', () => {
     const created = await request(server)
       .post('/api/v1/custom-orders')
       .set('Authorization', `Bearer ${buyerToken}`)
-      .send({ sellerId, title: 'Sin presupuesto' });
+      .send({
+        sellerId,
+        baseDesignId: '11111111-1111-4111-8111-111111111111',
+        title: 'Sin presupuesto',
+      });
 
     const res = await request(server)
       .post(`/api/v1/custom-orders/${created.body.order.id}/pay`)

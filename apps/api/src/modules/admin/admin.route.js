@@ -30,6 +30,7 @@ import {
   adminGetMessages,
   adminListReports,
   adminResolveReport,
+  adminReply,
 } from '../chat/chat.controller.js';
 import {
   grantAchievement,
@@ -98,6 +99,7 @@ router.get('/beta', getBetaSignups);
 // Chat audit (read-only, access is logged)
 router.get('/chat/conversations', adminListConversations);
 router.get('/chat/conversations/:id/messages', adminGetMessages);
+router.post('/chat/conversations/:id/messages', adminReply);
 router.get('/chat/reports', adminListReports);
 router.patch('/chat/reports/:id', adminResolveReport);
 

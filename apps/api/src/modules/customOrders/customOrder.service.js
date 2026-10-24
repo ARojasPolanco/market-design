@@ -29,6 +29,16 @@ export class CustomOrderService {
     });
   }
 
+  async findOpenByConversation(conversationId) {
+    return await CustomOrder.findOne({
+      where: {
+        conversationId,
+        status: { [Op.in]: ['requested', 'quoted', 'paid'] },
+      },
+      order: [['created_at', 'DESC']],
+    });
+  }
+
   async completePayment(id, mpPaymentId, mpFee) {
     const order = await CustomOrder.findByPk(id);
     if (!order) return null;

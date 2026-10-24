@@ -45,6 +45,15 @@ export const createOrder = catchAsync(async (req, res, next) => {
     });
   }
 
+  const existingOpen = await customOrderService.findOpenByConversation(conversation.id);
+  if (existingOpen) {
+    return res.status(200).json({
+      status: 'success',
+      order: existingOpen,
+      conversationId: conversation.id,
+    });
+  }
+
   const order = await customOrderService.create({
     buyerId,
     sellerId: data.sellerId,

@@ -21,7 +21,6 @@ import {
 } from '../hooks/useChat.js';
 import {
   useMyOrders,
-  createOrder,
   quoteOrder,
   payOrder,
   deliverOrder,
@@ -60,12 +59,14 @@ function ConversationList() {
     <div className="max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Mensajes</h1>
-        <button
-          onClick={openSupport}
-          className="flex items-center gap-2 text-sm bg-dark text-white px-4 py-2 rounded-lg hover:bg-dark-light transition-colors"
-        >
-          <LifeBuoy size={16} /> Soporte
-        </button>
+        {user?.role !== 'admin' && (
+          <button
+            onClick={openSupport}
+            className="flex items-center gap-2 text-sm bg-dark text-white px-4 py-2 rounded-lg hover:bg-dark-light transition-colors"
+          >
+            <LifeBuoy size={16} /> Soporte
+          </button>
+        )}
       </div>
 
       {isLoading && <p className="text-gray-500">Cargando conversaciones...</p>}
@@ -169,24 +170,6 @@ function ConversationView({ id }) {
     }
   };
 
-  const handleRequestOrder = async () => {
-    setBusy(true);
-    try {
-      await createOrder({
-        sellerId: conversation.sellerId,
-        baseDesignId: conversation.designId || undefined,
-        conversationId: conversation.id,
-        title: 'Servicio personalizado',
-      });
-      await refetchOrders();
-      showToast('Pedido creado. El vendedor puede enviarte un presupuesto.', { type: 'success' });
-    } catch (err) {
-      showToast(err.response?.data?.message || 'No se pudo crear el pedido.', { type: 'error' });
-    } finally {
-      setBusy(false);
-    }
-  };
-
   const handleQuote = async () => {
     const price = Number(quotePrice);
     if (!price || price <= 0) {
@@ -272,7 +255,7 @@ function ConversationView({ id }) {
             )}
           </div>
         </div>
-        {other?.id && (
+        {other?.id && conversation?.type !== 'support' && user?.role !== 'admin' && (
           <button
             onClick={handleBlock}
             className="text-xs text-gray-500 hover:text-red-600 flex items-center gap-1"
@@ -366,16 +349,6 @@ function ConversationView({ id }) {
         </div>
       )}
 
-      {!order && isBuyer && conversation?.type === 'buyer_seller' && (
-        <button
-          onClick={handleRequestOrder}
-          disabled={busy}
-          className="mb-3 inline-flex items-center justify-center gap-2 bg-dark text-white font-semibold px-4 py-2 rounded-lg text-sm disabled:opacity-60"
-        >
-          <Package size={16} /> Solicitar presupuesto
-        </button>
-      )}
-
       <div className="flex-1 overflow-y-auto space-y-2 pr-1">
         {messages.map((message) => {
           const mine = message.senderId === user?.id;
@@ -396,7 +369,7 @@ function ConversationView({ id }) {
                 }`}
               >
                 <p className="whitespace-pre-wrap break-words">{message.body}</p>
-                {!mine && (
+                {!mine && conversation?.type !== 'support' && user?.role !== 'admin' && (
                   <button
                     onClick={() => handleReport(message.id)}
                     className="mt-1 text-[10px] text-gray-400 hover:text-red-500 flex items-center gap-1"

@@ -28,7 +28,7 @@ import SellerReviews from '../components/SellerReviews.jsx';
 import { DetailSkeleton } from '../components/Skeletons.jsx';
 import { ErrorState } from '../components/EmptyStates.jsx';
 import api from '../config/api.js';
-import { createConversation } from '../hooks/useChat.js';
+import { createOrder } from '../hooks/useCustomOrders.js';
 import logger from '../utils/logger.js';
 
 export default function DesignDetailPage() {
@@ -186,11 +186,12 @@ export default function DesignDetailPage() {
     }
     setContacting(true);
     try {
-      const conversation = await createConversation({
+      const res = await createOrder({
         sellerId: design.seller.id,
-        designId: design.id,
+        baseDesignId: design.id,
+        title: design.title,
       });
-      navigate(`/mensajes/${conversation.id}`);
+      navigate(`/mensajes/${res.conversationId}`);
     } catch (err) {
       showToast(err.response?.data?.message || 'No pudimos abrir el chat.', { type: 'error' });
     } finally {
