@@ -124,6 +124,30 @@ Orden en `app.ts`:
 4. Backend se desarrolla en paralelo, integración al final
 5. No se usa Figma; el frontend navegable con mocks cumple la función de referencia visual
 
+## Frontend: autenticación, 401 y loops de redirección (CRÍTICO)
+
+> **Incidente real (producción):** un componente global (`ChatWidget`) llamaba a un endpoint protegido **sin sesión**; el 401 redirigía a `/login`, que volvía a montar el componente y llamaba de nuevo → **recarga infinita** y no se podía iniciar sesión en dispositivos nuevos.
+
+Reglas **obligatorias** (no se pueden romper):
+
+1. **Ningún componente global** montado en `App.jsx` (Navbar, NotificationBell, ChatWidget, banners, etc.) puede llamar endpoints autenticados sin sesión. Todo hook que haga `fetch` debe chequear `localStorage.getItem('token')` (o `user`) y **no llamar a la API si no hay token**. Ejemplos: `useNotifications`, `useConversations`.
+2. **Hooks no condicionales**: si un componente tiene un early return (`if (!user) return null`), los hooks de fetch deben vivir en un **componente interno** que solo se monte cuando hay sesión (patrón `ChatWidget` → `ChatWidgetInner`). Nunca dejar polling ni efectos corriendo en el camino "sin sesión".
+3. **Interceptor 401** (`apps/web/src/config/api.js`): limpiar el token y redirigir a `/login` **solo si no estás ya en `/login`**. Nunca redirigir en bucle. Los endpoints de auth (`/auth/login`, `/auth/register`, `/auth/verify-email`) **no** disparan el redirect.
+4. Los endpoints protegidos usan `protect` y devuelven **401 sin token** (nunca 200 vacío ni un redirect del lado del server).
+5. Toda request protegida desde el frontend debe asumir que puede devolver 401; el manejo **no puede depender** de que el usuario esté logueado.
+
+### Smoke test OBLIGATORIO antes de mergear/deployar cambios de auth, interceptores o componentes globales
+
+En una **ventana incógnita (sin sesión)**:
+- [ ] Abrir `/`, `/catalogo`, `/diseno/:id`, `/login` y `/beta-vendedores` → **sin recargas en loop**.
+- [ ] `/login` permite iniciar sesión.
+- [ ] Con sesión: abrir el widget de chat, enviar un mensaje y ver la notificación.
+- [ ] "Salir" (logout) → sin loop y redirige correctamente.
+- [ ] Token inválido/expirado (ensuciar `localStorage.token`) → **un solo** redirect a `/login`, sin loop.
+- [ ] Probar en **desktop y mobile**.
+
+> **Por qué se nos escapó:** los tests actuales son **solo backend** (Vitest + Supertest); no hay E2E ni tests de montaje del frontend. Por eso este checklist manual es **obligatorio** para cualquier cambio que toque auth, interceptores, hooks de fetch o componentes globales. *(Automatizar con E2E es una mejora pendiente.)*
+
 ## Git y commits
 
 - **Husky**: pre-commit ejecuta `lint-staged` (prettier + eslint), commit-msg ejecuta `commitlint`
@@ -142,7 +166,7 @@ Orden en `app.ts`:
 - HTTPS obligatorio en producción
 - URLs firmadas con expiración para descarga de archivos originales
 - Publicar diseños solo con cuenta de MP conectada y verificada
-- **Webhook de MP**: verificar la firma `x-signature` con `MP_WEBHOOK_SECRET`. Hoy `verifyWebhookSignature()` es un no-op → **bloqueante antes de producción**.
+- **Webhook de MP**: la firma `x-signature` se verifica con `MP_WEBHOOK_SECRET` (HMAC-SHA256). Si el secret no está configurado, en producción el webhook debe rechazar. Revisar el formato si Mercado Pago lo cambia.
 
 ## Validación técnica al subir diseño
 
