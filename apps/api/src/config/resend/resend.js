@@ -363,6 +363,72 @@ export class MailService {
     });
   }
 
+  async sendCustomOrderDelivered(to, { title, downloadUrl, orderNumber }) {
+    const year = new Date().getFullYear();
+
+    return await resend.emails.send({
+      from: envs.OWNER_EMAIL || 'onboarding@resend.dev',
+      to,
+      replyTo: SUPPORT_EMAIL,
+      subject: `¡Tu diseño personalizado está listo! #${orderNumber} - Market Design`,
+      attachments: [
+        {
+          filename: 'market-design.png',
+          content: LOGO_BUFFER,
+          inlineContentId: LOGO_CID,
+        },
+      ],
+      text: [
+        '¡Tu diseño personalizado está listo!',
+        '',
+        `Pedido #${orderNumber} - ${title}`,
+        `Descargar: ${downloadUrl}`,
+        '',
+        'El enlace vence en 24 horas. También podés descargarlo desde tu panel.',
+        '',
+        `¿Dudas? Escribinos a ${SUPPORT_EMAIL}.`,
+      ].join('\n'),
+      html: `
+        <div style="display: none; max-height: 0; overflow: hidden; opacity: 0;">
+          Tu diseño personalizado está listo para descargar.
+        </div>
+        <div style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
+          <div style="text-align: center; padding: 32px 20px; background: #0F2A44; border-radius: 12px 12px 0 0;">
+            <div style="display: inline-block; background: #ffffff; border-radius: 16px; padding: 14px 20px;">
+              <img src="cid:${LOGO_CID}" alt="Market Design" style="height: 44px; display: block; border: 0;" />
+            </div>
+            <p style="color: #ffffff; margin: 16px 0 0 0; font-size: 14px;">Diseños digitales que hacen crecer tus ideas</p>
+          </div>
+
+          <div style="background: #ffffff; padding: 32px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h1 style="color: #0F2A44; font-size: 24px; margin: 0 0 8px 0;">¡Tu diseño está listo!</h1>
+            <p style="color: #6b7280; font-size: 14px; margin: 0 0 24px 0;">Pedido #${orderNumber}</p>
+
+            <h3 style="color: #0F2A44; font-size: 18px; text-align: center; margin: 0 0 24px 0;">${title}</h3>
+
+            <div style="text-align: center; margin-bottom: 24px;">
+              <a href="${downloadUrl}" style="display: inline-block; background: #00C2B8; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                Descargar diseño
+              </a>
+              <p style="color: #9ca3af; font-size: 12px; margin: 8px 0 0 0;">El enlace vence en 24 horas. También podés descargarlo desde tu panel.</p>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
+            <p style="color: #9ca3af; font-size: 12px; text-align: center; margin: 0;">
+              ¿Dudas? Escribinos a ${SUPPORT_EMAIL}.
+            </p>
+          </div>
+
+          <div style="text-align: center; padding: 16px 0;">
+            <p style="color: #9ca3af; font-size: 11px; margin: 0;">
+              © ${year} Market Design. Todos los derechos reservados.
+            </p>
+          </div>
+        </div>
+      `,
+    });
+  }
+
   async sendDesignPaused(to, designTitle, reason, ticketId) {
     await resend.emails.send({
       from: envs.OWNER_EMAIL || 'onboarding@resend.dev',

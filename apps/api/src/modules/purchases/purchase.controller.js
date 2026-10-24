@@ -13,6 +13,8 @@ import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
 import { validateCreatePurchase, validateCreateRating } from './purchase.schema.js';
 import { formatArDate } from '../../utils/date.js';
+import { customOrderService } from '../customOrders/customOrder.service.js';
+import { chatService } from '../chat/chat.service.js';
 
 export const createPurchase = catchAsync(async (req, res, next) => {
   const { hasError, errorMessages, data } = validateCreatePurchase(req.body);
@@ -181,6 +183,45 @@ export const handleWebhook = catchAsync(async (req, res) => {
       const payment = await mpService.getPayment(paymentId, seller?.mpAccessToken);
 
       if (payment.status === 'approved') {
+        // Custom design orders are paid through the same webhook.
+        if (payment.external_reference?.startsWith('custom:')) {
+          const orderId = payment.external_reference.split(':')[1];
+          const mpFee = Array.isArray(payment.fee_details)
+            ? payment.fee_details
+                .filter((fee) => fee.type !== 'application_fee' && fee.type !== 'marketplace_fee')
+                .reduce((sum, fee) => sum + Number(fee.amount || 0), 0)
+            : null;
+
+          const order = await customOrderService.completePayment(orderId, paymentId, mpFee);
+
+          if (order && order.status === 'paid') {
+            try {
+              await notificationService.create({
+                userId: order.sellerId,
+                type: 'custom_order',
+                title: '¡Pedido personalizado pagado!',
+                message: `El comprador pagó el pedido #${String(order.id).substring(0, 8).toUpperCase()}. Entregá el archivo desde tu panel.`,
+              });
+            } catch (notifError) {
+              console.error('Error creating custom order notification:', notifError);
+            }
+
+            if (order.conversationId) {
+              try {
+                await chatService.addSystemMessage(
+                  order.conversationId,
+                  order.buyerId,
+                  `Pago confirmado del pedido #${String(order.id).substring(0, 8).toUpperCase()}.`
+                );
+              } catch (_notifError) {
+                // best-effort
+              }
+            }
+          }
+
+          return res.status(200).json({ received: true });
+        }
+
         let purchase = null;
         if (payment.external_reference) {
           purchase = await purchaseService.findById(payment.external_reference);

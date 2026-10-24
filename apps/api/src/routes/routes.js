@@ -9,6 +9,8 @@ import notificationsRouter from '../modules/notifications/notification.route.js'
 import achievementsRouter from '../modules/achievements/achievement.route.js';
 import mpRouter from '../modules/mercadopago/mp.route.js';
 import betaRouter from '../modules/beta/beta.route.js';
+import chatRouter from '../modules/chat/chat.route.js';
+import customOrdersRouter from '../modules/customOrders/customOrder.route.js';
 
 const router = Router();
 
@@ -22,5 +24,7 @@ router.use('/notifications', notificationsRouter);
 router.use('/achievements', achievementsRouter);
 router.use('/mp', mpRouter);
 router.use('/beta', betaRouter);
+router.use('/chat', chatRouter);
+router.use('/custom-orders', customOrdersRouter);
 
 export default router;

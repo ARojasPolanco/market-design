@@ -26,6 +26,12 @@ import { createReport } from './admin.controller.js';
 import { approveDesign, rejectDesign } from '../designs/design.controller.js';
 import { getBetaSignups } from '../beta/beta.controller.js';
 import {
+  adminListConversations,
+  adminGetMessages,
+  adminListReports,
+  adminResolveReport,
+} from '../chat/chat.controller.js';
+import {
   grantAchievement,
   revokeAchievement,
   recalculateUserAchievements,
@@ -88,5 +94,11 @@ router.post('/ranks/calculate', calculateRanks);
 
 // Beta (seller meetings) signups
 router.get('/beta', getBetaSignups);
+
+// Chat audit (read-only, access is logged)
+router.get('/chat/conversations', adminListConversations);
+router.get('/chat/conversations/:id/messages', adminGetMessages);
+router.get('/chat/reports', adminListReports);
+router.patch('/chat/reports/:id', adminResolveReport);
 
 export default router;

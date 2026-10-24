@@ -1,4 +1,9 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { envs } from '../enviroments.js';
 import crypto from 'crypto';
@@ -31,6 +36,21 @@ export class R2Storage {
       key,
       url: `${envs.R2_PUBLIC_URL}/${key}`,
     };
+  }
+
+  async uploadPrivateFile(fileBuffer, fileName, contentType, folder = 'custom-orders') {
+    const key = `${folder}/${crypto.randomUUID()}-${fileName}`;
+
+    const command = new PutObjectCommand({
+      Bucket: BUCKET,
+      Key: key,
+      Body: fileBuffer,
+      ContentType: contentType,
+    });
+
+    await s3Client.send(command);
+
+    return { key };
   }
 
   async uploadPreview(fileBuffer, fileName) {
