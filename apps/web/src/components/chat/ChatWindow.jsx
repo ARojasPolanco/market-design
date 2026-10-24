@@ -14,7 +14,7 @@ import { otherParty } from '../../utils/chat.js';
 import ConfirmDialog from '../ConfirmDialog.jsx';
 
 export default function ChatWindow({ conversationId, onChanged }) {
-  const { conversation, messages, isLoading, error, send, markRead } =
+  const { conversation, messages, isLoading, error, send, markRead, refetch } =
     useConversation(conversationId);
   const { orders, refetch: refetchOrders } = useMyOrders();
   const { user } = useAuth();
@@ -142,7 +142,7 @@ export default function ChatWindow({ conversationId, onChanged }) {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !conversation) {
     return (
       <div className="flex-1 flex items-center justify-center text-gray-400">
         <Loader2 className="animate-spin" />
@@ -150,12 +150,27 @@ export default function ChatWindow({ conversationId, onChanged }) {
     );
   }
 
-  if (error) {
-    return <div className="p-6 text-center text-sm text-red-500">{error}</div>;
+  if (error && !conversation) {
+    return (
+      <div className="p-6 text-center text-sm text-red-500">
+        <p>{error}</p>
+        <button
+          onClick={refetch}
+          className="mt-3 text-xs font-semibold text-brand-teal hover:underline"
+        >
+          Reintentar
+        </button>
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col h-full">
+      {error && (
+        <div className="shrink-0 px-3 py-1.5 text-[11px] text-amber-700 bg-amber-50 border-b border-amber-100">
+          No pudimos actualizar los mensajes. Reintentando…
+        </div>
+      )}
       {canModerate && (
         <div className="flex justify-end px-4 py-1.5 border-b border-gray-100">
           <button

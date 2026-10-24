@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../config/api.js';
 
 export function useConversations() {
@@ -38,6 +38,7 @@ export function useConversation(id) {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const hasDataRef = useRef(false);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -49,9 +50,13 @@ export function useConversation(id) {
       const res = await api.get(`/v1/chat/conversations/${id}/messages`);
       setConversation(res.data.conversation);
       setMessages(res.data.messages || []);
+      hasDataRef.current = true;
       setError(null);
     } catch (err) {
-      setError(err.response?.data?.message || 'No pudimos cargar la conversación.');
+      // Ignore transient errors while polling if we already have data loaded.
+      if (!hasDataRef.current) {
+        setError(err.response?.data?.message || 'No pudimos cargar la conversación.');
+      }
     } finally {
       setIsLoading(false);
     }
