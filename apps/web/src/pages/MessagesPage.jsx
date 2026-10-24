@@ -28,6 +28,7 @@ import {
 } from '../hooks/useCustomOrders.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
+import ConfirmDialog from '../components/ConfirmDialog.jsx';
 
 function otherParty(conversation, userId) {
   if (!conversation) return null;
@@ -119,6 +120,8 @@ function ConversationView({ id }) {
   const [quotePrice, setQuotePrice] = useState('');
   const [deliveryFile, setDeliveryFile] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [blockOpen, setBlockOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null);
   const bottomRef = useRef(null);
 
   const order = orders.find((o) => o.conversationId === id && o.status !== 'cancelled');
@@ -147,24 +150,23 @@ function ConversationView({ id }) {
     }
   };
 
-  const handleReport = async (messageId) => {
-    const reason = window.prompt('¿Por qué reportás este mensaje?');
-    if (!reason) return;
+  const handleConfirmReport = async (reason) => {
+    if (!reportTarget) return;
     try {
-      await reportMessage(messageId, reason);
+      await reportMessage(reportTarget, reason);
       showToast('Reporte enviado. Gracias.', { type: 'success' });
+      setReportTarget(null);
     } catch (err) {
       showToast(err.response?.data?.message || 'No se pudo reportar.', { type: 'error' });
     }
   };
 
-  const handleBlock = async () => {
+  const handleConfirmBlock = async () => {
     if (!other?.id) return;
-    if (!window.confirm(`¿Bloquear a ${other.storeName || other.username || 'este usuario'}?`))
-      return;
     try {
       await blockUser(other.id);
       showToast('Usuario bloqueado.', { type: 'success' });
+      setBlockOpen(false);
     } catch (err) {
       showToast(err.response?.data?.message || 'No se pudo bloquear.', { type: 'error' });
     }
@@ -257,7 +259,7 @@ function ConversationView({ id }) {
         </div>
         {other?.id && conversation?.type !== 'support' && user?.role !== 'admin' && (
           <button
-            onClick={handleBlock}
+            onClick={() => setBlockOpen(true)}
             className="text-xs text-gray-500 hover:text-red-600 flex items-center gap-1"
           >
             <Ban size={14} /> Bloquear
@@ -371,7 +373,7 @@ function ConversationView({ id }) {
                 <p className="whitespace-pre-wrap break-words">{message.body}</p>
                 {!mine && conversation?.type !== 'support' && user?.role !== 'admin' && (
                   <button
-                    onClick={() => handleReport(message.id)}
+                    onClick={() => setReportTarget(message.id)}
                     className="mt-1 text-[10px] text-gray-400 hover:text-red-500 flex items-center gap-1"
                   >
                     <Flag size={10} /> Reportar
@@ -400,6 +402,30 @@ function ConversationView({ id }) {
           <Send size={16} />
         </button>
       </form>
+
+      <ConfirmDialog
+        open={blockOpen}
+        title="Bloquear usuario"
+        description={`¿Seguro que querés bloquear a ${
+          other?.storeName || other?.username || 'este usuario'
+        }? No van a poder intercambiar mensajes.`}
+        confirmLabel="Bloquear"
+        danger
+        onConfirm={handleConfirmBlock}
+        onCancel={() => setBlockOpen(false)}
+      />
+
+      <ConfirmDialog
+        open={Boolean(reportTarget)}
+        title="Reportar mensaje"
+        description="Contanos qué pasó. El equipo de Market Design va a revisarlo."
+        confirmLabel="Reportar"
+        requireReason
+        minReasonLength={5}
+        reasonPlaceholder="¿Por qué reportás este mensaje?"
+        onConfirm={handleConfirmReport}
+        onCancel={() => setReportTarget(null)}
+      />
     </div>
   );
 }
