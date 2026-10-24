@@ -34,6 +34,11 @@ Notification.init(
       allowNull: true,
       field: 'design_id',
     },
+    conversationId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: 'conversation_id',
+    },
     isRead: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,

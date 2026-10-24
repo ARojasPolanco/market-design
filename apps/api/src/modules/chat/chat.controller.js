@@ -5,8 +5,42 @@ import {
   validateReportMessage,
 } from './chat.schema.js';
 import User from '../auth/auth.model.js';
+import { notificationService } from '../notifications/notification.service.js';
 import { catchAsync } from '../../errors/catchAsync.js';
 import { AppError } from '../../errors/appError.js';
+
+const notifyNewMessage = async ({ conversation, senderId, senderName, body }) => {
+  const preview = body.length > 100 ? `${body.slice(0, 100)}…` : body;
+  let recipientIds = [];
+
+  if (conversation.type === 'support') {
+    if (senderId === conversation.buyerId) {
+      const admins = await User.findAll({
+        where: { role: 'admin', isDeleted: false },
+        attributes: ['id'],
+      });
+      recipientIds = admins.map((admin) => admin.id);
+    } else {
+      recipientIds = [conversation.buyerId];
+    }
+  } else {
+    const otherId =
+      conversation.buyerId === senderId ? conversation.sellerId : conversation.buyerId;
+    if (otherId) recipientIds = [otherId];
+  }
+
+  await Promise.all(
+    recipientIds.map((userId) =>
+      notificationService.create({
+        userId,
+        type: 'message',
+        title: `Nuevo mensaje de ${senderName}`,
+        message: preview,
+        conversationId: conversation.id,
+      })
+    )
+  );
+};
 
 export const createConversation = catchAsync(async (req, res, next) => {
   const { hasError, errorMessages, data } = validateCreateConversation(req.body);
@@ -106,6 +140,17 @@ export const sendMessage = catchAsync(async (req, res, next) => {
     senderId: userId,
     body: data.body,
   });
+
+  try {
+    await notifyNewMessage({
+      conversation,
+      senderId: userId,
+      senderName: req.sessionUser.username,
+      body: data.body,
+    });
+  } catch (notifError) {
+    console.error('Error creating message notification:', notifError);
+  }
 
   res.status(201).json({ status: 'success', message });
 });
@@ -218,6 +263,17 @@ export const adminReply = catchAsync(async (req, res, next) => {
     senderId: req.sessionUser.id,
     body: data.body,
   });
+
+  try {
+    await notifyNewMessage({
+      conversation,
+      senderId: req.sessionUser.id,
+      senderName: 'Soporte',
+      body: data.body,
+    });
+  } catch (notifError) {
+    console.error('Error creating message notification:', notifError);
+  }
 
   res.status(201).json({ status: 'success', message });
 });

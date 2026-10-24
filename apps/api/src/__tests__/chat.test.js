@@ -10,6 +10,7 @@ let sellerToken;
 let sellerId;
 let adminToken;
 let conversationId;
+let supportConversationId;
 
 const register = async (fullname, role) => {
   const email = `${role}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}@test.com`;
@@ -119,6 +120,40 @@ describe('Chat Module', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.conversation.type).toBe('support');
+    supportConversationId = res.body.conversation.id;
+  });
+
+  it('notifies the seller when the buyer sends a message', async () => {
+    const res = await request(server)
+      .get('/api/v1/notifications')
+      .set('Authorization', `Bearer ${sellerToken}`);
+
+    expect(res.status).toBe(200);
+    expect(
+      res.body.notifications.some(
+        (notification) =>
+          notification.conversationId === conversationId && notification.type === 'message'
+      )
+    ).toBe(true);
+  });
+
+  it('notifies admins when a user writes to support', async () => {
+    await request(server)
+      .post(`/api/v1/chat/conversations/${supportConversationId}/messages`)
+      .set('Authorization', `Bearer ${buyerToken}`)
+      .send({ body: 'Hola soporte, tengo una consulta.' });
+
+    const res = await request(server)
+      .get('/api/v1/notifications')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(res.status).toBe(200);
+    expect(
+      res.body.notifications.some(
+        (notification) =>
+          notification.conversationId === supportConversationId && notification.type === 'message'
+      )
+    ).toBe(true);
   });
 
   it('lets an admin audit conversations and messages', async () => {

@@ -1,9 +1,24 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, CheckCircle, XCircle, Clock, AlertTriangle, X, MessageSquare, ShoppingBag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Bell,
+  CheckCircle,
+  XCircle,
+  Clock,
+  AlertTriangle,
+  X,
+  MessageSquare,
+  ShoppingBag,
+} from 'lucide-react';
 import { useNotifications } from '../hooks/useNotifications.js';
+import { useAuth } from '../context/AuthContext.jsx';
+import { useChatWidget } from '../context/ChatContext.jsx';
 
 export default function NotificationBell() {
   const { notifications, unreadCount, markAllAsRead, deleteNotification } = useNotifications();
+  const { user } = useAuth();
+  const { openChat } = useChatWidget();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -21,6 +36,16 @@ export default function NotificationBell() {
     setOpen((prev) => !prev);
     if (!open && unreadCount > 0) {
       markAllAsRead();
+    }
+  };
+
+  const handleNotificationClick = (notif) => {
+    if (!notif.conversationId) return;
+    setOpen(false);
+    if (user?.role === 'admin') {
+      navigate('/admin?tab=chat');
+    } else {
+      openChat(notif.conversationId);
     }
   };
 
@@ -56,9 +81,11 @@ export default function NotificationBell() {
                         ? AlertTriangle
                         : notif.type === 'review_reply'
                           ? MessageSquare
-                          : notif.type === 'sale'
-                            ? ShoppingBag
-                            : Clock;
+                          : notif.type === 'message'
+                            ? MessageSquare
+                            : notif.type === 'sale'
+                              ? ShoppingBag
+                              : Clock;
                 const iconColor =
                   notif.type === 'approved'
                     ? 'text-green-500'
@@ -68,16 +95,19 @@ export default function NotificationBell() {
                         ? 'text-yellow-500'
                         : notif.type === 'review_reply'
                           ? 'text-brand-teal'
-                          : notif.type === 'sale'
-                            ? 'text-brand-orange'
-                            : 'text-gray-400';
+                          : notif.type === 'message'
+                            ? 'text-brand-teal'
+                            : notif.type === 'sale'
+                              ? 'text-brand-orange'
+                              : 'text-gray-400';
 
                 return (
                   <div
                     key={notif.id}
+                    onClick={() => handleNotificationClick(notif)}
                     className={`group relative flex items-start gap-3 p-3 rounded-xl mb-1 transition-all hover:bg-gray-50 ${
-                      !notif.isRead ? 'bg-blue-50/50' : 'bg-white'
-                    }`}
+                      notif.conversationId ? 'cursor-pointer' : ''
+                    } ${!notif.isRead ? 'bg-blue-50/50' : 'bg-white'}`}
                   >
                     <div className={`shrink-0 mt-0.5 ${iconColor}`}>
                       <Icon size={18} />

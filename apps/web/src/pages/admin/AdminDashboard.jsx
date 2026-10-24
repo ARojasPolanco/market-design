@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import logger from '../../utils/logger.js';
 import {
   Users,
@@ -42,9 +42,15 @@ import ConfirmDialog from '../../components/ConfirmDialog.jsx';
 const MANUAL_RANKS = ['platino', 'diamante'];
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('requests');
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'requests');
   const { stats } = useAdminStats();
   const { reports } = useAdminReports();
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) setActiveTab(tab);
+  }, [searchParams]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
