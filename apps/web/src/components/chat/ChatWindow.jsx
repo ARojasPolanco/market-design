@@ -231,18 +231,24 @@ export default function ChatWindow({ conversationId, onChanged }) {
             </button>
           )}
           {order.status === 'paid' && !isBuyer && (
-            <div className="flex items-center gap-2">
-              <input
-                type="file"
-                onChange={(event) => setDeliveryFile(event.target.files?.[0] || null)}
-                className="text-xs flex-1"
-              />
+            <div className="space-y-2">
+              <label className="flex items-center justify-center gap-2 w-full cursor-pointer border border-dashed border-gray-300 rounded-lg px-3 py-2 text-xs text-gray-600 hover:border-brand-teal hover:text-brand-teal transition-colors">
+                <Upload size={14} />
+                <span className="truncate">
+                  {deliveryFile ? deliveryFile.name : 'Elegir archivo final'}
+                </span>
+                <input
+                  type="file"
+                  className="hidden"
+                  onChange={(event) => setDeliveryFile(event.target.files?.[0] || null)}
+                />
+              </label>
               <button
                 onClick={handleDeliver}
-                disabled={busy}
-                className="bg-dark text-white font-semibold px-3 py-2 rounded-lg text-sm disabled:opacity-60 inline-flex items-center gap-1"
+                disabled={busy || !deliveryFile}
+                className="w-full bg-dark text-white font-semibold px-3 py-2 rounded-lg text-sm disabled:opacity-50 inline-flex items-center justify-center gap-1"
               >
-                <Upload size={14} /> Entregar
+                <Upload size={14} /> Entregar al comprador
               </button>
             </div>
           )}

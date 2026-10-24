@@ -1,5 +1,8 @@
 import { Op } from 'sequelize';
 import CustomOrder from './customOrder.model.js';
+import User from '../auth/auth.model.js';
+
+const PUBLIC_USER_ATTRS = ['id', 'fullname', 'username', 'storeName', 'avatarUrl'];
 
 export class CustomOrderService {
   async create(data) {
@@ -25,6 +28,10 @@ export class CustomOrderService {
   async listForUser(userId) {
     return await CustomOrder.findAll({
       where: { [Op.or]: [{ buyerId: userId }, { sellerId: userId }] },
+      include: [
+        { model: User, as: 'buyer', attributes: PUBLIC_USER_ATTRS },
+        { model: User, as: 'seller', attributes: PUBLIC_USER_ATTRS },
+      ],
       order: [['created_at', 'DESC']],
     });
   }

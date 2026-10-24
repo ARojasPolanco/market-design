@@ -64,6 +64,10 @@ CustomOrder.init(
       allowNull: true,
       field: 'mp_fee',
     },
+    commission: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+    },
     fileKey: {
       type: DataTypes.STRING(500),
       allowNull: true,

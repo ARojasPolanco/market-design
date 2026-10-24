@@ -31,6 +31,7 @@ import {
   usePurchases,
 } from '../hooks/useDesigns.js';
 import { useCurrentSeller } from '../hooks/useSeller.js';
+import { useMyOrders } from '../hooks/useCustomOrders.js';
 import { useUserAchievements } from '../hooks/useAchievements.js';
 import AchievementGrid from '../components/AchievementGrid.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -63,6 +64,19 @@ export default function SellerDashboard() {
   const { seller, isLoading } = useCurrentSeller();
   const { achievements } = useUserAchievements(seller?.id);
   const earnedAchievements = achievements.filter((a) => a.earned).length;
+  const { orders: customOrders } = useMyOrders();
+
+  const myCustomOrders = seller ? customOrders.filter((order) => order.sellerId === seller.id) : [];
+  const customOrdersWithPrice = myCustomOrders.filter((order) =>
+    ['paid', 'delivered', 'completed'].includes(order.status)
+  );
+  const customNet = customOrdersWithPrice.reduce(
+    (sum, order) =>
+      sum + (Number(order.price || 0) - Number(order.commission || 0) - Number(order.mpFee || 0)),
+    0
+  );
+  const combinedNet = Number(stats.netEarnings || 0) + customNet;
+
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -194,9 +208,12 @@ export default function SellerDashboard() {
             <span className="text-sm text-gray-500">Ganancias netas</span>
           </div>
           <p className="text-2xl font-bold text-gray-900">
-            ${Number(stats.netEarnings || 0).toLocaleString()}
+            ${Number(combinedNet).toLocaleString()}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Neto, luego de comisiones</p>
+          <p className="text-xs text-gray-500 mt-1">
+            Neto, luego de comisiones
+            {customNet > 0 ? ' (incluye pedidos personalizados)' : ''}
+          </p>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-3 mb-2">
@@ -763,6 +780,96 @@ export default function SellerDashboard() {
               </table>
             </div>
           </div>
+
+          {myCustomOrders.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b">
+                <h3 className="font-semibold text-gray-900">Pedidos personalizados</h3>
+                <p className="text-xs text-gray-500">
+                  El pago se acredita en tu cuenta de Mercado Pago.
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-gray-50">
+                      <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">
+                        Pedido
+                      </th>
+                      <th className="text-left text-sm font-medium text-gray-500 px-6 py-3">
+                        Comprador
+                      </th>
+                      <th className="text-right text-sm font-medium text-gray-500 px-6 py-3">
+                        Precio
+                      </th>
+                      <th className="text-right text-sm font-medium text-gray-500 px-6 py-3 whitespace-nowrap">
+                        Comisión MD
+                      </th>
+                      <th className="text-right text-sm font-medium text-gray-500 px-6 py-3 whitespace-nowrap">
+                        Comisión MP
+                      </th>
+                      <th className="text-right text-sm font-medium text-gray-500 px-6 py-3 whitespace-nowrap">
+                        Ganancia neta
+                      </th>
+                      <th className="text-right text-sm font-medium text-gray-500 px-6 py-3">
+                        Estado
+                      </th>
+                      <th className="text-right text-sm font-medium text-gray-500 px-6 py-3">
+                        Fecha
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {myCustomOrders.map((order) => {
+                      const price = Number(order.price || 0);
+                      const commission = Number(order.commission || 0);
+                      const mpFee = Number(order.mpFee || 0);
+                      const settled = ['paid', 'delivered', 'completed'].includes(order.status);
+                      const net = price - commission - mpFee;
+                      const label =
+                        {
+                          requested: 'Solicitado',
+                          quoted: 'Presupuestado',
+                          paid: 'Pagado',
+                          delivered: 'Entregado',
+                          completed: 'Completado',
+                          cancelled: 'Cancelado',
+                        }[order.status] || order.status;
+
+                      return (
+                        <tr key={order.id} className="border-b last:border-0 hover:bg-gray-50">
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                            #{order.id.substring(0, 8).toUpperCase()}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600">
+                            {order.buyer?.fullname || order.buyer?.username || 'Comprador'}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900 text-right">
+                            {price ? `$${price.toLocaleString()}` : '—'}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-red-600 text-right whitespace-nowrap">
+                            {commission ? `-$${commission.toLocaleString()}` : '—'}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-red-600 text-right whitespace-nowrap">
+                            {settled ? `-$${mpFee.toLocaleString()}` : '—'}
+                          </td>
+                          <td className="px-6 py-4 text-sm font-medium text-green-600 text-right whitespace-nowrap">
+                            {settled ? `+$${net.toLocaleString()}` : '—'}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600 text-right whitespace-nowrap">
+                            {label}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-500 text-right">
+                            {new Date(order.createdAt).toLocaleDateString('es-AR')}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

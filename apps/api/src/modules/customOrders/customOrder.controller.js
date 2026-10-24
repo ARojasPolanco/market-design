@@ -184,7 +184,7 @@ export const payOrder = catchAsync(async (req, res, next) => {
     );
   }
 
-  await order.update({ mpPreferenceId: preference.id });
+  await order.update({ mpPreferenceId: preference.id, commission });
 
   res.status(200).json({
     status: 'success',
