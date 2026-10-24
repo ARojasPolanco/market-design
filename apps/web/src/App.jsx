@@ -25,8 +25,9 @@ import VerifyEmailPage from './pages/VerifyEmailPage.jsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import BetaLandingPage from './pages/BetaLandingPage.jsx';
-import MessagesPage from './pages/MessagesPage.jsx';
 import ComingSoonPage from './pages/ComingSoonPage.jsx';
+import { ChatProvider } from './context/ChatContext.jsx';
+import ChatWidget from './components/chat/ChatWidget.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 
 // Temporarily mask the storefront while we prepare the launch.
@@ -41,102 +42,89 @@ function App() {
   const hideChrome = masked || path === '/beta-vendedores';
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {!hideChrome && (
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:bg-dark focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
-        >
-          Saltar al contenido
-        </a>
-      )}
-      {!hideChrome && <Navbar />}
-      {!hideChrome && <EmailVerificationBanner />}
-      <main id="main-content" className="flex-1">
-        <Routes>
-          <Route path="/" element={COMING_SOON ? <ComingSoonPage /> : <HomePage />} />
-          <Route path="/catalogo" element={COMING_SOON ? <ComingSoonPage /> : <CatalogPage />} />
-          <Route
-            path="/diseno/:id"
-            element={COMING_SOON ? <ComingSoonPage /> : <DesignDetailPage />}
-          />
-          <Route path="/vendedor/:id" element={<SellerPage />} />
-          <Route path="/checkout/success" element={<CheckoutResultPage status="success" />} />
-          <Route path="/checkout/failure" element={<CheckoutResultPage status="failure" />} />
-          <Route path="/checkout/pending" element={<CheckoutResultPage status="pending" />} />
-          <Route path="/checkout/:id" element={<CheckoutPage />} />
-          <Route path="/compra/:token" element={<PurchaseDownloadPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/registro" element={<RegisterPage />} />
-          <Route path="/recuperar" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/beta-vendedores" element={<BetaLandingPage />} />
-          <Route
-            path="/mensajes"
-            element={
-              <ProtectedRoute>
-                <MessagesPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/mensajes/:id"
-            element={
-              <ProtectedRoute>
-                <MessagesPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/vendedor/panel"
-            element={
-              <ProtectedRoute>
-                <SellerDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/vendedor/panel/subir"
-            element={
-              <ProtectedRoute>
-                <UploadDesignPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/vendedor/panel/editar/:id"
-            element={
-              <ProtectedRoute>
-                <EditDesignPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/vendedor/activar"
-            element={
-              <ProtectedRoute>
-                <ActivateSellerPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/comprador/panel"
-            element={
-              <ProtectedRoute>
-                <BuyerDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/admin/*" element={<AdminDashboard />} />
-          <Route path="/verify-email" element={<VerifyEmailPage />} />
-          <Route path="/terminos" element={<TermsPage />} />
-          <Route path="/privacidad" element={<PrivacyPage />} />
-          <Route path="/favoritos" element={<FavoritesPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </main>
-      {!hideChrome && <Footer />}
-    </div>
+    <ChatProvider>
+      <div className="min-h-screen flex flex-col">
+        {!hideChrome && (
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:bg-dark focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
+          >
+            Saltar al contenido
+          </a>
+        )}
+        {!hideChrome && <Navbar />}
+        {!hideChrome && <EmailVerificationBanner />}
+        <main id="main-content" className="flex-1">
+          <Routes>
+            <Route path="/" element={COMING_SOON ? <ComingSoonPage /> : <HomePage />} />
+            <Route path="/catalogo" element={COMING_SOON ? <ComingSoonPage /> : <CatalogPage />} />
+            <Route
+              path="/diseno/:id"
+              element={COMING_SOON ? <ComingSoonPage /> : <DesignDetailPage />}
+            />
+            <Route path="/vendedor/:id" element={<SellerPage />} />
+            <Route path="/checkout/success" element={<CheckoutResultPage status="success" />} />
+            <Route path="/checkout/failure" element={<CheckoutResultPage status="failure" />} />
+            <Route path="/checkout/pending" element={<CheckoutResultPage status="pending" />} />
+            <Route path="/checkout/:id" element={<CheckoutPage />} />
+            <Route path="/compra/:token" element={<PurchaseDownloadPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/registro" element={<RegisterPage />} />
+            <Route path="/recuperar" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/beta-vendedores" element={<BetaLandingPage />} />
+            <Route
+              path="/vendedor/panel"
+              element={
+                <ProtectedRoute>
+                  <SellerDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vendedor/panel/subir"
+              element={
+                <ProtectedRoute>
+                  <UploadDesignPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vendedor/panel/editar/:id"
+              element={
+                <ProtectedRoute>
+                  <EditDesignPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vendedor/activar"
+              element={
+                <ProtectedRoute>
+                  <ActivateSellerPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/comprador/panel"
+              element={
+                <ProtectedRoute>
+                  <BuyerDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/admin/*" element={<AdminDashboard />} />
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route path="/terminos" element={<TermsPage />} />
+            <Route path="/privacidad" element={<PrivacyPage />} />
+            <Route path="/favoritos" element={<FavoritesPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </main>
+        {!hideChrome && <Footer />}
+        <ChatWidget />
+      </div>
+    </ChatProvider>
   );
 }
 

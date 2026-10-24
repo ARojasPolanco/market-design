@@ -20,6 +20,7 @@ import {
 import { useDesign } from '../hooks/useDesigns.js';
 import { useFavorites } from '../context/FavoritesContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useChatWidget } from '../context/ChatContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import RatingStars from '../components/RatingStars.jsx';
 import SellerBadge from '../components/SellerBadge.jsx';
@@ -38,6 +39,7 @@ export default function DesignDetailPage() {
     useDesign(id);
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
   const { user } = useAuth();
+  const { openChat } = useChatWidget();
   const { showToast } = useToast();
   const [showZoom, setShowZoom] = useState(false);
   const [currentPreview, setCurrentPreview] = useState(0);
@@ -191,7 +193,7 @@ export default function DesignDetailPage() {
         baseDesignId: design.id,
         title: design.title,
       });
-      navigate(`/mensajes/${res.conversationId}`);
+      openChat(res.conversationId);
     } catch (err) {
       showToast(err.response?.data?.message || 'No pudimos abrir el chat.', { type: 'error' });
     } finally {

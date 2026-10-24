@@ -6,6 +6,7 @@ import { usePublicSellerDesigns } from '../hooks/useDesigns.js';
 import { useUserAchievements } from '../hooks/useAchievements.js';
 import { createConversation } from '../hooks/useChat.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useChatWidget } from '../context/ChatContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import SellerBadge from '../components/SellerBadge.jsx';
 import { RankBadge } from '../components/RankBadge.jsx';
@@ -16,6 +17,7 @@ export default function SellerPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { openChat } = useChatWidget();
   const { showToast } = useToast();
   const { seller, error } = useSeller(id);
   const { designs } = usePublicSellerDesigns(id);
@@ -30,7 +32,7 @@ export default function SellerPage() {
     setContacting(true);
     try {
       const conversation = await createConversation({ sellerId: seller.id });
-      navigate(`/mensajes/${conversation.id}`);
+      openChat(conversation.id);
     } catch (err) {
       showToast(err.response?.data?.message || 'No pudimos abrir el chat.', { type: 'error' });
     } finally {
