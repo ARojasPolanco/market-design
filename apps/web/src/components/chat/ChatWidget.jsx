@@ -11,8 +11,18 @@ import ChatWindow from './ChatWindow.jsx';
 
 export default function ChatWidget() {
   const { user } = useAuth();
-  const { showToast } = useToast();
   const location = useLocation();
+
+  // Don't mount the inner widget (and its polling) unless there is a valid session.
+  if (!user || user.role === 'admin' || location.pathname === '/beta-vendedores') {
+    return null;
+  }
+
+  return <ChatWidgetInner userId={user.id} />;
+}
+
+function ChatWidgetInner({ userId }) {
+  const { showToast } = useToast();
   const { isOpen, activeConversationId, openChat, close, toggle, backToList } = useChatWidget();
   const { conversations, isLoading, refetch } = useConversations();
 
@@ -24,15 +34,11 @@ export default function ChatWidget() {
   const activeConversation = conversations.find(
     (conversation) => conversation.id === activeConversationId
   );
-  const activeOther = otherParty(activeConversation, user?.id);
+  const activeOther = otherParty(activeConversation, userId);
 
   useEffect(() => {
     if (isOpen) refetch();
   }, [isOpen, activeConversationId, refetch]);
-
-  if (!user || user.role === 'admin' || location.pathname === '/beta-vendedores') {
-    return null;
-  }
 
   const handleSupport = async () => {
     try {

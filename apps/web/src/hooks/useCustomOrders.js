@@ -5,6 +5,7 @@ export function useMyOrders() {
   const [orders, setOrders] = useState([]);
 
   const load = useCallback(async () => {
+    if (!localStorage.getItem('token')) return;
     try {
       const res = await api.get('/v1/custom-orders');
       setOrders(res.data.orders || []);

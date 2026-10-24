@@ -23,9 +23,10 @@ api.interceptors.response.use(
     const url = error.config?.url || '';
 
     // Don't redirect on login/register/verify endpoints
-    const isAuthEndpoint = url.includes('/auth/login') || 
-                           url.includes('/auth/register') || 
-                           url.includes('/auth/verify-email');
+    const isAuthEndpoint =
+      url.includes('/auth/login') ||
+      url.includes('/auth/register') ||
+      url.includes('/auth/verify-email');
 
     const status = error.response?.status;
     const message = error.response?.data?.message || '';
@@ -39,7 +40,10 @@ api.interceptors.response.use(
         );
       }
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Avoid a redirect/reload loop when we're already on the login page.
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

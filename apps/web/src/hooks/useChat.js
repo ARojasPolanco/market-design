@@ -7,6 +7,12 @@ export function useConversations() {
   const [error, setError] = useState(null);
 
   const load = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setConversations([]);
+      setIsLoading(false);
+      return;
+    }
     try {
       const res = await api.get('/v1/chat/conversations');
       setConversations(res.data.conversations || []);
@@ -35,6 +41,10 @@ export function useConversation(id) {
 
   const load = useCallback(async () => {
     if (!id) return;
+    if (!localStorage.getItem('token')) {
+      setIsLoading(false);
+      return;
+    }
     try {
       const res = await api.get(`/v1/chat/conversations/${id}/messages`);
       setConversation(res.data.conversation);
