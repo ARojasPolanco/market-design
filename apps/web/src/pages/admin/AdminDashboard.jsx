@@ -20,6 +20,7 @@ import {
   Wrench,
   Download,
   UserPlus,
+  MessageCircle,
 } from 'lucide-react';
 import {
   useAdminStats,
@@ -105,6 +106,7 @@ export default function AdminDashboard() {
           { id: 'categories', label: 'Categorías', icon: Tag },
           { id: 'techniques', label: 'Técnicas', icon: Wrench },
           { id: 'beta', label: 'Beta vendedores', icon: UserPlus },
+          { id: 'chat', label: 'Chats', icon: MessageCircle },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -141,6 +143,9 @@ export default function AdminDashboard() {
 
       {/* Beta signups */}
       {activeTab === 'beta' && <BetaSection />}
+
+      {/* Chat audit */}
+      {activeTab === 'chat' && <ChatAuditSection />}
     </div>
   );
 }
@@ -1902,6 +1907,143 @@ function BetaSection() {
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ChatAuditSection() {
+  const [conversations, setConversations] = useState([]);
+  const [reports, setReports] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [convRes, repRes] = await Promise.all([
+          api.get('/v1/admin/chat/conversations'),
+          api.get('/v1/admin/chat/reports'),
+        ]);
+        setConversations(convRes.data.conversations || []);
+        setReports(repRes.data.reports || []);
+      } catch (_err) {
+        // ignore
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const openConversation = async (conversation) => {
+    setSelected(conversation);
+    setLoadingMessages(true);
+    try {
+      const res = await api.get(`/v1/admin/chat/conversations/${conversation.id}/messages`);
+      setMessages(res.data.messages || []);
+    } catch (_err) {
+      setMessages([]);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  const resolveReport = async (id) => {
+    try {
+      await api.patch(`/v1/admin/chat/reports/${id}`);
+      setReports((prev) => prev.filter((report) => report.id !== id));
+    } catch (_err) {
+      // ignore
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center py-12 text-gray-500">Cargando chats...</div>;
+  }
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b">
+          <h3 className="font-semibold text-gray-900">Conversaciones</h3>
+          <p className="text-xs text-gray-500">El acceso a cada conversación queda registrado.</p>
+        </div>
+        <div className="max-h-[520px] overflow-y-auto divide-y">
+          {conversations.map((conversation) => (
+            <button
+              key={conversation.id}
+              onClick={() => openConversation(conversation)}
+              className="w-full text-left px-6 py-3 hover:bg-gray-50"
+            >
+              <p className="text-sm font-medium text-gray-900">
+                {conversation.type === 'support'
+                  ? 'Soporte'
+                  : `${conversation.buyer?.username || 'Comprador'} ↔ ${
+                      conversation.seller?.storeName || conversation.seller?.username || 'Vendedor'
+                    }`}
+              </p>
+              <p className="text-xs text-gray-500">
+                {conversation.lastMessageAt
+                  ? new Date(conversation.lastMessageAt).toLocaleString('es-AR')
+                  : 'Sin mensajes'}
+              </p>
+            </button>
+          ))}
+          {conversations.length === 0 && (
+            <p className="px-6 py-8 text-sm text-gray-500">Sin conversaciones.</p>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b">
+          <h3 className="font-semibold text-gray-900">{selected ? 'Mensajes' : 'Reportes'}</h3>
+        </div>
+        {selected ? (
+          <div className="p-4 space-y-2 max-h-[520px] overflow-y-auto">
+            <button
+              onClick={() => {
+                setSelected(null);
+                setMessages([]);
+              }}
+              className="text-xs text-brand-teal hover:underline"
+            >
+              ← Volver a reportes
+            </button>
+            {loadingMessages && <p className="text-sm text-gray-500">Cargando mensajes...</p>}
+            {messages.map((message) => (
+              <div key={message.id} className="text-sm">
+                <span className="font-medium text-gray-700">
+                  {message.sender?.username || 'Usuario'}:{' '}
+                </span>
+                <span className="text-gray-600">{message.body}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="divide-y max-h-[520px] overflow-y-auto">
+            {reports.map((report) => (
+              <div key={report.id} className="px-6 py-3">
+                <p className="text-sm text-gray-900">{report.reason}</p>
+                <p className="text-xs text-gray-500">
+                  Mensaje: {report.message?.body?.slice(0, 120)}
+                </p>
+                <button
+                  onClick={() => resolveReport(report.id)}
+                  className="text-xs text-brand-teal hover:underline mt-1"
+                >
+                  Marcar resuelto
+                </button>
+              </div>
+            ))}
+            {reports.length === 0 && (
+              <p className="px-6 py-8 text-sm text-gray-500">Sin reportes pendientes.</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

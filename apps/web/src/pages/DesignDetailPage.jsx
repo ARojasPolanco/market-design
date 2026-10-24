@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   Heart,
   ShoppingCart,
@@ -28,10 +28,12 @@ import SellerReviews from '../components/SellerReviews.jsx';
 import { DetailSkeleton } from '../components/Skeletons.jsx';
 import { ErrorState } from '../components/EmptyStates.jsx';
 import api from '../config/api.js';
+import { createConversation } from '../hooks/useChat.js';
 import logger from '../utils/logger.js';
 
 export default function DesignDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { design, related, reviews, error, isLoading, refetch, replyToRating, removeReply } =
     useDesign(id);
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
@@ -50,6 +52,7 @@ export default function DesignDetailPage() {
   const [purchaseId, setPurchaseId] = useState(null);
   const [hasRated, setHasRated] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [contacting, setContacting] = useState(false);
 
   // Get all preview URLs (support both single and multiple)
   const previewUrls =
@@ -174,6 +177,25 @@ export default function DesignDetailPage() {
       showToast('No se pudo copiar el link', { type: 'error' });
     }
     setShowShareMenu(false);
+  };
+
+  const handleContact = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setContacting(true);
+    try {
+      const conversation = await createConversation({
+        sellerId: design.seller.id,
+        designId: design.id,
+      });
+      navigate(`/mensajes/${conversation.id}`);
+    } catch (err) {
+      showToast(err.response?.data?.message || 'No pudimos abrir el chat.', { type: 'error' });
+    } finally {
+      setContacting(false);
+    }
   };
 
   if (isLoading) return <DetailSkeleton />;
@@ -396,6 +418,13 @@ export default function DesignDetailPage() {
               )}
             </div>
           </div>
+          <button
+            onClick={handleContact}
+            disabled={contacting}
+            className="w-full mb-4 flex items-center justify-center gap-2 border border-dark text-dark py-3 px-6 rounded-lg font-semibold hover:bg-dark hover:text-white transition-colors disabled:opacity-60"
+          >
+            <MessageCircle size={18} /> Pedir una modificación
+          </button>
           {!user && (
             <p className="text-xs text-gray-500 mb-8">
               <Link to="/login" className="text-brand-teal hover:underline">

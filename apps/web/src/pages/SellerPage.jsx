@@ -1,8 +1,12 @@
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Calendar } from 'lucide-react';
+import { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Calendar, MessageCircle } from 'lucide-react';
 import { useSeller } from '../hooks/useSeller.js';
 import { usePublicSellerDesigns } from '../hooks/useDesigns.js';
 import { useUserAchievements } from '../hooks/useAchievements.js';
+import { createConversation } from '../hooks/useChat.js';
+import { useAuth } from '../context/AuthContext.jsx';
+import { useToast } from '../context/ToastContext.jsx';
 import SellerBadge from '../components/SellerBadge.jsx';
 import { RankBadge } from '../components/RankBadge.jsx';
 import DesignCard from '../components/DesignCard.jsx';
@@ -10,9 +14,29 @@ import AchievementGrid from '../components/AchievementGrid.jsx';
 
 export default function SellerPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { showToast } = useToast();
   const { seller, error } = useSeller(id);
   const { designs } = usePublicSellerDesigns(id);
   const { achievements } = useUserAchievements(id);
+  const [contacting, setContacting] = useState(false);
+
+  const handleContact = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setContacting(true);
+    try {
+      const conversation = await createConversation({ sellerId: seller.id });
+      navigate(`/mensajes/${conversation.id}`);
+    } catch (err) {
+      showToast(err.response?.data?.message || 'No pudimos abrir el chat.', { type: 'error' });
+    } finally {
+      setContacting(false);
+    }
+  };
 
   if (error || !seller) {
     return (
@@ -43,7 +67,11 @@ export default function SellerPage() {
       <div className="bg-white rounded-2xl shadow-sm p-8 mb-8">
         <div className="flex flex-col md:flex-row items-start gap-6">
           {seller.avatarUrl ? (
-            <img src={seller.avatarUrl} alt={displayName} className="w-24 h-24 rounded-full object-cover" />
+            <img
+              src={seller.avatarUrl}
+              alt={displayName}
+              className="w-24 h-24 rounded-full object-cover"
+            />
           ) : (
             <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
               <span className="text-3xl font-bold text-gray-500">
@@ -57,9 +85,7 @@ export default function SellerPage() {
               <RankBadge rank={seller.rank} size={24} />
               <SellerBadge seller={seller} size="lg" />
             </div>
-            {seller.description && (
-              <p className="text-gray-600 mb-4">{seller.description}</p>
-            )}
+            {seller.description && <p className="text-gray-600 mb-4">{seller.description}</p>}
             <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500">
               <span>{designs.length} diseños publicados</span>
               <span className="flex items-center gap-1">
@@ -73,6 +99,13 @@ export default function SellerPage() {
                   : 'Fecha no disponible'}
               </span>
             </div>
+            <button
+              onClick={handleContact}
+              disabled={contacting}
+              className="mt-4 inline-flex items-center gap-2 border border-dark text-dark px-4 py-2 rounded-lg font-medium hover:bg-dark hover:text-white transition-colors disabled:opacity-60"
+            >
+              <MessageCircle size={16} /> Contactar
+            </button>
           </div>
         </div>
       </div>

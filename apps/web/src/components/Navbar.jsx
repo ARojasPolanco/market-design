@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Heart, Menu, X, User } from 'lucide-react';
+import { Search, Heart, Menu, X, User, MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useFavorites } from '../context/FavoritesContext.jsx';
@@ -77,6 +77,16 @@ export default function Navbar() {
               )}
             </Link>
             <ThemeToggle />
+            {user && (
+              <Link
+                to="/mensajes"
+                className="text-gray-600 hover:text-gray-900"
+                aria-label="Mensajes"
+                title="Mensajes"
+              >
+                <MessageCircle size={20} />
+              </Link>
+            )}
             {user && <NotificationBell />}
             {user ? (
               <div className="flex items-center gap-4">
@@ -117,6 +127,16 @@ export default function Navbar() {
               )}
             </Link>
             <ThemeToggle />
+            {user && (
+              <Link
+                to="/mensajes"
+                className="text-gray-600"
+                aria-label="Mensajes"
+                onClick={closeMobile}
+              >
+                <MessageCircle size={20} />
+              </Link>
+            )}
             {user && <NotificationBell />}
             <button
               className="text-gray-600"
@@ -156,7 +176,11 @@ export default function Navbar() {
               >
                 Catálogo
               </Link>
-              <Link to="/favoritos" onClick={closeMobile} className="text-gray-600 hover:text-gray-900">
+              <Link
+                to="/favoritos"
+                onClick={closeMobile}
+                className="text-gray-600 hover:text-gray-900"
+              >
                 Favoritos ({favorites.length})
               </Link>
               {user ? (

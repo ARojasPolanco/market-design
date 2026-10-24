@@ -25,6 +25,7 @@ import VerifyEmailPage from './pages/VerifyEmailPage.jsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import BetaLandingPage from './pages/BetaLandingPage.jsx';
+import MessagesPage from './pages/MessagesPage.jsx';
 import ComingSoonPage from './pages/ComingSoonPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 
@@ -70,6 +71,22 @@ function App() {
           <Route path="/recuperar" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/beta-vendedores" element={<BetaLandingPage />} />
+          <Route
+            path="/mensajes"
+            element={
+              <ProtectedRoute>
+                <MessagesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/mensajes/:id"
+            element={
+              <ProtectedRoute>
+                <MessagesPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/vendedor/panel"
             element={
