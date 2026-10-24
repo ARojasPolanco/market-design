@@ -31,6 +31,7 @@ import {
   adminListReports,
   adminResolveReport,
   adminReply,
+  adminUnread,
 } from '../chat/chat.controller.js';
 import {
   grantAchievement,
@@ -97,6 +98,7 @@ router.post('/ranks/calculate', calculateRanks);
 router.get('/beta', getBetaSignups);
 
 // Chat audit (read-only, access is logged)
+router.get('/chat/unread', adminUnread);
 router.get('/chat/conversations', adminListConversations);
 router.get('/chat/conversations/:id/messages', adminGetMessages);
 router.post('/chat/conversations/:id/messages', adminReply);

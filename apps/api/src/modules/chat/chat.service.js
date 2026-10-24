@@ -144,6 +144,26 @@ export class ChatService {
     return await ConversationAccessLog.create({ conversationId, adminId });
   }
 
+  async countUnreadSupportMessages() {
+    return await Message.count({
+      where: { readAt: null },
+      include: [
+        {
+          model: Conversation,
+          as: 'conversation',
+          where: { type: 'support' },
+          attributes: [],
+        },
+        {
+          model: User,
+          as: 'sender',
+          where: { role: { [Op.ne]: 'admin' } },
+          attributes: [],
+        },
+      ],
+    });
+  }
+
   async findAllForAdmin({ type, userId } = {}) {
     const where = {};
     if (type) where.type = type;

@@ -8,14 +8,19 @@ import { useConversations, createConversation } from '../../hooks/useChat.js';
 import { displayName, otherParty } from '../../utils/chat.js';
 import ConversationList from './ConversationList.jsx';
 import ChatWindow from './ChatWindow.jsx';
+import AdminSupportBubble from './AdminSupportBubble.jsx';
 
 export default function ChatWidget() {
   const { user } = useAuth();
   const location = useLocation();
 
   // Don't mount the inner widget (and its polling) unless there is a valid session.
-  if (!user || user.role === 'admin' || location.pathname === '/beta-vendedores') {
+  if (!user || location.pathname === '/beta-vendedores') {
     return null;
+  }
+
+  if (user.role === 'admin') {
+    return <AdminSupportBubble />;
   }
 
   return <ChatWidgetInner userId={user.id} />;
@@ -52,18 +57,20 @@ function ChatWidgetInner({ userId }) {
 
   return (
     <>
-      <button
-        onClick={toggle}
-        aria-label={isOpen ? 'Cerrar mensajes' : 'Abrir mensajes'}
-        className="fixed bottom-6 right-6 z-[96] w-14 h-14 rounded-full bg-dark text-white shadow-xl hover:bg-dark-light transition-colors flex items-center justify-center"
-      >
-        {isOpen ? <X size={22} /> : <MessageCircle size={22} />}
-        {!isOpen && totalUnread > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-brand-teal text-dark text-[11px] font-bold flex items-center justify-center">
-            {totalUnread}
-          </span>
-        )}
-      </button>
+      {!isOpen && (
+        <button
+          onClick={toggle}
+          aria-label="Abrir mensajes"
+          className="fixed bottom-6 right-6 z-[96] w-14 h-14 rounded-full bg-dark text-white shadow-xl hover:bg-dark-light transition-colors flex items-center justify-center"
+        >
+          <MessageCircle size={22} />
+          {totalUnread > 0 && (
+            <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-brand-teal text-dark text-[11px] font-bold flex items-center justify-center">
+              {totalUnread}
+            </span>
+          )}
+        </button>
+      )}
 
       {isOpen && (
         <>

@@ -170,4 +170,13 @@ describe('Chat Module', () => {
     expect(messages.status).toBe(200);
     expect(messages.body.messages.length).toBeGreaterThan(0);
   });
+
+  it('returns the admin unread support count', async () => {
+    const res = await request(server)
+      .get('/api/v1/admin/chat/unread')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(res.status).toBe(200);
+    expect(typeof res.body.total).toBe('number');
+  });
 });

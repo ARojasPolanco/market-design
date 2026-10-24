@@ -220,6 +220,11 @@ export const adminListConversations = catchAsync(async (req, res) => {
   res.status(200).json({ status: 'success', conversations });
 });
 
+export const adminUnread = catchAsync(async (_req, res) => {
+  const total = await chatService.countUnreadSupportMessages();
+  res.status(200).json({ status: 'success', total });
+});
+
 export const adminGetMessages = catchAsync(async (req, res, next) => {
   const conversation = await chatService.findConversation(req.params.id);
   if (!conversation) {
@@ -227,6 +232,7 @@ export const adminGetMessages = catchAsync(async (req, res, next) => {
   }
 
   await chatService.logAccess(conversation.id, req.sessionUser.id);
+  await chatService.markRead(conversation.id, req.sessionUser.id);
   const messages = await chatService.getMessages(conversation.id);
 
   res.status(200).json({ status: 'success', conversation, messages });
